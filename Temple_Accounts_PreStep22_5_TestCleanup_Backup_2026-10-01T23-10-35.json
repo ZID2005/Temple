@@ -1,0 +1,1248 @@
+{
+  "meta": {
+    "appName": "Temple Accounting & Fund Management",
+    "templeName": "Marutha Chamundi Devi Temple / മറുതാ ചാമുണ്ഡി ദേവി ക്ഷേത്രം",
+    "backupType": "PreStep22_5_TestCleanup_Authoritative_Firestore_Backup",
+    "exportedAt": "2026-10-01T17:40:32.952Z",
+    "exportedBy": "rFvStQNfiINnPor66OzXuE1O9Lm1",
+    "exportedByEmail": "vibu@gmail.com",
+    "schemaVersion": 2
+  },
+  "counters": {
+    "billingReceiptCounter": 5,
+    "source": "indexeddb_clean_production",
+    "receiptPrefix": "R-",
+    "billingPrefix": "BILL-",
+    "updatedAt": {
+      "seconds": 1790868905,
+      "nanoseconds": 200000000
+    },
+    "initializedAt": {
+      "seconds": 1790526539,
+      "nanoseconds": 568000000
+    },
+    "receiptCounter": 1005,
+    "billingReceiptPrefix": "BILL-",
+    "voucherCounter": 500,
+    "voucherPrefix": "V-"
+  },
+  "collections": {
+    "settings": [
+      {
+        "firestoreId": "set_1",
+        "voucherCounter": 500,
+        "openingPunarudharanamFund": 0,
+        "voucherPrefix": "V-",
+        "source": "indexeddb",
+        "receiptPrefix": "R-",
+        "phone": "",
+        "id": 1,
+        "email": "",
+        "address": "ആശാരിവിളാകം കേരളദിത്യപുരം",
+        "templeName": "മറുതാ ചാമുണ്ഡി ദേവി ക്ഷേത്രം",
+        "financialYear": "2026-27",
+        "migratedAt": "2026-09-27T16:28:58.632Z",
+        "openingLoans": 0,
+        "openingBank": 0,
+        "openingGeneralFund": 0,
+        "receiptCounter": 1000,
+        "startDate": "2026-09-26",
+        "billingReceiptCounter": 0,
+        "openingCash": 0,
+        "currencySymbol": "₹",
+        "openingChittyBalance": 0,
+        "legacyId": 1
+      }
+    ],
+    "funds": [
+      {
+        "firestoreId": "fund_1",
+        "legacyId": 1,
+        "migratedAt": "2026-09-27T16:28:58.632Z",
+        "id": 1,
+        "source": "indexeddb",
+        "name": "General Temple Fund"
+      },
+      {
+        "firestoreId": "fund_2",
+        "source": "indexeddb",
+        "name": "Punarudharanam Fund",
+        "id": 2,
+        "legacyId": 2,
+        "migratedAt": "2026-09-27T16:28:58.632Z"
+      },
+      {
+        "firestoreId": "fund_3",
+        "id": 3,
+        "name": "Chitty Fund",
+        "source": "indexeddb",
+        "migratedAt": "2026-09-27T16:28:58.632Z",
+        "legacyId": 3
+      },
+      {
+        "firestoreId": "fund_4",
+        "id": 4,
+        "legacyId": 4,
+        "name": "Festival Fund",
+        "source": "indexeddb",
+        "migratedAt": "2026-09-27T16:28:58.632Z"
+      },
+      {
+        "firestoreId": "fund_5",
+        "legacyId": 5,
+        "name": "Donation / Restricted Fund",
+        "source": "indexeddb",
+        "id": 5,
+        "migratedAt": "2026-09-27T16:28:58.632Z"
+      },
+      {
+        "firestoreId": "fund_6",
+        "legacyId": 6,
+        "migratedAt": "2026-09-27T16:28:58.632Z",
+        "source": "indexeddb",
+        "name": "Other Fund",
+        "id": 6
+      }
+    ],
+    "incomeCategories": [
+      {
+        "firestoreId": "incomeCat_1",
+        "legacyId": 1,
+        "id": 1,
+        "migratedAt": "2026-09-27T16:28:58.632Z",
+        "name": "Pooja Income",
+        "source": "indexeddb"
+      },
+      {
+        "firestoreId": "incomeCat_2",
+        "id": 2,
+        "legacyId": 2,
+        "name": "Archana Income",
+        "source": "indexeddb",
+        "migratedAt": "2026-09-27T16:28:58.632Z"
+      },
+      {
+        "firestoreId": "incomeCat_3",
+        "source": "indexeddb",
+        "legacyId": 3,
+        "name": "Vazhipadu Income",
+        "id": 3,
+        "migratedAt": "2026-09-27T16:28:58.632Z"
+      },
+      {
+        "firestoreId": "incomeCat_4",
+        "id": 4,
+        "source": "indexeddb",
+        "migratedAt": "2026-09-27T16:28:58.632Z",
+        "name": "Donation Income",
+        "legacyId": 4
+      },
+      {
+        "firestoreId": "incomeCat_5",
+        "migratedAt": "2026-09-27T16:28:58.632Z",
+        "id": 5,
+        "name": "Festival Collection",
+        "legacyId": 5,
+        "source": "indexeddb"
+      },
+      {
+        "firestoreId": "incomeCat_6",
+        "id": 6,
+        "source": "indexeddb",
+        "legacyId": 6,
+        "name": "General Contribution",
+        "migratedAt": "2026-09-27T16:28:58.632Z"
+      },
+      {
+        "firestoreId": "incomeCat_7",
+        "name": "Other Income",
+        "source": "indexeddb",
+        "id": 7,
+        "legacyId": 7,
+        "migratedAt": "2026-09-27T16:28:58.632Z"
+      }
+    ],
+    "expenseCategories": [
+      {
+        "firestoreId": "expenseCat_1",
+        "source": "indexeddb",
+        "legacyId": 1,
+        "migratedAt": "2026-09-27T16:28:58.632Z",
+        "id": 1,
+        "name": "Flower"
+      },
+      {
+        "firestoreId": "expenseCat_10",
+        "legacyId": 10,
+        "id": 10,
+        "name": "Food",
+        "source": "indexeddb",
+        "migratedAt": "2026-09-27T16:28:58.632Z"
+      },
+      {
+        "firestoreId": "expenseCat_11",
+        "source": "indexeddb",
+        "migratedAt": "2026-09-27T16:28:58.632Z",
+        "name": "Water",
+        "legacyId": 11,
+        "id": 11
+      },
+      {
+        "firestoreId": "expenseCat_12",
+        "id": 12,
+        "legacyId": 12,
+        "migratedAt": "2026-09-27T16:28:58.632Z",
+        "name": "Electricity",
+        "source": "indexeddb"
+      },
+      {
+        "firestoreId": "expenseCat_13",
+        "id": 13,
+        "source": "indexeddb",
+        "name": "Gas",
+        "legacyId": 13,
+        "migratedAt": "2026-09-27T16:28:58.632Z"
+      },
+      {
+        "firestoreId": "expenseCat_14",
+        "migratedAt": "2026-09-27T16:28:58.632Z",
+        "id": 14,
+        "source": "indexeddb",
+        "legacyId": 14,
+        "name": "Cleaning Materials"
+      },
+      {
+        "firestoreId": "expenseCat_15",
+        "source": "indexeddb",
+        "legacyId": 15,
+        "migratedAt": "2026-09-27T16:28:58.632Z",
+        "id": 15,
+        "name": "Cleaning Charges"
+      },
+      {
+        "firestoreId": "expenseCat_16",
+        "source": "indexeddb",
+        "migratedAt": "2026-09-27T16:28:58.632Z",
+        "name": "Building Repair",
+        "legacyId": 16,
+        "id": 16
+      },
+      {
+        "firestoreId": "expenseCat_17",
+        "id": 17,
+        "legacyId": 17,
+        "name": "Roof Repair",
+        "migratedAt": "2026-09-27T16:28:58.632Z",
+        "source": "indexeddb"
+      },
+      {
+        "firestoreId": "expenseCat_18",
+        "legacyId": 18,
+        "migratedAt": "2026-09-27T16:28:58.632Z",
+        "id": 18,
+        "name": "Electrical Repair",
+        "source": "indexeddb"
+      },
+      {
+        "firestoreId": "expenseCat_19",
+        "id": 19,
+        "source": "indexeddb",
+        "name": "Plumbing Repair",
+        "migratedAt": "2026-09-27T16:28:58.632Z",
+        "legacyId": 19
+      },
+      {
+        "firestoreId": "expenseCat_2",
+        "id": 2,
+        "name": "Oil",
+        "source": "indexeddb",
+        "migratedAt": "2026-09-27T16:28:58.632Z",
+        "legacyId": 2
+      },
+      {
+        "firestoreId": "expenseCat_20",
+        "name": "Painting",
+        "migratedAt": "2026-09-27T16:28:58.632Z",
+        "legacyId": 20,
+        "source": "indexeddb",
+        "id": 20
+      },
+      {
+        "firestoreId": "expenseCat_21",
+        "migratedAt": "2026-09-27T16:28:58.632Z",
+        "source": "indexeddb",
+        "legacyId": 21,
+        "id": 21,
+        "name": "Carpentry"
+      },
+      {
+        "firestoreId": "expenseCat_22",
+        "source": "indexeddb",
+        "id": 22,
+        "migratedAt": "2026-09-27T16:28:58.632Z",
+        "name": "Mason Work",
+        "legacyId": 22
+      },
+      {
+        "firestoreId": "expenseCat_23",
+        "migratedAt": "2026-09-27T16:28:58.632Z",
+        "legacyId": 23,
+        "id": 23,
+        "source": "indexeddb",
+        "name": "General Maintenance"
+      },
+      {
+        "firestoreId": "expenseCat_24",
+        "migratedAt": "2026-09-27T16:28:58.632Z",
+        "name": "Equipment Repair",
+        "legacyId": 24,
+        "id": 24,
+        "source": "indexeddb"
+      },
+      {
+        "firestoreId": "expenseCat_25",
+        "migratedAt": "2026-09-27T16:28:58.632Z",
+        "source": "indexeddb",
+        "legacyId": 25,
+        "name": "Garden Maintenance",
+        "id": 25
+      },
+      {
+        "firestoreId": "expenseCat_26",
+        "source": "indexeddb",
+        "id": 26,
+        "name": "Salary",
+        "migratedAt": "2026-09-27T16:28:58.632Z",
+        "legacyId": 26
+      },
+      {
+        "firestoreId": "expenseCat_27",
+        "id": 27,
+        "name": "Priest Payment",
+        "source": "indexeddb",
+        "migratedAt": "2026-09-27T16:28:58.632Z",
+        "legacyId": 27
+      },
+      {
+        "firestoreId": "expenseCat_28",
+        "source": "indexeddb",
+        "id": 28,
+        "name": "Cleaning Staff",
+        "migratedAt": "2026-09-27T16:28:58.632Z",
+        "legacyId": 28
+      },
+      {
+        "firestoreId": "expenseCat_29",
+        "legacyId": 29,
+        "source": "indexeddb",
+        "id": 29,
+        "migratedAt": "2026-09-27T16:28:58.632Z",
+        "name": "Security"
+      },
+      {
+        "firestoreId": "expenseCat_3",
+        "name": "Camphor",
+        "id": 3,
+        "legacyId": 3,
+        "migratedAt": "2026-09-27T16:28:58.632Z",
+        "source": "indexeddb"
+      },
+      {
+        "firestoreId": "expenseCat_30",
+        "source": "indexeddb",
+        "name": "Festival Labour",
+        "migratedAt": "2026-09-27T16:28:58.632Z",
+        "legacyId": 30,
+        "id": 30
+      },
+      {
+        "firestoreId": "expenseCat_31",
+        "legacyId": 31,
+        "migratedAt": "2026-09-27T16:28:58.632Z",
+        "source": "indexeddb",
+        "id": 31,
+        "name": "Other Service Charges"
+      },
+      {
+        "firestoreId": "expenseCat_32",
+        "legacyId": 32,
+        "source": "indexeddb",
+        "id": 32,
+        "name": "Chenda",
+        "migratedAt": "2026-09-27T16:28:58.632Z"
+      },
+      {
+        "firestoreId": "expenseCat_33",
+        "migratedAt": "2026-09-27T16:28:58.632Z",
+        "source": "indexeddb",
+        "legacyId": 33,
+        "id": 33,
+        "name": "Melam"
+      },
+      {
+        "firestoreId": "expenseCat_34",
+        "id": 34,
+        "legacyId": 34,
+        "migratedAt": "2026-09-27T16:28:58.632Z",
+        "name": "Decoration",
+        "source": "indexeddb"
+      },
+      {
+        "firestoreId": "expenseCat_35",
+        "id": 35,
+        "legacyId": 35,
+        "source": "indexeddb",
+        "migratedAt": "2026-09-27T16:28:58.632Z",
+        "name": "Lighting"
+      },
+      {
+        "firestoreId": "expenseCat_36",
+        "legacyId": 36,
+        "migratedAt": "2026-09-27T16:28:58.632Z",
+        "source": "indexeddb",
+        "id": 36,
+        "name": "Sound System"
+      },
+      {
+        "firestoreId": "expenseCat_37",
+        "id": 37,
+        "legacyId": 37,
+        "source": "indexeddb",
+        "name": "Printing",
+        "migratedAt": "2026-09-27T16:28:58.632Z"
+      },
+      {
+        "firestoreId": "expenseCat_38",
+        "migratedAt": "2026-09-27T16:28:58.632Z",
+        "legacyId": 38,
+        "source": "indexeddb",
+        "name": "Advertisement",
+        "id": 38
+      },
+      {
+        "firestoreId": "expenseCat_39",
+        "id": 39,
+        "legacyId": 39,
+        "source": "indexeddb",
+        "migratedAt": "2026-09-27T16:28:58.632Z",
+        "name": "Annadanam"
+      },
+      {
+        "firestoreId": "expenseCat_4",
+        "id": 4,
+        "legacyId": 4,
+        "source": "indexeddb",
+        "migratedAt": "2026-09-27T16:28:58.632Z",
+        "name": "Incense"
+      },
+      {
+        "firestoreId": "expenseCat_40",
+        "id": 40,
+        "source": "indexeddb",
+        "migratedAt": "2026-09-27T16:28:58.632Z",
+        "legacyId": 40,
+        "name": "Transportation"
+      },
+      {
+        "firestoreId": "expenseCat_41",
+        "name": "Temporary Labour",
+        "migratedAt": "2026-09-27T16:28:58.632Z",
+        "id": 41,
+        "source": "indexeddb",
+        "legacyId": 41
+      },
+      {
+        "firestoreId": "expenseCat_42",
+        "source": "indexeddb",
+        "name": "Festival Materials",
+        "migratedAt": "2026-09-27T16:28:58.632Z",
+        "legacyId": 42,
+        "id": 42
+      },
+      {
+        "firestoreId": "expenseCat_43",
+        "migratedAt": "2026-09-27T16:28:58.632Z",
+        "source": "indexeddb",
+        "id": 43,
+        "name": "Stationery",
+        "legacyId": 43
+      },
+      {
+        "firestoreId": "expenseCat_44",
+        "id": 44,
+        "migratedAt": "2026-09-27T16:28:58.632Z",
+        "name": "Receipt Books",
+        "legacyId": 44,
+        "source": "indexeddb"
+      },
+      {
+        "firestoreId": "expenseCat_45",
+        "legacyId": 45,
+        "source": "indexeddb",
+        "migratedAt": "2026-09-27T16:28:58.632Z",
+        "id": 45,
+        "name": "Registers"
+      },
+      {
+        "firestoreId": "expenseCat_46",
+        "legacyId": 46,
+        "name": "Computer Expense",
+        "migratedAt": "2026-09-27T16:28:58.632Z",
+        "source": "indexeddb",
+        "id": 46
+      },
+      {
+        "firestoreId": "expenseCat_47",
+        "legacyId": 47,
+        "id": 47,
+        "migratedAt": "2026-09-27T16:28:58.632Z",
+        "name": "Internet",
+        "source": "indexeddb"
+      },
+      {
+        "firestoreId": "expenseCat_48",
+        "source": "indexeddb",
+        "legacyId": 48,
+        "id": 48,
+        "migratedAt": "2026-09-27T16:28:58.632Z",
+        "name": "Telephone"
+      },
+      {
+        "firestoreId": "expenseCat_49",
+        "migratedAt": "2026-09-27T16:28:58.632Z",
+        "id": 49,
+        "name": "Bank Charges",
+        "source": "indexeddb",
+        "legacyId": 49
+      },
+      {
+        "firestoreId": "expenseCat_5",
+        "name": "Pooja Materials",
+        "migratedAt": "2026-09-27T16:28:58.632Z",
+        "id": 5,
+        "legacyId": 5,
+        "source": "indexeddb"
+      },
+      {
+        "firestoreId": "expenseCat_50",
+        "id": 50,
+        "migratedAt": "2026-09-27T16:28:58.632Z",
+        "name": "Postage",
+        "legacyId": 50,
+        "source": "indexeddb"
+      },
+      {
+        "firestoreId": "expenseCat_51",
+        "migratedAt": "2026-09-27T16:28:58.632Z",
+        "id": 51,
+        "name": "Travel",
+        "legacyId": 51,
+        "source": "indexeddb"
+      },
+      {
+        "firestoreId": "expenseCat_52",
+        "source": "indexeddb",
+        "name": "Office Expense",
+        "migratedAt": "2026-09-27T16:28:58.632Z",
+        "id": 52,
+        "legacyId": 52
+      },
+      {
+        "firestoreId": "expenseCat_53",
+        "id": 53,
+        "source": "indexeddb",
+        "name": "Archana Materials",
+        "legacyId": 53,
+        "migratedAt": "2026-09-27T16:28:58.632Z"
+      },
+      {
+        "firestoreId": "expenseCat_54",
+        "migratedAt": "2026-09-27T16:28:58.632Z",
+        "source": "indexeddb",
+        "legacyId": 54,
+        "id": 54,
+        "name": "Garland"
+      },
+      {
+        "firestoreId": "expenseCat_55",
+        "migratedAt": "2026-09-27T16:28:58.632Z",
+        "legacyId": 55,
+        "id": 55,
+        "name": "Naivedyam",
+        "source": "indexeddb"
+      },
+      {
+        "firestoreId": "expenseCat_56",
+        "migratedAt": "2026-09-27T16:28:58.632Z",
+        "id": 56,
+        "name": "Special Pooja Expense",
+        "legacyId": 56,
+        "source": "indexeddb"
+      },
+      {
+        "firestoreId": "expenseCat_57",
+        "legacyId": 57,
+        "source": "indexeddb",
+        "id": 57,
+        "migratedAt": "2026-09-27T16:28:58.632Z",
+        "name": "Cement"
+      },
+      {
+        "firestoreId": "expenseCat_58",
+        "name": "Sand",
+        "id": 58,
+        "legacyId": 58,
+        "source": "indexeddb",
+        "migratedAt": "2026-09-27T16:28:58.632Z"
+      },
+      {
+        "firestoreId": "expenseCat_59",
+        "migratedAt": "2026-09-27T16:28:58.632Z",
+        "id": 59,
+        "source": "indexeddb",
+        "name": "Stone",
+        "legacyId": 59
+      },
+      {
+        "firestoreId": "expenseCat_6",
+        "id": 6,
+        "migratedAt": "2026-09-27T16:28:58.632Z",
+        "source": "indexeddb",
+        "legacyId": 6,
+        "name": "Milk"
+      },
+      {
+        "firestoreId": "expenseCat_60",
+        "name": "Bricks",
+        "migratedAt": "2026-09-27T16:28:58.632Z",
+        "legacyId": 60,
+        "id": 60,
+        "source": "indexeddb"
+      },
+      {
+        "firestoreId": "expenseCat_61",
+        "name": "Tiles",
+        "migratedAt": "2026-09-27T16:28:58.632Z",
+        "id": 61,
+        "legacyId": 61,
+        "source": "indexeddb"
+      },
+      {
+        "firestoreId": "expenseCat_62",
+        "id": 62,
+        "legacyId": 62,
+        "migratedAt": "2026-09-27T16:28:58.632Z",
+        "source": "indexeddb",
+        "name": "Wood"
+      },
+      {
+        "firestoreId": "expenseCat_63",
+        "legacyId": 63,
+        "name": "Roofing",
+        "migratedAt": "2026-09-27T16:28:58.632Z",
+        "source": "indexeddb",
+        "id": 63
+      },
+      {
+        "firestoreId": "expenseCat_64",
+        "legacyId": 64,
+        "id": 64,
+        "source": "indexeddb",
+        "name": "Doors",
+        "migratedAt": "2026-09-27T16:28:58.632Z"
+      },
+      {
+        "firestoreId": "expenseCat_65",
+        "legacyId": 65,
+        "id": 65,
+        "source": "indexeddb",
+        "name": "Windows",
+        "migratedAt": "2026-09-27T16:28:58.632Z"
+      },
+      {
+        "firestoreId": "expenseCat_66",
+        "migratedAt": "2026-09-27T16:28:58.632Z",
+        "source": "indexeddb",
+        "id": 66,
+        "legacyId": 66,
+        "name": "Labour"
+      },
+      {
+        "firestoreId": "expenseCat_67",
+        "name": "Contractor",
+        "id": 67,
+        "legacyId": 67,
+        "source": "indexeddb",
+        "migratedAt": "2026-09-27T16:28:58.632Z"
+      },
+      {
+        "firestoreId": "expenseCat_68",
+        "name": "Equipment Hire",
+        "id": 68,
+        "source": "indexeddb",
+        "legacyId": 68,
+        "migratedAt": "2026-09-27T16:28:58.632Z"
+      },
+      {
+        "firestoreId": "expenseCat_69",
+        "migratedAt": "2026-09-27T16:28:58.632Z",
+        "source": "indexeddb",
+        "id": 69,
+        "name": "Emergency Expense",
+        "legacyId": 69
+      },
+      {
+        "firestoreId": "expenseCat_7",
+        "migratedAt": "2026-09-27T16:28:58.632Z",
+        "id": 7,
+        "name": "Fruits",
+        "source": "indexeddb",
+        "legacyId": 7
+      },
+      {
+        "firestoreId": "expenseCat_70",
+        "source": "indexeddb",
+        "name": "Miscellaneous",
+        "legacyId": 70,
+        "id": 70,
+        "migratedAt": "2026-09-27T16:28:58.632Z"
+      },
+      {
+        "firestoreId": "expenseCat_71",
+        "legacyId": 71,
+        "source": "indexeddb",
+        "name": "Other",
+        "id": 71,
+        "migratedAt": "2026-09-27T16:28:58.632Z"
+      },
+      {
+        "firestoreId": "expenseCat_8",
+        "name": "Vegetables",
+        "id": 8,
+        "source": "indexeddb",
+        "migratedAt": "2026-09-27T16:28:58.632Z",
+        "legacyId": 8
+      },
+      {
+        "firestoreId": "expenseCat_9",
+        "id": 9,
+        "name": "Payasam",
+        "migratedAt": "2026-09-27T16:28:58.632Z",
+        "legacyId": 9,
+        "source": "indexeddb"
+      }
+    ],
+    "bankAccounts": [
+      {
+        "firestoreId": "bank_1",
+        "legacyId": 1,
+        "source": "indexeddb",
+        "migratedAt": "2026-09-27T16:28:58.632Z",
+        "isDefault": true,
+        "id": 1,
+        "name": "Canara Bank"
+      }
+    ],
+    "billing": [
+      {
+        "firestoreId": "bill_3",
+        "quantity": 1,
+        "totalAmount": 20,
+        "item": "അർച്ചന",
+        "paymentMode": "Cash",
+        "category": "വഴിപാട്",
+        "accountingReceiptId": "rcpt_1003",
+        "devoteeName": "akhil",
+        "receiptNo": "BILL-0003",
+        "updatedBy": "rFvStQNfiINnPor66OzXuE1O9Lm1",
+        "createdBy": "rFvStQNfiINnPor66OzXuE1O9Lm1",
+        "star": "bharani",
+        "updatedAt": {
+          "seconds": 1790785079,
+          "nanoseconds": 843000000
+        },
+        "legacyId": 3,
+        "time": "09:47 pm",
+        "unitPrice": 20,
+        "accountingReceiptNo": "R-1003",
+        "date": "30/09/2026",
+        "createdAt": 1790785079889,
+        "source": "firestore",
+        "id": 3
+      },
+      {
+        "firestoreId": "bill_4",
+        "date": "01/10/2026",
+        "createdAt": 1790868890412,
+        "category": "വഴിപാട്",
+        "unitPrice": 20,
+        "accountingReceiptNo": "R-1004",
+        "time": "09:04 pm",
+        "paymentMode": "Cash",
+        "updatedAt": {
+          "seconds": 1790868890,
+          "nanoseconds": 612000000
+        },
+        "createdBy": "rFvStQNfiINnPor66OzXuE1O9Lm1",
+        "updatedBy": "rFvStQNfiINnPor66OzXuE1O9Lm1",
+        "quantity": 1,
+        "receiptNo": "BILL-0004",
+        "star": "",
+        "totalAmount": 20,
+        "accountingReceiptId": "rcpt_1004",
+        "legacyId": 4,
+        "source": "firestore",
+        "item": "അർച്ചന",
+        "id": 4,
+        "devoteeName": "manoj"
+      },
+      {
+        "firestoreId": "bill_5",
+        "item": "അർച്ചന",
+        "createdAt": 1790868905016,
+        "devoteeName": "manoj",
+        "updatedAt": {
+          "seconds": 1790868905,
+          "nanoseconds": 200000000
+        },
+        "unitPrice": 20,
+        "id": 5,
+        "legacyId": 5,
+        "accountingReceiptNo": "R-1005",
+        "source": "firestore",
+        "receiptNo": "BILL-0005",
+        "updatedBy": "rFvStQNfiINnPor66OzXuE1O9Lm1",
+        "createdBy": "rFvStQNfiINnPor66OzXuE1O9Lm1",
+        "category": "വഴിപാട്",
+        "time": "09:05 pm",
+        "accountingReceiptId": "rcpt_1005",
+        "star": "bharani",
+        "totalAmount": 20,
+        "quantity": 1,
+        "date": "01/10/2026",
+        "paymentMode": "UPI"
+      }
+    ],
+    "receipts": [
+      {
+        "firestoreId": "rcpt_1001",
+        "billingReceiptNo": "BILL-0001",
+        "mobile": "",
+        "billingId": 1,
+        "id": 1001,
+        "voided": true,
+        "date": "2026-09-27",
+        "description": "അർച്ചന | Star: STEP16",
+        "amount": 20,
+        "source": "billing",
+        "createdAt": 1790529869027,
+        "bankAccount": "",
+        "createdBy": "rFvStQNfiINnPor66OzXuE1O9Lm1",
+        "voidDate": "2026-09-27",
+        "paymentMode": "Cash",
+        "voidReason": "Source Billing Receipt BILL-0001 was deleted/voided",
+        "legacyId": 1001,
+        "billingFirestoreId": "bill_1",
+        "remarks": "Billing Receipt: BILL-0001",
+        "category": "Vazhipadu Income",
+        "updatedAt": {
+          "seconds": 1790529877,
+          "nanoseconds": 854000000
+        },
+        "name": "STEP16 SMOKE TEST",
+        "updatedBy": "rFvStQNfiINnPor66OzXuE1O9Lm1",
+        "fund": "General Temple Fund",
+        "receiptNo": "R-1001"
+      },
+      {
+        "firestoreId": "rcpt_1002",
+        "billingId": 2,
+        "name": "midhun",
+        "fund": "General Temple Fund",
+        "category": "Vazhipadu Income",
+        "billingReceiptNo": "BILL-0002",
+        "createdAt": 1790535230237,
+        "legacyId": 1002,
+        "createdBy": "rFvStQNfiINnPor66OzXuE1O9Lm1",
+        "voidReason": "Source Billing Receipt BILL-0002 was deleted/voided",
+        "paymentMode": "Cash",
+        "voided": true,
+        "bankAccount": "",
+        "mobile": "",
+        "voidDate": "2026-09-30",
+        "description": "അർച്ചന | Star: revathu",
+        "date": "2026-09-28",
+        "billingFirestoreId": "bill_2",
+        "remarks": "Billing Receipt: BILL-0002",
+        "id": 1002,
+        "updatedAt": {
+          "seconds": 1790775126,
+          "nanoseconds": 387000000
+        },
+        "source": "billing",
+        "amount": 20,
+        "updatedBy": "rFvStQNfiINnPor66OzXuE1O9Lm1",
+        "receiptNo": "R-1002"
+      },
+      {
+        "firestoreId": "rcpt_1003",
+        "id": 1003,
+        "createdAt": 1790785079889,
+        "mobile": "",
+        "billingReceiptNo": "BILL-0003",
+        "legacyId": 1003,
+        "createdBy": "rFvStQNfiINnPor66OzXuE1O9Lm1",
+        "updatedBy": "rFvStQNfiINnPor66OzXuE1O9Lm1",
+        "voided": false,
+        "receiptNo": "R-1003",
+        "date": "2026-09-30",
+        "updatedAt": {
+          "seconds": 1790785079,
+          "nanoseconds": 843000000
+        },
+        "paymentMode": "Cash",
+        "billingId": 3,
+        "amount": 20,
+        "source": "billing",
+        "billingFirestoreId": "bill_3",
+        "bankAccount": "",
+        "remarks": "Billing Receipt: BILL-0003",
+        "category": "Vazhipadu Income",
+        "description": "അർച്ചന | Star: bharani",
+        "name": "akhil",
+        "fund": "General Temple Fund"
+      },
+      {
+        "firestoreId": "rcpt_1004",
+        "billingFirestoreId": "bill_4",
+        "mobile": "",
+        "remarks": "Billing Receipt: BILL-0004",
+        "date": "2026-10-01",
+        "billingReceiptNo": "BILL-0004",
+        "billingId": 4,
+        "legacyId": 1004,
+        "voided": false,
+        "receiptNo": "R-1004",
+        "source": "billing",
+        "category": "Vazhipadu Income",
+        "createdBy": "rFvStQNfiINnPor66OzXuE1O9Lm1",
+        "updatedBy": "rFvStQNfiINnPor66OzXuE1O9Lm1",
+        "bankAccount": "",
+        "updatedAt": {
+          "seconds": 1790868890,
+          "nanoseconds": 612000000
+        },
+        "amount": 20,
+        "description": "അർച്ചന",
+        "createdAt": 1790868890412,
+        "fund": "General Temple Fund",
+        "name": "manoj",
+        "paymentMode": "Cash",
+        "id": 1004
+      },
+      {
+        "firestoreId": "rcpt_1005",
+        "createdBy": "rFvStQNfiINnPor66OzXuE1O9Lm1",
+        "updatedBy": "rFvStQNfiINnPor66OzXuE1O9Lm1",
+        "receiptNo": "R-1005",
+        "amount": 20,
+        "source": "billing",
+        "updatedAt": {
+          "seconds": 1790868905,
+          "nanoseconds": 200000000
+        },
+        "id": 1005,
+        "fund": "General Temple Fund",
+        "createdAt": 1790868905016,
+        "name": "manoj",
+        "category": "Vazhipadu Income",
+        "billingFirestoreId": "bill_5",
+        "mobile": "",
+        "legacyId": 1005,
+        "paymentMode": "UPI",
+        "billingReceiptNo": "BILL-0005",
+        "description": "അർച്ചന | Star: bharani",
+        "billingId": 5,
+        "date": "2026-10-01",
+        "voided": false,
+        "remarks": "Billing Receipt: BILL-0005",
+        "bankAccount": "Canara Bank"
+      }
+    ],
+    "payments": [],
+    "transfers": [],
+    "chittyMembers": [],
+    "chittyCollections": [],
+    "chittyPayouts": [],
+    "loans": [],
+    "migration_staging": [
+      {
+        "firestoreId": "migration_2026-09-27T15-29-05",
+        "totalWritten": 106,
+        "storeWriteResults": {
+          "loans": {
+            "written": 0,
+            "skipped": 0,
+            "requested": 0
+          },
+          "transfers": {
+            "skipped": 0,
+            "requested": 0,
+            "written": 0
+          },
+          "bankAccounts": {
+            "skipped": 0,
+            "requested": 1,
+            "written": 1
+          },
+          "funds": {
+            "requested": 6,
+            "written": 6,
+            "skipped": 0
+          },
+          "receipts": {
+            "requested": 3,
+            "written": 3,
+            "skipped": 0
+          },
+          "chittyCollections": {
+            "skipped": 0,
+            "requested": 0,
+            "written": 0
+          },
+          "settings": {
+            "written": 1,
+            "requested": 1,
+            "skipped": 0
+          },
+          "expenseCategories": {
+            "written": 71,
+            "requested": 71,
+            "skipped": 0
+          },
+          "payments": {
+            "requested": 0,
+            "written": 0,
+            "skipped": 0
+          },
+          "chittyPayouts": {
+            "skipped": 0,
+            "written": 0,
+            "requested": 0
+          },
+          "chittyMembers": {
+            "requested": 0,
+            "skipped": 0,
+            "written": 0
+          },
+          "billing": {
+            "requested": 17,
+            "skipped": 0,
+            "written": 17
+          },
+          "incomeCategories": {
+            "written": 7,
+            "requested": 7,
+            "skipped": 0
+          }
+        },
+        "financialTotalsRupees": {
+          "expenseCategories": 0,
+          "chittyPayouts": 0,
+          "chittyCollections": 0,
+          "chittyMembers": 0,
+          "bankAccounts": 0,
+          "settings": 0,
+          "receipts": 670,
+          "billing": 508451,
+          "funds": 0,
+          "transfers": 0,
+          "incomeCategories": 0,
+          "loans": 0,
+          "payments": 0
+        },
+        "migratedBy": {
+          "email": "vibu@gmail.com",
+          "uid": "rFvStQNfiINnPor66OzXuE1O9Lm1"
+        },
+        "billingAccountingLinks": {
+          "validLinks": 3,
+          "totalBilling": 17,
+          "details": [
+            {
+              "billingId": 1,
+              "billingReceiptNo": "BILL-0001",
+              "reason": "Pre-integration billing record",
+              "unlinked": true
+            },
+            {
+              "unlinked": true,
+              "reason": "Pre-integration billing record",
+              "billingId": 2,
+              "billingReceiptNo": "BILL-0002"
+            },
+            {
+              "billingId": 3,
+              "billingReceiptNo": "BILL-0003",
+              "unlinked": true,
+              "reason": "Pre-integration billing record"
+            },
+            {
+              "unlinked": true,
+              "billingReceiptNo": "BILL-0004",
+              "reason": "Pre-integration billing record",
+              "billingId": 4
+            },
+            {
+              "unlinked": true,
+              "billingId": 5,
+              "reason": "Pre-integration billing record",
+              "billingReceiptNo": "BILL-0005"
+            },
+            {
+              "billingReceiptNo": "BILL-0006",
+              "billingId": 6,
+              "unlinked": true,
+              "reason": "Pre-integration billing record"
+            },
+            {
+              "billingId": 7,
+              "billingReceiptNo": "BILL-0007",
+              "reason": "Pre-integration billing record",
+              "unlinked": true
+            },
+            {
+              "billingReceiptNo": "BILL-0008",
+              "unlinked": true,
+              "billingId": 8,
+              "reason": "Pre-integration billing record"
+            },
+            {
+              "billingReceiptNo": "BILL-0009",
+              "billingId": 9,
+              "unlinked": true,
+              "reason": "Pre-integration billing record"
+            },
+            {
+              "billingId": 10,
+              "unlinked": true,
+              "reason": "Pre-integration billing record",
+              "billingReceiptNo": "BILL-0010"
+            },
+            {
+              "billingReceiptNo": "BILL-0011",
+              "unlinked": true,
+              "billingId": 11,
+              "reason": "Pre-integration billing record"
+            },
+            {
+              "reason": "Pre-integration billing record",
+              "billingId": 12,
+              "unlinked": true,
+              "billingReceiptNo": "BILL-0012"
+            },
+            {
+              "billingReceiptNo": "BILL-0013",
+              "unlinked": true,
+              "billingId": 13,
+              "reason": "Pre-integration billing record"
+            },
+            {
+              "reason": "Pre-integration billing record",
+              "unlinked": true,
+              "billingReceiptNo": "BILL-0014",
+              "billingId": 14
+            },
+            {
+              "billingReceiptNo": "BILL-0015",
+              "accountingReceiptNo": "R-1001",
+              "accountingReceiptId": 1,
+              "valid": true,
+              "amountMatch": true,
+              "billingId": 15
+            },
+            {
+              "billingId": 16,
+              "amountMatch": true,
+              "valid": true,
+              "accountingReceiptNo": "R-1002",
+              "billingReceiptNo": "BILL-0016",
+              "accountingReceiptId": 2
+            },
+            {
+              "accountingReceiptId": 3,
+              "valid": true,
+              "billingId": 17,
+              "amountMatch": true,
+              "billingReceiptNo": "BILL-0017",
+              "accountingReceiptNo": "R-1003"
+            }
+          ],
+          "unlinked": 14,
+          "invalidLinks": 0
+        },
+        "storesCount": {
+          "chittyCollections": 0,
+          "expenseCategories": 71,
+          "payments": 0,
+          "incomeCategories": 7,
+          "loans": 0,
+          "chittyMembers": 0,
+          "chittyPayouts": 0,
+          "bankAccounts": 1,
+          "transfers": 0,
+          "funds": 6,
+          "receipts": 3,
+          "billing": 17,
+          "settings": 1
+        },
+        "migrationStartedAt": 1790522946048,
+        "completedAt": 1790522947264,
+        "totalBatches": 7,
+        "status": "COMPLETED",
+        "sourceDatabaseVersion": 2,
+        "migrationId": "migration_2026-09-27T15-29-05",
+        "financialTotalsPaise": {
+          "expenseCategories": 0,
+          "chittyCollections": 0,
+          "billing": 50845100,
+          "receipts": 67000,
+          "settings": 0,
+          "transfers": 0,
+          "bankAccounts": 0,
+          "funds": 0,
+          "incomeCategories": 0,
+          "payments": 0,
+          "chittyMembers": 0,
+          "loans": 0,
+          "chittyPayouts": 0
+        },
+        "sourceDatabaseName": "temple_accounts_db",
+        "counters": {
+          "receiptPrefix": "R-",
+          "voucherCounter": 501,
+          "receiptCounter": 1004,
+          "billingReceiptCounter": 17,
+          "voucherPrefix": "V-"
+        },
+        "totalRecords": 106
+      }
+    ]
+  },
+  "documentCounts": {
+    "settings": 1,
+    "funds": 6,
+    "incomeCategories": 7,
+    "expenseCategories": 71,
+    "bankAccounts": 1,
+    "billing": 3,
+    "receipts": 5,
+    "payments": 0,
+    "transfers": 0,
+    "chittyMembers": 0,
+    "chittyCollections": 0,
+    "chittyPayouts": 0,
+    "loans": 0,
+    "migration_staging": 1
+  }
+}

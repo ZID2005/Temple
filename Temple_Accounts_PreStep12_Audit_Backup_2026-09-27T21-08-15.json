@@ -1,0 +1,702 @@
+{
+  "settings": [
+    {
+      "id": 1,
+      "templeName": "മറുതാ ചാമുണ്ഡി ദേവി ക്ഷേത്രം",
+      "address": "ആശാരിവിളാകം കേരളദിത്യപുരം",
+      "phone": "",
+      "email": "",
+      "receiptPrefix": "R-",
+      "voucherPrefix": "V-",
+      "financialYear": "2026-27",
+      "currencySymbol": "₹",
+      "receiptCounter": 1004,
+      "voucherCounter": 501,
+      "startDate": "2026-09-26",
+      "openingCash": 0,
+      "openingBank": 0,
+      "openingGeneralFund": 0,
+      "openingPunarudharanamFund": 0,
+      "openingChittyBalance": 0,
+      "openingLoans": 0,
+      "billingReceiptCounter": 17
+    }
+  ],
+  "funds": [
+    {
+      "name": "General Temple Fund",
+      "id": 1
+    },
+    {
+      "name": "Punarudharanam Fund",
+      "id": 2
+    },
+    {
+      "name": "Chitty Fund",
+      "id": 3
+    },
+    {
+      "name": "Festival Fund",
+      "id": 4
+    },
+    {
+      "name": "Donation / Restricted Fund",
+      "id": 5
+    },
+    {
+      "name": "Other Fund",
+      "id": 6
+    }
+  ],
+  "incomeCategories": [
+    {
+      "name": "Pooja Income",
+      "id": 1
+    },
+    {
+      "name": "Archana Income",
+      "id": 2
+    },
+    {
+      "name": "Vazhipadu Income",
+      "id": 3
+    },
+    {
+      "name": "Donation Income",
+      "id": 4
+    },
+    {
+      "name": "Festival Collection",
+      "id": 5
+    },
+    {
+      "name": "General Contribution",
+      "id": 6
+    },
+    {
+      "name": "Other Income",
+      "id": 7
+    }
+  ],
+  "expenseCategories": [
+    {
+      "name": "Flower",
+      "id": 1
+    },
+    {
+      "name": "Oil",
+      "id": 2
+    },
+    {
+      "name": "Camphor",
+      "id": 3
+    },
+    {
+      "name": "Incense",
+      "id": 4
+    },
+    {
+      "name": "Pooja Materials",
+      "id": 5
+    },
+    {
+      "name": "Milk",
+      "id": 6
+    },
+    {
+      "name": "Fruits",
+      "id": 7
+    },
+    {
+      "name": "Vegetables",
+      "id": 8
+    },
+    {
+      "name": "Payasam",
+      "id": 9
+    },
+    {
+      "name": "Food",
+      "id": 10
+    },
+    {
+      "name": "Water",
+      "id": 11
+    },
+    {
+      "name": "Electricity",
+      "id": 12
+    },
+    {
+      "name": "Gas",
+      "id": 13
+    },
+    {
+      "name": "Cleaning Materials",
+      "id": 14
+    },
+    {
+      "name": "Cleaning Charges",
+      "id": 15
+    },
+    {
+      "name": "Building Repair",
+      "id": 16
+    },
+    {
+      "name": "Roof Repair",
+      "id": 17
+    },
+    {
+      "name": "Electrical Repair",
+      "id": 18
+    },
+    {
+      "name": "Plumbing Repair",
+      "id": 19
+    },
+    {
+      "name": "Painting",
+      "id": 20
+    },
+    {
+      "name": "Carpentry",
+      "id": 21
+    },
+    {
+      "name": "Mason Work",
+      "id": 22
+    },
+    {
+      "name": "General Maintenance",
+      "id": 23
+    },
+    {
+      "name": "Equipment Repair",
+      "id": 24
+    },
+    {
+      "name": "Garden Maintenance",
+      "id": 25
+    },
+    {
+      "name": "Salary",
+      "id": 26
+    },
+    {
+      "name": "Priest Payment",
+      "id": 27
+    },
+    {
+      "name": "Cleaning Staff",
+      "id": 28
+    },
+    {
+      "name": "Security",
+      "id": 29
+    },
+    {
+      "name": "Festival Labour",
+      "id": 30
+    },
+    {
+      "name": "Other Service Charges",
+      "id": 31
+    },
+    {
+      "name": "Chenda",
+      "id": 32
+    },
+    {
+      "name": "Melam",
+      "id": 33
+    },
+    {
+      "name": "Decoration",
+      "id": 34
+    },
+    {
+      "name": "Lighting",
+      "id": 35
+    },
+    {
+      "name": "Sound System",
+      "id": 36
+    },
+    {
+      "name": "Printing",
+      "id": 37
+    },
+    {
+      "name": "Advertisement",
+      "id": 38
+    },
+    {
+      "name": "Annadanam",
+      "id": 39
+    },
+    {
+      "name": "Transportation",
+      "id": 40
+    },
+    {
+      "name": "Temporary Labour",
+      "id": 41
+    },
+    {
+      "name": "Festival Materials",
+      "id": 42
+    },
+    {
+      "name": "Stationery",
+      "id": 43
+    },
+    {
+      "name": "Receipt Books",
+      "id": 44
+    },
+    {
+      "name": "Registers",
+      "id": 45
+    },
+    {
+      "name": "Computer Expense",
+      "id": 46
+    },
+    {
+      "name": "Internet",
+      "id": 47
+    },
+    {
+      "name": "Telephone",
+      "id": 48
+    },
+    {
+      "name": "Bank Charges",
+      "id": 49
+    },
+    {
+      "name": "Postage",
+      "id": 50
+    },
+    {
+      "name": "Travel",
+      "id": 51
+    },
+    {
+      "name": "Office Expense",
+      "id": 52
+    },
+    {
+      "name": "Archana Materials",
+      "id": 53
+    },
+    {
+      "name": "Garland",
+      "id": 54
+    },
+    {
+      "name": "Naivedyam",
+      "id": 55
+    },
+    {
+      "name": "Special Pooja Expense",
+      "id": 56
+    },
+    {
+      "name": "Cement",
+      "id": 57
+    },
+    {
+      "name": "Sand",
+      "id": 58
+    },
+    {
+      "name": "Stone",
+      "id": 59
+    },
+    {
+      "name": "Bricks",
+      "id": 60
+    },
+    {
+      "name": "Tiles",
+      "id": 61
+    },
+    {
+      "name": "Wood",
+      "id": 62
+    },
+    {
+      "name": "Roofing",
+      "id": 63
+    },
+    {
+      "name": "Doors",
+      "id": 64
+    },
+    {
+      "name": "Windows",
+      "id": 65
+    },
+    {
+      "name": "Labour",
+      "id": 66
+    },
+    {
+      "name": "Contractor",
+      "id": 67
+    },
+    {
+      "name": "Equipment Hire",
+      "id": 68
+    },
+    {
+      "name": "Emergency Expense",
+      "id": 69
+    },
+    {
+      "name": "Miscellaneous",
+      "id": 70
+    },
+    {
+      "name": "Other",
+      "id": 71
+    }
+  ],
+  "bankAccounts": [
+    {
+      "name": "Canara Bank",
+      "isDefault": true,
+      "id": 1
+    }
+  ],
+  "receipts": [
+    {
+      "receiptNo": "R-1001",
+      "date": "2026-09-27",
+      "name": "Rajan Kumar",
+      "mobile": "",
+      "fund": "General Temple Fund",
+      "category": "Vazhipadu Income",
+      "description": "അർച്ചന | Star: Karthika",
+      "paymentMode": "Cash",
+      "bankAccount": "",
+      "amount": 20,
+      "remarks": "Billing Receipt: BILL-0015",
+      "voided": false,
+      "createdAt": 1790498607127,
+      "source": "billing",
+      "billingId": 15,
+      "id": 1
+    },
+    {
+      "receiptNo": "R-1002",
+      "date": "2026-09-27",
+      "name": "Meena Krishnan",
+      "mobile": "",
+      "fund": "General Temple Fund",
+      "category": "Donation Income",
+      "description": "കടുംപായസം",
+      "paymentMode": "UPI",
+      "bankAccount": "Canara Bank",
+      "amount": 150,
+      "remarks": "Billing Receipt: BILL-0016",
+      "voided": false,
+      "createdAt": 1790498702852,
+      "source": "billing",
+      "billingId": 16,
+      "id": 2
+    },
+    {
+      "receiptNo": "R-1003",
+      "date": "2026-09-27",
+      "name": "Sanal",
+      "mobile": "",
+      "fund": "Punarudharanam Fund",
+      "category": "Donation Income",
+      "description": "സംഭാവന",
+      "paymentMode": "UPI",
+      "bankAccount": "Canara Bank",
+      "amount": 500,
+      "remarks": "Billing Receipt: BILL-0017",
+      "voided": false,
+      "createdAt": 1790499194600,
+      "source": "billing",
+      "billingId": 17,
+      "id": 3
+    }
+  ],
+  "payments": [],
+  "transfers": [],
+  "chittyMembers": [],
+  "chittyCollections": [],
+  "chittyPayouts": [],
+  "loans": [],
+  "billing": [
+    {
+      "receiptNo": "BILL-0001",
+      "createdAt": 1790449944180,
+      "date": "27/09/2026",
+      "time": "12:42 am",
+      "category": "വഴിപാട്",
+      "item": "അർച്ചന",
+      "devoteeName": "Rajesh",
+      "star": "രോഹിണി",
+      "quantity": 2,
+      "unitPrice": 20,
+      "totalAmount": 40,
+      "paymentMode": "Cash",
+      "id": 1
+    },
+    {
+      "receiptNo": "BILL-0002",
+      "createdAt": 1790450531019,
+      "date": "27/09/2026",
+      "time": "12:52 am",
+      "category": "നേർച്ച",
+      "item": "കടുംപായസം",
+      "devoteeName": "Suresh",
+      "star": "",
+      "quantity": 1,
+      "unitPrice": 150,
+      "totalAmount": 150,
+      "paymentMode": "UPI",
+      "id": 2
+    },
+    {
+      "receiptNo": "BILL-0003",
+      "createdAt": 1790450701970,
+      "date": "27/09/2026",
+      "time": "12:55 am",
+      "category": "പുനരുദ്ധാരണം",
+      "item": "സംഭാവന",
+      "devoteeName": "Anil Kumar",
+      "star": "Rohini",
+      "quantity": 1,
+      "unitPrice": 501501,
+      "totalAmount": 501501,
+      "paymentMode": "Cash",
+      "id": 3
+    },
+    {
+      "receiptNo": "BILL-0004",
+      "createdAt": 1790450768974,
+      "date": "27/09/2026",
+      "time": "12:56 am",
+      "category": "നേർച്ച",
+      "item": "കടുംപായസം",
+      "devoteeName": "Priya",
+      "star": "",
+      "quantity": 1,
+      "unitPrice": 150,
+      "totalAmount": 150,
+      "paymentMode": "UPI",
+      "id": 4
+    },
+    {
+      "receiptNo": "BILL-0005",
+      "createdAt": 1790492798430,
+      "date": "27/09/2026",
+      "time": "12:36 pm",
+      "category": "വഴിപാട്",
+      "item": "അർച്ചന",
+      "devoteeName": "Suresh Kumar",
+      "star": "",
+      "quantity": 1,
+      "unitPrice": 20,
+      "totalAmount": 20,
+      "paymentMode": "Cash",
+      "id": 5
+    },
+    {
+      "receiptNo": "BILL-0006",
+      "createdAt": 1790493000770,
+      "date": "27/09/2026",
+      "time": "12:40 pm",
+      "category": "നേർച്ച",
+      "item": "കടുംപായസം",
+      "devoteeName": "Radhika",
+      "star": "Bharani",
+      "quantity": 1,
+      "unitPrice": 150,
+      "totalAmount": 150,
+      "paymentMode": "UPI",
+      "id": 6
+    },
+    {
+      "receiptNo": "BILL-0007",
+      "createdAt": 1790493229673,
+      "date": "27/09/2026",
+      "time": "12:43 pm",
+      "category": "പുനരുദ്ധാരണം",
+      "item": "സംഭാവന",
+      "devoteeName": "Balan Nair",
+      "star": "Karthika",
+      "quantity": 1,
+      "unitPrice": 500,
+      "totalAmount": 500,
+      "paymentMode": "Cash",
+      "id": 7
+    },
+    {
+      "receiptNo": "BILL-0008",
+      "createdAt": 1790493844786,
+      "date": "27/09/2026",
+      "time": "12:54 pm",
+      "category": "വഴിപാട്",
+      "item": "അർച്ചന",
+      "devoteeName": "Anoop",
+      "star": "Makam",
+      "quantity": 1,
+      "unitPrice": 20,
+      "totalAmount": 20,
+      "paymentMode": "Cash",
+      "id": 8
+    },
+    {
+      "receiptNo": "BILL-0009",
+      "createdAt": 1790494189638,
+      "date": "27/09/2026",
+      "time": "12:59 pm",
+      "category": "വഴിപാട്",
+      "item": "അർച്ചന",
+      "devoteeName": "Devan",
+      "star": "",
+      "quantity": 1,
+      "unitPrice": 20,
+      "totalAmount": 20,
+      "paymentMode": "Cash",
+      "id": 9
+    },
+    {
+      "receiptNo": "BILL-0010",
+      "createdAt": 1790495253192,
+      "date": "27/09/2026",
+      "time": "01:17 pm",
+      "category": "വഴിപാട്",
+      "item": "അർച്ചന",
+      "devoteeName": "Test Devotee",
+      "star": "",
+      "quantity": 1,
+      "unitPrice": 20,
+      "totalAmount": 20,
+      "paymentMode": "Cash",
+      "id": 10
+    },
+    {
+      "receiptNo": "BILL-0011",
+      "createdAt": 1790495390193,
+      "date": "27/09/2026",
+      "time": "01:19 pm",
+      "category": "വഴിപാട്",
+      "item": "അർച്ചന",
+      "devoteeName": "Devotee 2",
+      "star": "",
+      "quantity": 1,
+      "unitPrice": 20,
+      "totalAmount": 20,
+      "paymentMode": "Cash",
+      "id": 11
+    },
+    {
+      "receiptNo": "BILL-0012",
+      "createdAt": 1790496620019,
+      "date": "27/09/2026",
+      "time": "01:40 pm",
+      "category": "വഴിപാട്",
+      "item": "അർച്ചന",
+      "devoteeName": "Ramesh",
+      "star": "Aswathi",
+      "quantity": 2,
+      "unitPrice": 20,
+      "totalAmount": 40,
+      "paymentMode": "Cash",
+      "id": 12
+    },
+    {
+      "receiptNo": "BILL-0013",
+      "createdAt": 1790496747014,
+      "date": "27/09/2026",
+      "time": "01:42 pm",
+      "category": "നേർച്ച",
+      "item": "കടുംപായസം",
+      "devoteeName": "Suresh",
+      "star": "Bharani",
+      "quantity": 1,
+      "unitPrice": 150,
+      "totalAmount": 150,
+      "paymentMode": "UPI",
+      "id": 13
+    },
+    {
+      "receiptNo": "BILL-0014",
+      "createdAt": 1790496911868,
+      "date": "27/09/2026",
+      "time": "01:45 pm",
+      "category": "പുനരുദ്ധാരണം",
+      "item": "സംഭാവന",
+      "devoteeName": "Rajan",
+      "star": "",
+      "quantity": 1,
+      "unitPrice": 5000,
+      "totalAmount": 5000,
+      "paymentMode": "Cash",
+      "id": 14
+    },
+    {
+      "receiptNo": "BILL-0015",
+      "createdAt": 1790498607127,
+      "date": "27/09/2026",
+      "time": "02:13 pm",
+      "category": "വഴിപാട്",
+      "item": "അർച്ചന",
+      "devoteeName": "Rajan Kumar",
+      "star": "Karthika",
+      "quantity": 1,
+      "unitPrice": 20,
+      "totalAmount": 20,
+      "paymentMode": "Cash",
+      "source": "billing",
+      "id": 15,
+      "accountingReceiptId": 1,
+      "accountingReceiptNo": "R-1001"
+    },
+    {
+      "receiptNo": "BILL-0016",
+      "createdAt": 1790498702852,
+      "date": "27/09/2026",
+      "time": "02:15 pm",
+      "category": "നേർച്ച",
+      "item": "കടുംപായസം",
+      "devoteeName": "Meena Krishnan",
+      "star": "",
+      "quantity": 1,
+      "unitPrice": 150,
+      "totalAmount": 150,
+      "paymentMode": "UPI",
+      "source": "billing",
+      "id": 16,
+      "accountingReceiptId": 2,
+      "accountingReceiptNo": "R-1002"
+    },
+    {
+      "receiptNo": "BILL-0017",
+      "createdAt": 1790499194600,
+      "date": "27/09/2026",
+      "time": "02:23 pm",
+      "category": "പുനരുദ്ധാരണം",
+      "item": "സംഭാവന",
+      "devoteeName": "Sanal",
+      "star": "",
+      "quantity": 1,
+      "unitPrice": 500,
+      "totalAmount": 500,
+      "paymentMode": "UPI",
+      "source": "billing",
+      "id": 17,
+      "accountingReceiptId": 3,
+      "accountingReceiptNo": "R-1003"
+    }
+  ]
+}

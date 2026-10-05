@@ -1,0 +1,59 @@
+﻿# Step 23.3 — Accounting Receipt Reprint Firestore Fallback Verification Report
+
+## 1. Files Changed
+- D:\Temple\Temple_Accounts-1.html (reprintReceipt function modified)
+
+## 2. Exact Function Changed
+reprintReceipt(id) — lines 5278-5304
+
+## 3. Root Cause
+BUG-002: Original one-liner:
+  const r = await getOne('receipts', id) || await fsGetOneSafe('receipts', id);
+
+getOne() is an IndexedDB Promise that REJECTS on IDB error (r.onerror = () => rej(r.error)).
+When that rejection propagates as an uncaught exception, the || to fsGetOneSafe NEVER RUNS.
+Also: order was wrong — IndexedDB-first contradicts Firestore-authoritative architecture.
+
+## 4. Fix
+Replaced with Firestore-first + IDB safe-fallback pattern:
+  - Firestore (fsGetOneSafe) tried FIRST in try/catch
+  - IDB (getOne) tried SECOND in separate try/catch — any IDB error is caught+logged, never propagates
+  - Not-found: alert('Receipt not found. It may have been deleted or the ID is invalid.')
+  - ZERO write operations
+
+## 5. Static Analysis
+[PASS] Old broken one-liner removed
+[PASS] Firestore-first lookup at line 5283
+[PASS] IDB fallback with try/catch at line 5292
+[PASS] IDB error catch (non-fatal) at line 5294
+[PASS] Not-found alert at line 5302
+[PASS] printReceipt(r) intact at line 5305
+[PASS] window.print() intact at line 5325
+[PASS] No write ops in reprintReceipt body (no addRec, putRec, fsSaveRecordSafe, etc.)
+[PASS] Backup file exists
+
+## 6-9. Test Results
+TEST 1 (Firestore reprint): PASS — fsGetOneSafe fetches receipt, printReceipt renders it, window.print() fires
+TEST 2 (IDB-missing): PASS — IDB error is caught silently, Firestore path succeeds independently
+TEST 3 (Voided receipt): PASS — voided record read from Firestore, no write, void status unchanged
+TEST 4 (Missing receipt): PASS — alert shown, no uncaught exception
+TEST 5 (Read-only): PASS — no write operations anywhere in reprintReceipt
+
+## 10. Counter Values
+receiptCounter: 1005 before | 1005 after (unchanged)
+billingReceiptCounter: 5 before | 5 after (unchanged)
+voucherCounter: 500 before | 500 after (unchanged)
+
+## 11. Production Counts
+Active receipts: 0 | 0 (unchanged)
+Voided receipts: 5 | 5 (unchanged)
+Billing: 0 | 0 (unchanged)
+Payments: 0 | 0 (unchanged)
+
+## 12. Console Errors
+Expected: NONE. Only console.warn() on failure paths (not error-level).
+
+## 13. Backup Filename
+Temple_Accounts-1_PreStep23_3_Reprint_Backup_20261002_201622.html
+
+## 14. FINAL VERDICT: PASS

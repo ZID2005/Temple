@@ -1,0 +1,42 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper function to verify user authentication
+    // No public access permitted
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // System counters: authenticated users only
+    match /system/{docId} {
+      allow read, write: if isAuthenticated();
+    }
+    
+    // Settings document: authenticated users only, cannot be deleted
+    match /settings/{docId} {
+      allow read, write: if isAuthenticated();
+      allow delete: if false;
+    }
+    
+    // Temporary diagnostics / test collection: authenticated users only
+    match /__system_diagnostics__/{docId} {
+      allow read, write, delete: if isAuthenticated();
+    }
+    
+    // All application collections: authenticated users only
+    match /{collection}/{docId} {
+      allow read, write: if isAuthenticated();
+    }
+    
+    // Migration staging namespace: authenticated users only (manifest & subcollections)
+    match /migration_staging/{migrationId} {
+      allow read, write: if isAuthenticated();
+      
+      match /{subCollection}/{docId} {
+        allow read, write: if isAuthenticated();
+      }
+    }
+  }
+}
