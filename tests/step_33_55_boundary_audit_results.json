@@ -1,0 +1,956 @@
+{
+  "step": "STEP 33.55",
+  "title": "Final Cleanup-Tool Boundary Audit & Zero-Mutation Verification",
+  "runId": 1791831322763,
+  "timestamp": "2026-10-12T18:55:22.763Z",
+  "emulator": {
+    "host": "127.0.0.1",
+    "firestorePort": 8080,
+    "authPort": 9099,
+    "projectId": "demo-step3355-1791831322763"
+  },
+  "summary": {
+    "total": 129,
+    "passed": 129,
+    "failed": 0,
+    "blocked": 0,
+    "skipped": 0
+  },
+  "categories": {
+    "PATH_NORMALIZATION_AND_ENCODING": {
+      "total": 72,
+      "passed": 72,
+      "failed": 0
+    },
+    "DELETION_EXECUTION_BOUNDARY": {
+      "total": 23,
+      "passed": 23,
+      "failed": 0
+    },
+    "VALIDATION_BEFORE_SIDE_EFFECTS": {
+      "total": 4,
+      "passed": 4,
+      "failed": 0
+    },
+    "MANIFEST_AND_DEPENDENCY_SAFEGUARDS": {
+      "total": 23,
+      "passed": 23,
+      "failed": 0
+    },
+    "DRY_RUN_DETERMINISM_AND_ZERO_MUTATIONS": {
+      "total": 5,
+      "passed": 5,
+      "failed": 0
+    },
+    "AIR_GAP_AND_SAFETY_ISOLATION": {
+      "total": 2,
+      "passed": 2,
+      "failed": 0
+    }
+  },
+  "tests": [
+    {
+      "id": "AIR-GAP-01",
+      "category": "AIR_GAP_AND_SAFETY_ISOLATION",
+      "status": "PASS",
+      "description": "Candidate security rules loaded cleanly into isolated emulator namespace",
+      "evidence": "HTTP 200"
+    },
+    {
+      "id": "AIR-GAP-02",
+      "category": "AIR_GAP_AND_SAFETY_ISOLATION",
+      "status": "PASS",
+      "description": "100% loopback air-gapped demo-* project prefix; zero production connectivity",
+      "evidence": "Host: 127.0.0.1, Project: demo-step3355-1791831322763"
+    },
+    {
+      "id": "PATH-ORD-SYSTEM",
+      "category": "PATH_NORMALIZATION_AND_ENCODING",
+      "status": "PASS",
+      "description": "Ordinary protected path rejected: system/counters",
+      "evidence": "AssetType: sequence_counters, Reason: Exact protected system or configuration path: system/counters"
+    },
+    {
+      "id": "PATH-ORD-SYSTEM",
+      "category": "PATH_NORMALIZATION_AND_ENCODING",
+      "status": "PASS",
+      "description": "Ordinary protected path rejected: system/res_1001",
+      "evidence": "AssetType: sequence_reservation, Reason: Sequence reservation document (system/res_*)"
+    },
+    {
+      "id": "PATH-ORD-SYSTEM",
+      "category": "PATH_NORMALIZATION_AND_ENCODING",
+      "status": "PASS",
+      "description": "Ordinary protected path rejected: system/op_bill_1",
+      "evidence": "AssetType: idempotency_record, Reason: Immutable idempotency token (system/op_*)"
+    },
+    {
+      "id": "PATH-ORD-SYSTEM",
+      "category": "PATH_NORMALIZATION_AND_ENCODING",
+      "status": "PASS",
+      "description": "Ordinary protected path rejected: system/_restoreProgress",
+      "evidence": "AssetType: system_recovery_metadata, Reason: Exact protected system or configuration path: system/_restoreProgress"
+    },
+    {
+      "id": "PATH-ORD-SETTINGS",
+      "category": "PATH_NORMALIZATION_AND_ENCODING",
+      "status": "PASS",
+      "description": "Ordinary protected path rejected: settings/set_1",
+      "evidence": "AssetType: master_configuration, Reason: Exact protected system or configuration path: settings/set_1"
+    },
+    {
+      "id": "PATH-ORD-FUNDS",
+      "category": "PATH_NORMALIZATION_AND_ENCODING",
+      "status": "PASS",
+      "description": "Ordinary protected path rejected: funds/f_general",
+      "evidence": "AssetType: master_configuration, Reason: Master fund definition (funds/*)"
+    },
+    {
+      "id": "PATH-ORD-INCOMECATEGORIES",
+      "category": "PATH_NORMALIZATION_AND_ENCODING",
+      "status": "PASS",
+      "description": "Ordinary protected path rejected: incomeCategories/ic_pooja",
+      "evidence": "AssetType: master_configuration, Reason: Master accounting category definition"
+    },
+    {
+      "id": "PATH-ORD-EXPENSECATEGORIES",
+      "category": "PATH_NORMALIZATION_AND_ENCODING",
+      "status": "PASS",
+      "description": "Ordinary protected path rejected: expenseCategories/ec_puja_items",
+      "evidence": "AssetType: master_configuration, Reason: Master accounting category definition"
+    },
+    {
+      "id": "PATH-ORD-BANKACCOUNTS",
+      "category": "PATH_NORMALIZATION_AND_ENCODING",
+      "status": "PASS",
+      "description": "Ordinary protected path rejected: bankAccounts/ba_canara",
+      "evidence": "AssetType: master_configuration, Reason: Bank account configuration (bankAccounts/*)"
+    },
+    {
+      "id": "PATH-ORD-USERS",
+      "category": "PATH_NORMALIZATION_AND_ENCODING",
+      "status": "PASS",
+      "description": "Ordinary protected path rejected: users/u_admin",
+      "evidence": "AssetType: authentication_config, Reason: Authentication and access control record (users/*)"
+    },
+    {
+      "id": "PATH-CASE-SYSTEM_COUNTERS",
+      "category": "PATH_NORMALIZATION_AND_ENCODING",
+      "status": "PASS",
+      "description": "Case variant shielded from bypass: SYSTEM/COUNTERS",
+      "evidence": "isProtected: true, reason: Exact protected system or configuration path: SYSTEM/COUNTERS"
+    },
+    {
+      "id": "PATH-CASE-System_Counters",
+      "category": "PATH_NORMALIZATION_AND_ENCODING",
+      "status": "PASS",
+      "description": "Case variant shielded from bypass: System/Counters",
+      "evidence": "isProtected: true, reason: Exact protected system or configuration path: System/Counters"
+    },
+    {
+      "id": "PATH-CASE-system_RES_1001",
+      "category": "PATH_NORMALIZATION_AND_ENCODING",
+      "status": "PASS",
+      "description": "Case variant shielded from bypass: system/RES_1001",
+      "evidence": "isProtected: true, reason: Sequence reservation document (system/res_*)"
+    },
+    {
+      "id": "PATH-CASE-system_OP_BILL_1",
+      "category": "PATH_NORMALIZATION_AND_ENCODING",
+      "status": "PASS",
+      "description": "Case variant shielded from bypass: system/OP_BILL_1",
+      "evidence": "isProtected: true, reason: Immutable idempotency token (system/op_*)"
+    },
+    {
+      "id": "PATH-CASE-Settings_Set_1",
+      "category": "PATH_NORMALIZATION_AND_ENCODING",
+      "status": "PASS",
+      "description": "Case variant shielded from bypass: Settings/Set_1",
+      "evidence": "isProtected: true, reason: Exact protected system or configuration path: Settings/Set_1"
+    },
+    {
+      "id": "PATH-CASE-FUNDS_F_GENERAL",
+      "category": "PATH_NORMALIZATION_AND_ENCODING",
+      "status": "PASS",
+      "description": "Case variant shielded from bypass: FUNDS/F_GENERAL",
+      "evidence": "isProtected: true, reason: Master fund definition (funds/*)"
+    },
+    {
+      "id": "PATH-CASE-IncomeCategories_IC_POOJA",
+      "category": "PATH_NORMALIZATION_AND_ENCODING",
+      "status": "PASS",
+      "description": "Case variant shielded from bypass: IncomeCategories/IC_POOJA",
+      "evidence": "isProtected: true, reason: Master accounting category definition"
+    },
+    {
+      "id": "PATH-CASE-EXPENSECATEGORIES_ec_1",
+      "category": "PATH_NORMALIZATION_AND_ENCODING",
+      "status": "PASS",
+      "description": "Case variant shielded from bypass: EXPENSECATEGORIES/ec_1",
+      "evidence": "isProtected: true, reason: Master accounting category definition"
+    },
+    {
+      "id": "PATH-CASE-BankAccounts_BA_1",
+      "category": "PATH_NORMALIZATION_AND_ENCODING",
+      "status": "PASS",
+      "description": "Case variant shielded from bypass: BankAccounts/BA_1",
+      "evidence": "isProtected: true, reason: Bank account configuration (bankAccounts/*)"
+    },
+    {
+      "id": "PATH-CASE-USERS_U_1",
+      "category": "PATH_NORMALIZATION_AND_ENCODING",
+      "status": "PASS",
+      "description": "Case variant shielded from bypass: USERS/U_1",
+      "evidence": "isProtected: true, reason: Authentication and access control record (users/*)"
+    },
+    {
+      "id": "PATH-CASE-billing_COUNTERS__doc_level_guard_",
+      "category": "PATH_NORMALIZATION_AND_ENCODING",
+      "status": "PASS",
+      "description": "Case variant shielded from bypass: billing/COUNTERS (doc-level guard)",
+      "evidence": "isProtected: true, reason: Global sequence counter document"
+    },
+    {
+      "id": "PATH-CASE-billing_RES_9999__doc_level_guard_",
+      "category": "PATH_NORMALIZATION_AND_ENCODING",
+      "status": "PASS",
+      "description": "Case variant shielded from bypass: billing/RES_9999 (doc-level guard)",
+      "evidence": "isProtected: true, reason: Sequence reservation marker"
+    },
+    {
+      "id": "PATH-CASE-billing_OP_9999__doc_level_guard_",
+      "category": "PATH_NORMALIZATION_AND_ENCODING",
+      "status": "PASS",
+      "description": "Case variant shielded from bypass: billing/OP_9999 (doc-level guard)",
+      "evidence": "isProtected: true, reason: Idempotency operation record"
+    },
+    {
+      "id": "PATH-WS-Leading_and_trailing_whitespace_in_collection_system",
+      "category": "PATH_NORMALIZATION_AND_ENCODING",
+      "status": "PASS",
+      "description": "Whitespace trimmed path protected and rejected: Leading and trailing whitespace in collection system",
+      "evidence": "isProtected: true, valid: false, error: Entry[0]: Protected record denylist violation: system/counters (Exact protected system or configuration path: system/counters)."
+    },
+    {
+      "id": "PATH-WS-Leading_and_trailing_whitespace_in_docId_counters",
+      "category": "PATH_NORMALIZATION_AND_ENCODING",
+      "status": "PASS",
+      "description": "Whitespace trimmed path protected and rejected: Leading and trailing whitespace in docId counters",
+      "evidence": "isProtected: true, valid: false, error: Entry[0]: Protected record denylist violation: system/counters (Exact protected system or configuration path: system/counters)."
+    },
+    {
+      "id": "PATH-WS-Whitespace_around_protected_docId_counters",
+      "category": "PATH_NORMALIZATION_AND_ENCODING",
+      "status": "PASS",
+      "description": "Whitespace trimmed path protected and rejected: Whitespace around protected docId counters",
+      "evidence": "isProtected: true, valid: false, error: Entry[0]: Protected record denylist violation: billing/counters (Global sequence counter document)."
+    },
+    {
+      "id": "PATH-WS-Whitespace_around_settings_set_1",
+      "category": "PATH_NORMALIZATION_AND_ENCODING",
+      "status": "PASS",
+      "description": "Whitespace trimmed path protected and rejected: Whitespace around settings set_1",
+      "evidence": "isProtected: true, valid: false, error: Entry[0]: Protected record denylist violation: settings/set_1 (Exact protected system or configuration path: settings/set_1)."
+    },
+    {
+      "id": "PATH-REP-SEP-Repeated_separators_in_collection",
+      "category": "PATH_NORMALIZATION_AND_ENCODING",
+      "status": "PASS",
+      "description": "Repeated separators rejected: Repeated separators in collection",
+      "evidence": "isProtected: true, valid: false"
+    },
+    {
+      "id": "PATH-REP-SEP-Repeated_separators_in_docId",
+      "category": "PATH_NORMALIZATION_AND_ENCODING",
+      "status": "PASS",
+      "description": "Repeated separators rejected: Repeated separators in docId",
+      "evidence": "isProtected: true, valid: false"
+    },
+    {
+      "id": "PATH-REP-SEP-Triple_separators_in_collection",
+      "category": "PATH_NORMALIZATION_AND_ENCODING",
+      "status": "PASS",
+      "description": "Repeated separators rejected: Triple separators in collection",
+      "evidence": "isProtected: true, valid: false"
+    },
+    {
+      "id": "PATH-SLASH-Backslash_in_collection",
+      "category": "PATH_NORMALIZATION_AND_ENCODING",
+      "status": "PASS",
+      "description": "Backslash and separator anomalies rejected: Backslash in collection",
+      "evidence": "isProtected: false, valid: false"
+    },
+    {
+      "id": "PATH-SLASH-Backslash_in_docId",
+      "category": "PATH_NORMALIZATION_AND_ENCODING",
+      "status": "PASS",
+      "description": "Backslash and separator anomalies rejected: Backslash in docId",
+      "evidence": "isProtected: true, valid: false"
+    },
+    {
+      "id": "PATH-SLASH-Backslash_traversal",
+      "category": "PATH_NORMALIZATION_AND_ENCODING",
+      "status": "PASS",
+      "description": "Backslash and separator anomalies rejected: Backslash traversal",
+      "evidence": "isProtected: false, valid: false"
+    },
+    {
+      "id": "PATH-TRAV-Traversal_in_collection_to_system_counters",
+      "category": "PATH_NORMALIZATION_AND_ENCODING",
+      "status": "PASS",
+      "description": "Path traversal .. strictly rejected: Traversal in collection to system/counters",
+      "evidence": "isProtected: true, valid: false"
+    },
+    {
+      "id": "PATH-TRAV-Traversal_in_docId_to_system_counters",
+      "category": "PATH_NORMALIZATION_AND_ENCODING",
+      "status": "PASS",
+      "description": "Path traversal .. strictly rejected: Traversal in docId to system/counters",
+      "evidence": "isProtected: true, valid: false"
+    },
+    {
+      "id": "PATH-TRAV-DocId_traversal_to_counters",
+      "category": "PATH_NORMALIZATION_AND_ENCODING",
+      "status": "PASS",
+      "description": "Path traversal .. strictly rejected: DocId traversal to counters",
+      "evidence": "isProtected: true, valid: false"
+    },
+    {
+      "id": "PATH-TRAV-Root_relative_traversal",
+      "category": "PATH_NORMALIZATION_AND_ENCODING",
+      "status": "PASS",
+      "description": "Path traversal .. strictly rejected: Root relative traversal",
+      "evidence": "isProtected: false, valid: false"
+    },
+    {
+      "id": "PATH-URLENC-Encoded_slash__2f_in_collection",
+      "category": "PATH_NORMALIZATION_AND_ENCODING",
+      "status": "PASS",
+      "description": "URL-encoded separator rejected: Encoded slash %2f in collection",
+      "evidence": "isProtected: true, valid: false"
+    },
+    {
+      "id": "PATH-URLENC-Encoded_slash__2f_in_docId",
+      "category": "PATH_NORMALIZATION_AND_ENCODING",
+      "status": "PASS",
+      "description": "URL-encoded separator rejected: Encoded slash %2f in docId",
+      "evidence": "isProtected: true, valid: false"
+    },
+    {
+      "id": "PATH-URLENC-Encoded_backslash__5c_in_collection",
+      "category": "PATH_NORMALIZATION_AND_ENCODING",
+      "status": "PASS",
+      "description": "URL-encoded separator rejected: Encoded backslash %5c in collection",
+      "evidence": "isProtected: true, valid: false"
+    },
+    {
+      "id": "PATH-URLENC-Encoded_backslash__5c_in_docId",
+      "category": "PATH_NORMALIZATION_AND_ENCODING",
+      "status": "PASS",
+      "description": "URL-encoded separator rejected: Encoded backslash %5c in docId",
+      "evidence": "isProtected: true, valid: false"
+    },
+    {
+      "id": "PATH-DBLENC-Double_encoded_slash__252f_in_collection",
+      "category": "PATH_NORMALIZATION_AND_ENCODING",
+      "status": "PASS",
+      "description": "Double-encoded separator rejected by manifest validation: Double encoded slash %252f in collection",
+      "evidence": "valid: false, error: Entry[0]: Protected record denylist violation: billing%252fsystem/counters (Global sequence counter document)."
+    },
+    {
+      "id": "PATH-DBLENC-Double_encoded_slash__252f_in_docId",
+      "category": "PATH_NORMALIZATION_AND_ENCODING",
+      "status": "PASS",
+      "description": "Double-encoded separator rejected by manifest validation: Double encoded slash %252f in docId",
+      "evidence": "valid: false, error: Entry[0]: Bill sub%252fcounters has missing linked receipt reference."
+    },
+    {
+      "id": "PATH-DBLENC-Double_encoded_backslash__255c_in_collection",
+      "category": "PATH_NORMALIZATION_AND_ENCODING",
+      "status": "PASS",
+      "description": "Double-encoded separator rejected by manifest validation: Double encoded backslash %255c in collection",
+      "evidence": "valid: false, error: Entry[0]: Protected record denylist violation: billing%255csystem/counters (Global sequence counter document)."
+    },
+    {
+      "id": "PATH-ENCDOT-Encoded__2e_2e_in_docId",
+      "category": "PATH_NORMALIZATION_AND_ENCODING",
+      "status": "PASS",
+      "description": "Encoded dot segment traversal rejected: Encoded %2e%2e in docId",
+      "evidence": "isProtected: true, valid: false"
+    },
+    {
+      "id": "PATH-ENCDOT-Encoded__2e_2e_in_collection",
+      "category": "PATH_NORMALIZATION_AND_ENCODING",
+      "status": "PASS",
+      "description": "Encoded dot segment traversal rejected: Encoded %2e%2e in collection",
+      "evidence": "isProtected: true, valid: false"
+    },
+    {
+      "id": "PATH-ENCDOT-Double_encoded__252e_252e_in_docId",
+      "category": "PATH_NORMALIZATION_AND_ENCODING",
+      "status": "PASS",
+      "description": "Encoded dot segment traversal rejected: Double encoded %252e%252e in docId",
+      "evidence": "isProtected: true, valid: false"
+    },
+    {
+      "id": "PATH-BADESC-Malformed_percent_escape__zz",
+      "category": "PATH_NORMALIZATION_AND_ENCODING",
+      "status": "PASS",
+      "description": "Malformed percent escape handled gracefully without bypass: Malformed percent escape %zz",
+      "evidence": "isProtected: true, valid: false"
+    },
+    {
+      "id": "PATH-BADESC-Malformed_percent_escape__g1",
+      "category": "PATH_NORMALIZATION_AND_ENCODING",
+      "status": "PASS",
+      "description": "Malformed percent escape handled gracefully without bypass: Malformed percent escape %g1",
+      "evidence": "isProtected: false, valid: false"
+    },
+    {
+      "id": "PATH-BADESC-Trailing_incomplete_percent__",
+      "category": "PATH_NORMALIZATION_AND_ENCODING",
+      "status": "PASS",
+      "description": "Malformed percent escape handled gracefully without bypass: Trailing incomplete percent %",
+      "evidence": "isProtected: false, valid: false"
+    },
+    {
+      "id": "PATH-NULL-Literal_null_byte_in_docId",
+      "category": "PATH_NORMALIZATION_AND_ENCODING",
+      "status": "PASS",
+      "description": "Null byte injection strictly rejected: Literal null byte in docId",
+      "evidence": "isProtected: true, valid: false"
+    },
+    {
+      "id": "PATH-NULL-URL_encoded_null_byte__00_in_docId",
+      "category": "PATH_NORMALIZATION_AND_ENCODING",
+      "status": "PASS",
+      "description": "Null byte injection strictly rejected: URL-encoded null byte %00 in docId",
+      "evidence": "isProtected: true, valid: false"
+    },
+    {
+      "id": "PATH-NULL-Literal_null_byte_in_collection",
+      "category": "PATH_NORMALIZATION_AND_ENCODING",
+      "status": "PASS",
+      "description": "Null byte injection strictly rejected: Literal null byte in collection",
+      "evidence": "isProtected: true, valid: false"
+    },
+    {
+      "id": "PATH-UNILOOK-Fullwidth_slash_U_FF0F_in_docId",
+      "category": "PATH_NORMALIZATION_AND_ENCODING",
+      "status": "PASS",
+      "description": "Unicode lookalike input fails closed and cannot bypass candidate safeguards: Fullwidth slash U+FF0F in docId",
+      "evidence": "valid: false, errors: Entry[0]: Bill doc／counters has missing linked receipt reference."
+    },
+    {
+      "id": "PATH-UNILOOK-Fraction_slash_U_2044_in_docId",
+      "category": "PATH_NORMALIZATION_AND_ENCODING",
+      "status": "PASS",
+      "description": "Unicode lookalike input fails closed and cannot bypass candidate safeguards: Fraction slash U+2044 in docId",
+      "evidence": "valid: false, errors: Entry[0]: Bill doc⁄counters has missing linked receipt reference."
+    },
+    {
+      "id": "PATH-UNILOOK-Division_slash_U_2215_in_docId",
+      "category": "PATH_NORMALIZATION_AND_ENCODING",
+      "status": "PASS",
+      "description": "Unicode lookalike input fails closed and cannot bypass candidate safeguards: Division slash U+2215 in docId",
+      "evidence": "valid: false, errors: Entry[0]: Bill doc∕counters has missing linked receipt reference."
+    },
+    {
+      "id": "PATH-UNILOOK-Fullwidth_dot_U_FF0E_in_docId",
+      "category": "PATH_NORMALIZATION_AND_ENCODING",
+      "status": "PASS",
+      "description": "Unicode lookalike input fails closed and cannot bypass candidate safeguards: Fullwidth dot U+FF0E in docId",
+      "evidence": "valid: false, errors: Entry[0]: Bill doc．counters has missing linked receipt reference."
+    },
+    {
+      "id": "PATH-UNILOOK-Two_dot_leader_U_2025_in_docId",
+      "category": "PATH_NORMALIZATION_AND_ENCODING",
+      "status": "PASS",
+      "description": "Unicode lookalike input fails closed and cannot bypass candidate safeguards: Two-dot leader U+2025 in docId",
+      "evidence": "valid: false, errors: Entry[0]: Bill doc‥counters has missing linked receipt reference."
+    },
+    {
+      "id": "PATH-EMPTY-Empty_string_docId",
+      "category": "PATH_NORMALIZATION_AND_ENCODING",
+      "status": "PASS",
+      "description": "Empty segment rejected: Empty string docId",
+      "evidence": "valid: false, errors: Entry[0]: Missing document ID."
+    },
+    {
+      "id": "PATH-EMPTY-Empty_string_collection",
+      "category": "PATH_NORMALIZATION_AND_ENCODING",
+      "status": "PASS",
+      "description": "Empty segment rejected: Empty string collection",
+      "evidence": "valid: false, errors: Entry[0]: Missing collection path for doc doc1."
+    },
+    {
+      "id": "PATH-EMPTY-Null_docId",
+      "category": "PATH_NORMALIZATION_AND_ENCODING",
+      "status": "PASS",
+      "description": "Empty segment rejected: Null docId",
+      "evidence": "valid: false, errors: Entry[0]: Missing document ID."
+    },
+    {
+      "id": "PATH-EMPTY-Null_collection",
+      "category": "PATH_NORMALIZATION_AND_ENCODING",
+      "status": "PASS",
+      "description": "Empty segment rejected: Null collection",
+      "evidence": "valid: false, errors: Entry[0]: Missing collection path for doc doc1."
+    },
+    {
+      "id": "PATH-NEST-Nested_subcollection_in_collection_path",
+      "category": "PATH_NORMALIZATION_AND_ENCODING",
+      "status": "PASS",
+      "description": "Unexpected nested path rejected: Nested subcollection in collection path",
+      "evidence": "isProtected: false, valid: false"
+    },
+    {
+      "id": "PATH-NEST-Subcollection_path_embedded_in_docId",
+      "category": "PATH_NORMALIZATION_AND_ENCODING",
+      "status": "PASS",
+      "description": "Unexpected nested path rejected: Subcollection path embedded in docId",
+      "evidence": "isProtected: true, valid: false"
+    },
+    {
+      "id": "PATH-IDWS-Space_inside_docId",
+      "category": "PATH_NORMALIZATION_AND_ENCODING",
+      "status": "PASS",
+      "description": "Internal whitespace inside docId rejected: Space inside docId",
+      "evidence": "valid: false, error: Entry[0]: Malformed document ID \"doc 1\"."
+    },
+    {
+      "id": "PATH-IDWS-Tab_inside_docId",
+      "category": "PATH_NORMALIZATION_AND_ENCODING",
+      "status": "PASS",
+      "description": "Internal whitespace inside docId rejected: Tab inside docId",
+      "evidence": "valid: false, error: Entry[0]: Malformed document ID \"doc\t1\"."
+    },
+    {
+      "id": "PATH-IDWS-Newline_inside_docId",
+      "category": "PATH_NORMALIZATION_AND_ENCODING",
+      "status": "PASS",
+      "description": "Internal whitespace inside docId rejected: Newline inside docId",
+      "evidence": "valid: false, error: Entry[0]: Malformed document ID \"doc\n1\"."
+    },
+    {
+      "id": "PATH-SCHEME-file____URL_scheme",
+      "category": "PATH_NORMALIZATION_AND_ENCODING",
+      "status": "PASS",
+      "description": "Unexpected URL scheme or absolute path rejected: file:// URL scheme",
+      "evidence": "valid: false, error: Entry[0]: Unsupported collection path \"file:///etc/passwd\"."
+    },
+    {
+      "id": "PATH-SCHEME-http____URL_scheme",
+      "category": "PATH_NORMALIZATION_AND_ENCODING",
+      "status": "PASS",
+      "description": "Unexpected URL scheme or absolute path rejected: http:// URL scheme",
+      "evidence": "valid: false, error: Entry[0]: Unsupported collection path \"http://localhost/system/counters\"."
+    },
+    {
+      "id": "PATH-SCHEME-https____URL_scheme",
+      "category": "PATH_NORMALIZATION_AND_ENCODING",
+      "status": "PASS",
+      "description": "Unexpected URL scheme or absolute path rejected: https:// URL scheme",
+      "evidence": "valid: false, error: Entry[0]: Unsupported collection path \"https://example.com/counters\"."
+    },
+    {
+      "id": "PATH-SCHEME-Windows_drive_letter_path",
+      "category": "PATH_NORMALIZATION_AND_ENCODING",
+      "status": "PASS",
+      "description": "Unexpected URL scheme or absolute path rejected: Windows drive letter path",
+      "evidence": "valid: false, error: Entry[0]: Unsupported collection path \"C:\\system\\counters\"."
+    },
+    {
+      "id": "PATH-SCHEME-Absolute_root_path",
+      "category": "PATH_NORMALIZATION_AND_ENCODING",
+      "status": "PASS",
+      "description": "Unexpected URL scheme or absolute path rejected: Absolute root path",
+      "evidence": "valid: false, error: Entry[0]: Unsupported collection path \"/system/counters\"."
+    },
+    {
+      "id": "BOUND-IMPORT-firebase",
+      "category": "DELETION_EXECUTION_BOUNDARY",
+      "status": "PASS",
+      "description": "Zero references to external mutating API/module: firebase",
+      "evidence": "hasForbidden: false"
+    },
+    {
+      "id": "BOUND-IMPORT-firebase_admin",
+      "category": "DELETION_EXECUTION_BOUNDARY",
+      "status": "PASS",
+      "description": "Zero references to external mutating API/module: firebase-admin",
+      "evidence": "hasForbidden: false"
+    },
+    {
+      "id": "BOUND-IMPORT-_google_cloud_firestore",
+      "category": "DELETION_EXECUTION_BOUNDARY",
+      "status": "PASS",
+      "description": "Zero references to external mutating API/module: @google-cloud/firestore",
+      "evidence": "hasForbidden: false"
+    },
+    {
+      "id": "BOUND-IMPORT-child_process",
+      "category": "DELETION_EXECUTION_BOUNDARY",
+      "status": "PASS",
+      "description": "Zero references to external mutating API/module: child_process",
+      "evidence": "hasForbidden: false"
+    },
+    {
+      "id": "BOUND-IMPORT-http",
+      "category": "DELETION_EXECUTION_BOUNDARY",
+      "status": "PASS",
+      "description": "Zero references to external mutating API/module: http",
+      "evidence": "hasForbidden: false"
+    },
+    {
+      "id": "BOUND-IMPORT-https",
+      "category": "DELETION_EXECUTION_BOUNDARY",
+      "status": "PASS",
+      "description": "Zero references to external mutating API/module: https",
+      "evidence": "hasForbidden: false"
+    },
+    {
+      "id": "BOUND-IMPORT-axios",
+      "category": "DELETION_EXECUTION_BOUNDARY",
+      "status": "PASS",
+      "description": "Zero references to external mutating API/module: axios",
+      "evidence": "hasForbidden: false"
+    },
+    {
+      "id": "BOUND-IMPORT-node_fetch",
+      "category": "DELETION_EXECUTION_BOUNDARY",
+      "status": "PASS",
+      "description": "Zero references to external mutating API/module: node-fetch",
+      "evidence": "hasForbidden: false"
+    },
+    {
+      "id": "BOUND-IMPORT-fs_unlink",
+      "category": "DELETION_EXECUTION_BOUNDARY",
+      "status": "PASS",
+      "description": "Zero references to external mutating API/module: fs.unlink",
+      "evidence": "hasForbidden: false"
+    },
+    {
+      "id": "BOUND-IMPORT-fs_rm",
+      "category": "DELETION_EXECUTION_BOUNDARY",
+      "status": "PASS",
+      "description": "Zero references to external mutating API/module: fs.rm",
+      "evidence": "hasForbidden: false"
+    },
+    {
+      "id": "BOUND-IMPORT-fs_rmdir",
+      "category": "DELETION_EXECUTION_BOUNDARY",
+      "status": "PASS",
+      "description": "Zero references to external mutating API/module: fs.rmdir",
+      "evidence": "hasForbidden: false"
+    },
+    {
+      "id": "BOUND-IMPORT-indexedDB",
+      "category": "DELETION_EXECUTION_BOUNDARY",
+      "status": "PASS",
+      "description": "Zero references to external mutating API/module: indexedDB",
+      "evidence": "hasForbidden: false"
+    },
+    {
+      "id": "BOUND-EXEC-01",
+      "category": "DELETION_EXECUTION_BOUNDARY",
+      "status": "PASS",
+      "description": "execute(manifest) throws EXECUTE_MODE_DISABLED unconditionally",
+      "evidence": "Code: EXECUTE_MODE_DISABLED, Message: EXECUTE_MODE_DISABLED: Execution mode is strictly disabled in STEP 33.53. Physical deletion of records is prohibited."
+    },
+    {
+      "id": "BOUND-EXEC-FLAG-force",
+      "category": "DELETION_EXECUTION_BOUNDARY",
+      "status": "PASS",
+      "description": "execute() rejects bypass option { force: true } and fails closed",
+      "evidence": "Code: EXECUTE_MODE_DISABLED"
+    },
+    {
+      "id": "BOUND-EXEC-FLAG-bypassSafeguards",
+      "category": "DELETION_EXECUTION_BOUNDARY",
+      "status": "PASS",
+      "description": "execute() rejects bypass option { bypassSafeguards: true } and fails closed",
+      "evidence": "Code: EXECUTE_MODE_DISABLED"
+    },
+    {
+      "id": "BOUND-EXEC-FLAG-skipValidation",
+      "category": "DELETION_EXECUTION_BOUNDARY",
+      "status": "PASS",
+      "description": "execute() rejects bypass option { skipValidation: true } and fails closed",
+      "evidence": "Code: EXECUTE_MODE_DISABLED"
+    },
+    {
+      "id": "BOUND-EXEC-FLAG-adminBypass",
+      "category": "DELETION_EXECUTION_BOUNDARY",
+      "status": "PASS",
+      "description": "execute() rejects bypass option { adminBypass: true } and fails closed",
+      "evidence": "Code: EXECUTE_MODE_DISABLED"
+    },
+    {
+      "id": "BOUND-EXEC-FLAG-allowDelete",
+      "category": "DELETION_EXECUTION_BOUNDARY",
+      "status": "PASS",
+      "description": "execute() rejects bypass option { allowDelete: true } and fails closed",
+      "evidence": "Code: EXECUTE_MODE_DISABLED"
+    },
+    {
+      "id": "BOUND-EXEC-ENV-ALLOW_EXECUTE",
+      "category": "DELETION_EXECUTION_BOUNDARY",
+      "status": "PASS",
+      "description": "execute() fails closed even if env ALLOW_EXECUTE=true is set",
+      "evidence": "Code: EXECUTE_MODE_DISABLED"
+    },
+    {
+      "id": "BOUND-EXEC-ENV-CLEANUP_EXECUTE",
+      "category": "DELETION_EXECUTION_BOUNDARY",
+      "status": "PASS",
+      "description": "execute() fails closed even if env CLEANUP_EXECUTE=true is set",
+      "evidence": "Code: EXECUTE_MODE_DISABLED"
+    },
+    {
+      "id": "BOUND-EXEC-ENV-FORCE_CLEANUP",
+      "category": "DELETION_EXECUTION_BOUNDARY",
+      "status": "PASS",
+      "description": "execute() fails closed even if env FORCE_CLEANUP=true is set",
+      "evidence": "Code: EXECUTE_MODE_DISABLED"
+    },
+    {
+      "id": "BOUND-EXEC-ENV-ADMIN_BYPASS",
+      "category": "DELETION_EXECUTION_BOUNDARY",
+      "status": "PASS",
+      "description": "execute() fails closed even if env ADMIN_BYPASS=true is set",
+      "evidence": "Code: EXECUTE_MODE_DISABLED"
+    },
+    {
+      "id": "BOUND-NO-ALT-METHODS",
+      "category": "DELETION_EXECUTION_BOUNDARY",
+      "status": "PASS",
+      "description": "Zero alternate or hidden deletion methods on CleanupOrchestrator prototype",
+      "evidence": "Exposed methods: constructor, inventory, validateManifest, dryRun, execute"
+    },
+    {
+      "id": "VAL-SIDE-FS-01",
+      "category": "VALIDATION_BEFORE_SIDE_EFFECTS",
+      "status": "PASS",
+      "description": "validateManifest rejects malformed manifest with zero filesystem write attempts",
+      "evidence": "Valid: false, fsWriteAttempts: 0"
+    },
+    {
+      "id": "VAL-SIDE-DB-01",
+      "category": "VALIDATION_BEFORE_SIDE_EFFECTS",
+      "status": "PASS",
+      "description": "Database records in emulator 100% byte-for-byte identical before and after dryRun",
+      "evidence": "Before: 7E501C92FCB10B731F5F72A12294313DAFFB4145AEB47E55A8011C56766F2F2F, After: 7E501C92FCB10B731F5F72A12294313DAFFB4145AEB47E55A8011C56766F2F2F, Status: PROPOSAL_VALIDATED"
+    },
+    {
+      "id": "VAL-SIDE-COUNTS-02",
+      "category": "VALIDATION_BEFORE_SIDE_EFFECTS",
+      "status": "PASS",
+      "description": "Dry-run report confirms 0 mutations, 0 writes, 0 deletions performed",
+      "evidence": "Mutations: 0, Writes: 0, Deletions: 0"
+    },
+    {
+      "id": "VAL-SIDE-EXEC-03",
+      "category": "VALIDATION_BEFORE_SIDE_EFFECTS",
+      "status": "PASS",
+      "description": "Database 100% untouched following rejected execute() attempt",
+      "evidence": "PostExecHash: 7E501C92FCB10B731F5F72A12294313DAFFB4145AEB47E55A8011C56766F2F2F, Matches Baseline: true"
+    },
+    {
+      "id": "SAFE-DOC-MISSING",
+      "category": "MANIFEST_AND_DEPENDENCY_SAFEGUARDS",
+      "status": "PASS",
+      "description": "Missing document ID rejected",
+      "evidence": "Valid: false"
+    },
+    {
+      "id": "SAFE-DOC-DUPLICATE",
+      "category": "MANIFEST_AND_DEPENDENCY_SAFEGUARDS",
+      "status": "PASS",
+      "description": "Duplicate document ID rejected",
+      "evidence": "Valid: false"
+    },
+    {
+      "id": "SAFE-COL-INVALID",
+      "category": "MANIFEST_AND_DEPENDENCY_SAFEGUARDS",
+      "status": "PASS",
+      "description": "Invalid collection path rejected (ledger not in ALLOWED_CANDIDATE_COLLECTIONS)",
+      "evidence": "Valid: false"
+    },
+    {
+      "id": "SAFE-PROT-RECORD",
+      "category": "MANIFEST_AND_DEPENDENCY_SAFEGUARDS",
+      "status": "PASS",
+      "description": "Protected record rejected via denylist",
+      "evidence": "Valid: false"
+    },
+    {
+      "id": "SAFE-CLASS-INVALID",
+      "category": "MANIFEST_AND_DEPENDENCY_SAFEGUARDS",
+      "status": "PASS",
+      "description": "Invalid classification rejected",
+      "evidence": "Valid: false"
+    },
+    {
+      "id": "SAFE-UNVERIFIED-BLOCKED",
+      "category": "MANIFEST_AND_DEPENDENCY_SAFEGUARDS",
+      "status": "PASS",
+      "description": "Unverified candidates blocked from automatic approval",
+      "evidence": "Valid: false"
+    },
+    {
+      "id": "SAFE-DEP-BILL-RCPT",
+      "category": "MANIFEST_AND_DEPENDENCY_SAFEGUARDS",
+      "status": "PASS",
+      "description": "Billing record with missing linked receipt relationship blocked",
+      "evidence": "Valid: false"
+    },
+    {
+      "id": "SAFE-DEP-TRANSFER-PAIR",
+      "category": "MANIFEST_AND_DEPENDENCY_SAFEGUARDS",
+      "status": "PASS",
+      "description": "Incomplete transfer pair blocked (same source and destination)",
+      "evidence": "Valid: false"
+    },
+    {
+      "id": "SAFE-DEP-CONFLICT-LINKS",
+      "category": "MANIFEST_AND_DEPENDENCY_SAFEGUARDS",
+      "status": "PASS",
+      "description": "Reciprocal link conflict between billing and receipt detected and blocked",
+      "evidence": "Valid: false"
+    },
+    {
+      "id": "SAFE-DEP-CHITTY-MEMBER",
+      "category": "MANIFEST_AND_DEPENDENCY_SAFEGUARDS",
+      "status": "PASS",
+      "description": "Chitty collection referencing nonexistent member blocked",
+      "evidence": "Valid: false"
+    },
+    {
+      "id": "SAFE-DEP-LOAN-PARENT",
+      "category": "MANIFEST_AND_DEPENDENCY_SAFEGUARDS",
+      "status": "PASS",
+      "description": "Loan repayment referencing nonexistent parent loan blocked",
+      "evidence": "Valid: false"
+    },
+    {
+      "id": "SAFE-DEP-UNKNOWN",
+      "category": "MANIFEST_AND_DEPENDENCY_SAFEGUARDS",
+      "status": "PASS",
+      "description": "Record with unknown external dependencies blocked from execution eligibility",
+      "evidence": "Valid: false"
+    },
+    {
+      "id": "SAFE-OVERRIDE-OVERRIDEPROTECTED",
+      "category": "MANIFEST_AND_DEPENDENCY_SAFEGUARDS",
+      "status": "PASS",
+      "description": "Manifest containing override flag \"overrideProtected\" triggers SECURITY_VIOLATION and fails closed",
+      "evidence": "Valid: false, Error: SECURITY_VIOLATION: Manifest attempts to override protected-path rules or safety safeguards."
+    },
+    {
+      "id": "SAFE-OVERRIDE-FORCEDELETE",
+      "category": "MANIFEST_AND_DEPENDENCY_SAFEGUARDS",
+      "status": "PASS",
+      "description": "Manifest containing override flag \"forceDelete\" triggers SECURITY_VIOLATION and fails closed",
+      "evidence": "Valid: false, Error: SECURITY_VIOLATION: Manifest attempts to override protected-path rules or safety safeguards."
+    },
+    {
+      "id": "SAFE-OVERRIDE-IGNOREDENYLIST",
+      "category": "MANIFEST_AND_DEPENDENCY_SAFEGUARDS",
+      "status": "PASS",
+      "description": "Manifest containing override flag \"ignoreDenylist\" triggers SECURITY_VIOLATION and fails closed",
+      "evidence": "Valid: false, Error: SECURITY_VIOLATION: Manifest attempts to override protected-path rules or safety safeguards."
+    },
+    {
+      "id": "SAFE-OVERRIDE-BYPASSSAFEGUARDS",
+      "category": "MANIFEST_AND_DEPENDENCY_SAFEGUARDS",
+      "status": "PASS",
+      "description": "Manifest containing override flag \"bypassSafeguards\" triggers SECURITY_VIOLATION and fails closed",
+      "evidence": "Valid: false, Error: SECURITY_VIOLATION: Manifest attempts to override protected-path rules or safety safeguards."
+    },
+    {
+      "id": "SAFE-OVERRIDE-ALLOWPROTECTED",
+      "category": "MANIFEST_AND_DEPENDENCY_SAFEGUARDS",
+      "status": "PASS",
+      "description": "Manifest containing override flag \"allowProtected\" triggers SECURITY_VIOLATION and fails closed",
+      "evidence": "Valid: false, Error: SECURITY_VIOLATION: Manifest attempts to override protected-path rules or safety safeguards."
+    },
+    {
+      "id": "SAFE-OVERRIDE-SKIPVALIDATION",
+      "category": "MANIFEST_AND_DEPENDENCY_SAFEGUARDS",
+      "status": "PASS",
+      "description": "Manifest containing override flag \"skipValidation\" triggers SECURITY_VIOLATION and fails closed",
+      "evidence": "Valid: false, Error: SECURITY_VIOLATION: Manifest attempts to override protected-path rules or safety safeguards."
+    },
+    {
+      "id": "SAFE-OVERRIDE-DRYRUNBYPASS",
+      "category": "MANIFEST_AND_DEPENDENCY_SAFEGUARDS",
+      "status": "PASS",
+      "description": "Manifest containing override flag \"dryRunBypass\" triggers SECURITY_VIOLATION and fails closed",
+      "evidence": "Valid: false, Error: SECURITY_VIOLATION: Manifest attempts to override protected-path rules or safety safeguards."
+    },
+    {
+      "id": "SAFE-OVERRIDE-DISABLESAFETYCHECKS",
+      "category": "MANIFEST_AND_DEPENDENCY_SAFEGUARDS",
+      "status": "PASS",
+      "description": "Manifest containing override flag \"disableSafetyChecks\" triggers SECURITY_VIOLATION and fails closed",
+      "evidence": "Valid: false, Error: SECURITY_VIOLATION: Manifest attempts to override protected-path rules or safety safeguards."
+    },
+    {
+      "id": "SAFE-OVERRIDE-ADMINBYPASS",
+      "category": "MANIFEST_AND_DEPENDENCY_SAFEGUARDS",
+      "status": "PASS",
+      "description": "Manifest containing override flag \"adminBypass\" triggers SECURITY_VIOLATION and fails closed",
+      "evidence": "Valid: false, Error: SECURITY_VIOLATION: Manifest attempts to override protected-path rules or safety safeguards."
+    },
+    {
+      "id": "SAFE-DENYLIST-NOT-OVERRIDDEN",
+      "category": "MANIFEST_AND_DEPENDENCY_SAFEGUARDS",
+      "status": "PASS",
+      "description": "Protected-record denylist cannot be overridden by manifest metadata or test classifications",
+      "evidence": "Valid: false, Protected entries: 1"
+    },
+    {
+      "id": "SAFE-NO-AUTO-APPROVE",
+      "category": "MANIFEST_AND_DEPENDENCY_SAFEGUARDS",
+      "status": "PASS",
+      "description": "Records are not automatically approved for cleanup solely because name/amount/date suggests test data",
+      "evidence": "Confirmed: 0, Unverified: 3"
+    },
+    {
+      "id": "DRY-DETERM-CHECKSUM",
+      "category": "DRY_RUN_DETERMINISM_AND_ZERO_MUTATIONS",
+      "status": "PASS",
+      "description": "Dry-run output checksum is 100% deterministic across identical runs",
+      "evidence": "Run 1: B57C25619CA32FF451F4D87F28E971CB87C1BADFAF2D1C2B2CF8F3D526A2BBE1, Run 2: B57C25619CA32FF451F4D87F28E971CB87C1BADFAF2D1C2B2CF8F3D526A2BBE1"
+    },
+    {
+      "id": "DRY-DETERM-COUNTS",
+      "category": "DRY_RUN_DETERMINISM_AND_ZERO_MUTATIONS",
+      "status": "PASS",
+      "description": "Dry-run candidate and preservation counts are identical across runs",
+      "evidence": "Counts: {\"totalManifestEntries\":2,\"validatedCandidates\":2,\"rejectedEntries\":0,\"protectedEntries\":0,\"unverifiedEntries\":0,\"missingDependencies\":0,\"conflictingRelationships\":0,\"recordsProposedForCleanup\":2,\"recordsExplicitlyPreserved\":0}"
+    },
+    {
+      "id": "DRY-DETERM-CANDIDATES",
+      "category": "DRY_RUN_DETERMINISM_AND_ZERO_MUTATIONS",
+      "status": "PASS",
+      "description": "Proposed candidate list is canonical and deterministic",
+      "evidence": "Candidates: 2"
+    },
+    {
+      "id": "DRY-MUTATE-EXPLAINABLE",
+      "category": "DRY_RUN_DETERMINISM_AND_ZERO_MUTATIONS",
+      "status": "PASS",
+      "description": "Modifying synthetic fixture data changes dry-run output and checksum in an explainable manner",
+      "evidence": "Original FP: FE5387D84CC6418DFCA8B247D3884AD07DCAE539CE0622DA919E6FF63A8E18D0, Mutated FP: 2BA2F166ACB1ED4D57F9012CDA62C569597F2D475216E0D8A37F977CB9FD4CDC"
+    },
+    {
+      "id": "DRY-UNVERIFIED-BLOCKED",
+      "category": "DRY_RUN_DETERMINISM_AND_ZERO_MUTATIONS",
+      "status": "PASS",
+      "description": "Dry-run correctly marks proposal as PROPOSAL_BLOCKED_WITH_ERRORS when unverified entries exist",
+      "evidence": "Status: PROPOSAL_BLOCKED_WITH_ERRORS, Proposed for cleanup: 0"
+    }
+  ]
+}

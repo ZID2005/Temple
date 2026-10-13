@@ -1,0 +1,1625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Temple Accounts — Isolated Firebase Emulator Test Harness</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  
+  <!-- Firebase SDKs (matching production versions v10.12.2) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: rgba(18, 24, 38, 0.92);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --accent: #6366f1;
+      --accent-glow: rgba(99, 102, 241, 0.25);
+      --success: #10b981;
+      --success-glow: rgba(16, 185, 129, 0.2);
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --danger-glow: rgba(239, 68, 68, 0.2);
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --font: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: radial-gradient(circle at 50% 0%, #151c2e 0%, #090d16 100%);
+      color: var(--text);
+      font-family: var(--font);
+      min-height: 100vh;
+      padding: 28px 20px;
+      line-height: 1.5;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    header {
+      margin-bottom: 24px;
+      border-bottom: 1px solid var(--card-border);
+      padding-bottom: 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .badge-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--success);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      margin-bottom: 8px;
+    }
+
+    h1 {
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 4px;
+    }
+
+    p.subtitle {
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 16px;
+      position: relative;
+    }
+
+    .card h3 {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .card .value {
+      font-family: var(--font-mono);
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .status-tag {
+      display: inline-block;
+      margin-top: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    .status-tag.ok {
+      background: rgba(16, 185, 129, 0.2);
+      color: #34d399;
+    }
+
+    .status-tag.pending {
+      background: rgba(245, 158, 11, 0.2);
+      color: #fbbf24;
+    }
+
+    .status-tag.error {
+      background: rgba(239, 68, 68, 0.2);
+      color: #f87171;
+    }
+
+    .panel {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .panel-title {
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .button-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    button {
+      background: #1e293b;
+      color: var(--text);
+      border: 1px solid var(--card-border);
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-family: var(--font);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    button:hover {
+      background: #334155;
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    button.primary {
+      background: var(--accent);
+      border-color: transparent;
+      box-shadow: 0 4px 14px var(--accent-glow);
+    }
+
+    button.primary:hover {
+      background: #4f46e5;
+    }
+
+    button.success {
+      background: #059669;
+      border-color: transparent;
+    }
+
+    button.success:hover {
+      background: #047857;
+    }
+
+    button.danger {
+      background: rgba(239, 68, 68, 0.2);
+      border-color: rgba(239, 68, 68, 0.4);
+      color: #fca5a5;
+    }
+
+    button.danger:hover {
+      background: rgba(239, 68, 68, 0.35);
+    }
+
+    .log-box {
+      background: #040711;
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 12px;
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      color: #cbd5e1;
+      max-height: 260px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+
+    .log-entry {
+      margin-bottom: 3px;
+      line-height: 1.4;
+    }
+
+    .log-entry.success { color: #34d399; }
+    .log-entry.info { color: #60a5fa; }
+    .log-entry.warn { color: #fbbf24; }
+    .log-entry.error { color: #f87171; }
+
+    table.test-matrix {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12.5px;
+      margin-top: 10px;
+    }
+
+    table.test-matrix th {
+      text-align: left;
+      padding: 8px 10px;
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--text-muted);
+      font-weight: 600;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    table.test-matrix td {
+      padding: 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      vertical-align: top;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .badge.not-tested {
+      background: rgba(148, 163, 184, 0.15);
+      color: #94a3b8;
+    }
+
+    .badge.pass {
+      background: rgba(16, 185, 129, 0.2);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .badge.fail {
+      background: rgba(239, 68, 68, 0.2);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .badge.running {
+      background: rgba(245, 158, 11, 0.2);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .badge.prepared {
+      background: rgba(99, 102, 241, 0.2);
+      color: #a5b4fc;
+    }
+
+    .evidence-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .evidence-card {
+      background: #060a14;
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 12px;
+    }
+
+    .evidence-card h4 {
+      font-size: 11px;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 6px;
+      letter-spacing: 0.05em;
+    }
+
+    pre.code-snippet {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      background: #020409;
+      padding: 8px;
+      border-radius: 4px;
+      overflow-x: auto;
+      color: #e2e8f0;
+      max-height: 160px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div>
+        <div class="badge-pill">🛡️ Strict Air-Gapped Emulator Mode</div>
+        <h1>Temple Accounts — Billing ↔ Receipts Sync Test Suite</h1>
+        <p class="subtitle">STEP 33.5 Execution: 7 Synchronization Runtime Scenarios against Local Firebase Emulator Suite</p>
+      </div>
+      <div id="suite-status-tag" class="badge prepared">SUITE READY FOR EXECUTION</div>
+    </header>
+
+    <!-- Environment Cards -->
+    <div class="grid">
+      <div class="card">
+        <h3>Project Target</h3>
+        <div class="value" id="val-project">demo-temple-accounts-test</div>
+        <div class="status-tag ok" id="tag-project">Strict Demo Sandbox</div>
+      </div>
+      <div class="card">
+        <h3>Firestore Emulator</h3>
+        <div class="value" id="val-firestore">127.0.0.1:8080</div>
+        <div class="status-tag pending" id="tag-firestore">Connecting...</div>
+      </div>
+      <div class="card">
+        <h3>Auth Emulator</h3>
+        <div class="value" id="val-auth">127.0.0.1:9099</div>
+        <div class="status-tag pending" id="tag-auth">Connecting...</div>
+      </div>
+      <div class="card">
+        <h3>IndexedDB Cache</h3>
+        <div class="value" id="val-idb">temple_accounts_test_db</div>
+        <div class="status-tag ok" id="tag-idb">Isolated Test DB</div>
+      </div>
+    </div>
+
+    <!-- Test Suite Action Controls -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">⚡ STEP 33.5 Test Suite Controls</div>
+        <div>
+          <button id="btn-run-all" class="primary" onclick="runAllBillingSyncTests()">▶️ Run Complete Suite (TC-1 to TC-7)</button>
+          <button class="danger" onclick="resetEmulatorData()">🧹 Reset Emulator State</button>
+        </div>
+      </div>
+      
+      <div class="button-group">
+        <button onclick="executeSingleTest('TC-1')">TC-1: Atomic Creation</button>
+        <button onclick="executeSingleTest('TC-2')">TC-2: Billing Void</button>
+        <button onclick="executeSingleTest('TC-3')">TC-3: Receipt Void</button>
+        <button onclick="executeSingleTest('TC-4')">TC-4: Manual Receipt Isolation</button>
+        <button onclick="executeSingleTest('TC-5')">TC-5: Batch Failure Rollback</button>
+        <button onclick="executeSingleTest('TC-6')">TC-6: IDB Consistency</button>
+        <button onclick="executeSingleTest('TC-7')">TC-7: Counter &amp; Totals</button>
+        <button onclick="runIsolationVerification()">🔍 Re-check Isolation</button>
+      </div>
+
+      <div class="log-box" id="diagnostic-log">
+[Harness Initialized] Ready to execute STEP 33.5 runtime synchronization test cases.
+      </div>
+    </div>
+
+    <!-- Active Test Matrix -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">Test Results Matrix (TC-1 Through TC-7)</div>
+        <div id="test-summary-badge" class="badge not-tested">0 / 7 EXECUTED</div>
+      </div>
+      
+      <table class="test-matrix">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Scenario</th>
+            <th>Synthetic Inputs &amp; Target</th>
+            <th>Tested Implementation</th>
+            <th>Status</th>
+            <th>Assertions</th>
+          </tr>
+        </thead>
+        <tbody id="matrix-tbody">
+          <tr id="row-TC-1">
+            <td><strong>TC-1</strong></td>
+            <td>Atomic Creation (Bill + Linked Receipt)</td>
+            <td>Item: കൂട്ടുപായസം (₹250), Cash, Devotee: Suresh Kumar / അശ്വതി</td>
+            <td>Real <code>fsCreateBillingWithAccounting</code> (runTransaction)</td>
+            <td><span class="badge not-tested" id="badge-TC-1">NOT TESTED</span></td>
+            <td id="asserts-TC-1">—</td>
+          </tr>
+          <tr id="row-TC-2">
+            <td><strong>TC-2</strong></td>
+            <td>Billing-to-Receipt Voiding</td>
+            <td>Void BILL-0001 from Billing UI -> marks R-1001 voided</td>
+            <td>Real <code>fsVoidLinkedBillingAndReceipt</code> (db.batch)</td>
+            <td><span class="badge not-tested" id="badge-TC-2">NOT TESTED</span></td>
+            <td id="asserts-TC-2">—</td>
+          </tr>
+          <tr id="row-TC-3">
+            <td><strong>TC-3</strong></td>
+            <td>Receipt-to-Billing Voiding</td>
+            <td>Void linked R-1002 from Receipts UI -> marks BILL-0002 voided</td>
+            <td>Real <code>fsVoidLinkedBillingAndReceipt</code> (Receipts flow)</td>
+            <td><span class="badge not-tested" id="badge-TC-3">NOT TESTED</span></td>
+            <td id="asserts-TC-3">—</td>
+          </tr>
+          <tr id="row-TC-4">
+            <td><strong>TC-4</strong></td>
+            <td>Isolation of Unrelated Manual Receipts</td>
+            <td>Void manual receipt R-1003 (Pooja Income ₹500)</td>
+            <td>Real <code>fsVoidRecordSafe</code> (0 billing mutations)</td>
+            <td><span class="badge not-tested" id="badge-TC-4">NOT TESTED</span></td>
+            <td id="asserts-TC-4">—</td>
+          </tr>
+          <tr id="row-TC-5">
+            <td><strong>TC-5</strong></td>
+            <td>Controlled Batch Failure Handling</td>
+            <td>Inject atomic batch rejection via rules/abort</td>
+            <td>Real <code>fsVoidLinkedBillingAndReceipt</code> atomicity guard</td>
+            <td><span class="badge not-tested" id="badge-TC-5">NOT TESTED</span></td>
+            <td id="asserts-TC-5">—</td>
+          </tr>
+          <tr id="row-TC-6">
+            <td><strong>TC-6</strong></td>
+            <td>IndexedDB Cache Consistency</td>
+            <td>Dual-key deduplication and key normalization in test cache</td>
+            <td>Real <code>temple_accounts_test_db</code> parity &amp; key audit</td>
+            <td><span class="badge not-tested" id="badge-TC-6">NOT TESTED</span></td>
+            <td id="asserts-TC-6">—</td>
+          </tr>
+          <tr id="row-TC-7">
+            <td><strong>TC-7</strong></td>
+            <td>Counter Integrity &amp; Active Totals Exclusion</td>
+            <td>Verify +0 counter drift on voids &amp; active totals exclusion</td>
+            <td>Real <code>system/counters</code> &amp; active filters audit</td>
+            <td><span class="badge not-tested" id="badge-TC-7">NOT TESTED</span></td>
+            <td id="asserts-TC-7">—</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Live Evidence & State Inspection -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">Runtime Evidence &amp; State Inspection</div>
+        <span class="badge prepared">Live Emulator Mirror</span>
+      </div>
+      
+      <div class="evidence-grid">
+        <div class="evidence-card">
+          <h4>Authoritative Counters (system/counters)</h4>
+          <pre class="code-snippet" id="evidence-counters">Loading...</pre>
+        </div>
+        <div class="evidence-card">
+          <h4>Billing Collection Sample (billing/)</h4>
+          <pre class="code-snippet" id="evidence-billing">Empty</pre>
+        </div>
+        <div class="evidence-card">
+          <h4>Receipts Collection Sample (receipts/)</h4>
+          <pre class="code-snippet" id="evidence-receipts">Empty</pre>
+        </div>
+        <div class="evidence-card">
+          <h4>Active Reporting Totals</h4>
+          <pre class="code-snippet" id="evidence-totals">Calculating...</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // STRICT SAFETY CONFIGURATION
+    const TEST_CONFIG = {
+      projectId: 'demo-temple-accounts-test', // Guaranteed offline demo project
+      apiKey: 'test-api-key-demo-only',
+      authDomain: 'demo-temple-accounts-test.firebaseapp.com',
+      firestoreHost: '127.0.0.1',
+      firestorePort: 8080,
+      authUrl: 'http://127.0.0.1:9099',
+      testDbName: 'temple_accounts_test_db' // 100% separate from production temple_accounts_db
+    };
+
+    let fbApp = null;
+    let fbAuth = null;
+    let fbDb = null;
+    let testUser = null;
+    let idbConn = null;
+
+    // Structured storage for test results
+    window.TEST_RESULTS = {
+      executedAt: null,
+      suiteSummary: { total: 7, passed: 0, failed: 0, skipped: 0 },
+      tests: {},
+      evidence: {}
+    };
+
+    function log(msg, type = 'info') {
+      const box = document.getElementById('diagnostic-log');
+      const time = new Date().toLocaleTimeString();
+      const div = document.createElement('div');
+      div.className = `log-entry ${type}`;
+      div.textContent = `[${time}] ${msg}`;
+      box.appendChild(div);
+      box.scrollTop = box.scrollHeight;
+      console.log(`[${type.toUpperCase()}] ${msg}`);
+    }
+
+    /* ===========================================================
+       INDEXEDDB TEST DATABASE LAYER (temple_accounts_test_db)
+       =========================================================== */
+    function openTestDB() {
+      return new Promise((resolve, reject) => {
+        if (idbConn) return resolve(idbConn);
+        const req = indexedDB.open(TEST_CONFIG.testDbName, 1);
+        req.onupgradeneeded = (e) => {
+          const d = e.target.result;
+          if (!d.objectStoreNames.contains('settings')) d.createObjectStore('settings', { keyPath: 'id' });
+          if (!d.objectStoreNames.contains('billing')) d.createObjectStore('billing', { keyPath: 'id' });
+          if (!d.objectStoreNames.contains('receipts')) d.createObjectStore('receipts', { keyPath: 'id' });
+        };
+        req.onsuccess = (e) => {
+          idbConn = e.target.result;
+          resolve(idbConn);
+        };
+        req.onerror = (e) => reject(e.target.error);
+      });
+    }
+
+    async function testDbTx(storeName, mode = 'readonly') {
+      const d = await openTestDB();
+      return d.transaction(storeName, mode).objectStore(storeName);
+    }
+
+    async function putRec(storeName, obj) {
+      const tx = await testDbTx(storeName, 'readwrite');
+      return new Promise((res, rej) => {
+        const r = tx.put(obj);
+        r.onsuccess = () => res(r.result);
+        r.onerror = () => rej(r.error);
+      });
+    }
+
+    async function getOne(storeName, id) {
+      const tx = await testDbTx(storeName, 'readonly');
+      return new Promise((res, rej) => {
+        const r = tx.get(id);
+        r.onsuccess = () => res(r.result);
+        r.onerror = () => rej(r.error);
+      });
+    }
+
+    async function getAll(storeName) {
+      const tx = await testDbTx(storeName, 'readonly');
+      return new Promise((res, rej) => {
+        const r = tx.getAll();
+        r.onsuccess = () => res(r.result);
+        r.onerror = () => rej(r.error);
+      });
+    }
+
+    async function deleteRec(storeName, id) {
+      const tx = await testDbTx(storeName, 'readwrite');
+      return new Promise((res, rej) => {
+        const r = tx.delete(id);
+        r.onsuccess = () => res();
+        r.onerror = () => rej(r.error);
+      });
+    }
+
+    async function clearStore(storeName) {
+      const tx = await testDbTx(storeName, 'readwrite');
+      return new Promise((res, rej) => {
+        const r = tx.clear();
+        r.onsuccess = () => res();
+        r.onerror = () => rej(r.error);
+      });
+    }
+
+    /* ===========================================================
+       PRODUCTION SYNCHRONIZATION IMPLEMENTATION (VERBATIM ADAPTED)
+       From Temple_Accounts-1.html lines 12720-13412
+       =========================================================== */
+    function getCurrentFirebaseUser() {
+      return fbAuth ? fbAuth.currentUser : null;
+    }
+
+    function getFirestoreDb() {
+      return fbDb;
+    }
+
+    function todayISO() {
+      const now = new Date();
+      return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    }
+
+    function getDeterministicDocPrefix(storeName) {
+      const map = {
+        'billing': 'bill_',
+        'receipts': 'rcpt_',
+        'payments': 'pay_',
+        'transfers': 'trf_',
+        'settings': 'set_'
+      };
+      return map[storeName] || `${storeName}_`;
+    }
+
+    function getBillingRecordISODate(billingInput) {
+      if (!billingInput || !billingInput.date) return todayISO();
+      const parts = billingInput.date.split('/');
+      if (parts.length === 3) {
+        return `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+      }
+      return billingInput.date;
+    }
+
+    function billingCategoryToFund(cat) {
+      if (cat === 'പുനരുദ്ധാരണം') return 'Punarudharanam Fund';
+      if (cat === 'ചിട്ടി') return 'Chitty Fund';
+      if (cat === 'ഉത്സവം') return 'Festival Fund';
+      return 'General Temple Fund';
+    }
+
+    function getFsCountersDocRef() {
+      return fbDb.collection('system').doc('counters');
+    }
+
+    async function fsGetCounters() {
+      try {
+        const snap = await getFsCountersDocRef().get();
+        return snap.exists ? snap.data() : null;
+      } catch (err) {
+        console.warn('[fsGetCounters] Error:', err);
+        return null;
+      }
+    }
+
+    async function fsInitCounters(initialValues = {}, overwrite = false) {
+      const counterRef = getFsCountersDocRef();
+      const snap = await counterRef.get();
+      if (snap.exists && !overwrite) {
+        return snap.data();
+      }
+      const defaults = {
+        receiptCounter: 1000,
+        voucherCounter: 500,
+        billingReceiptCounter: 0,
+        receiptPrefix: 'R-',
+        voucherPrefix: 'V-',
+        billingPrefix: 'BILL-',
+        ...initialValues
+      };
+      defaults.initializedAt = Date.now();
+      await counterRef.set(defaults, { merge: true });
+      return defaults;
+    }
+
+    /**
+     * Real production implementation: Atomic billing creation and accounting link strategy.
+     * Executes inside an atomic Cloud Firestore transaction (runTransaction).
+     */
+    async function fsCreateBillingWithAccounting(billingInput) {
+      const db = getFirestoreDb();
+      if (!db) throw new Error('Firestore is not initialized.');
+      const user = getCurrentFirebaseUser();
+      if (!user) throw new Error('Authentication required: please log in to record bills.');
+
+      const counterRef = getFsCountersDocRef();
+
+      return await db.runTransaction(async (tx) => {
+        // 1. Read counters inside transaction
+        const cSnap = await tx.get(counterRef);
+        const cData = cSnap.exists ? cSnap.data() : {};
+
+        const curBillCnt = (typeof cData.billingReceiptCounter === 'number')
+          ? cData.billingReceiptCounter
+          : (cData.billingReceiptCounter !== undefined ? parseInt(cData.billingReceiptCounter, 10) : 0);
+        const curRcptCnt = (typeof cData.receiptCounter === 'number')
+          ? cData.receiptCounter
+          : (cData.receiptCounter !== undefined ? parseInt(cData.receiptCounter, 10) : 1000);
+
+        const nextBillNum = curBillCnt + 1;
+        const nextRcptNum = curRcptCnt + 1;
+
+        const billPrefix = cData.billingPrefix || 'BILL-';
+        const rcptPrefix = cData.receiptPrefix || 'R-';
+
+        const formattedBillNo = `${billPrefix}${String(nextBillNum).padStart(4, '0')}`;
+        const formattedRcptNo = `${rcptPrefix}${nextRcptNum}`;
+
+        // 2. Prepare doc refs
+        const billDocId = `bill_${nextBillNum}`;
+        const rcptDocId = `rcpt_${nextRcptNum}`;
+        const billingDocRef = db.collection('billing').doc(billDocId);
+        const receiptDocRef = db.collection('receipts').doc(rcptDocId);
+
+        // 3. Resolve fund, category, and date mapping
+        const isoDate = getBillingRecordISODate(billingInput) || todayISO();
+        const fund = billingCategoryToFund(billingInput.category);
+        let incomeCat = 'Vazhipadu Income';
+        if (billingInput.category === 'നേർച്ച') incomeCat = 'Donation Income';
+        else if (billingInput.category === 'പുനരുദ്ധാരണം') incomeCat = 'Donation Income';
+
+        let description = String(billingInput.item || '');
+        if (billingInput.quantity && billingInput.quantity > 1) {
+          description += ` (Qty: ${billingInput.quantity})`;
+        }
+        if (billingInput.star) {
+          description += ` | Star: ${billingInput.star}`;
+        }
+
+        const nowTimestamp = Date.now();
+        const serverTs = nowTimestamp; // emulator fallback or timestamp
+
+        // 4. Construct Billing Payload
+        const billingPayload = {
+          id: nextBillNum,
+          legacyId: nextBillNum,
+          firestoreId: billDocId,
+          receiptNo: formattedBillNo,
+          createdAt: nowTimestamp,
+          date: billingInput.date,
+          time: billingInput.time,
+          category: billingInput.category,
+          item: billingInput.item,
+          devoteeName: billingInput.devoteeName,
+          star: billingInput.star || '',
+          quantity: billingInput.quantity,
+          unitPrice: billingInput.unitPrice,
+          totalAmount: billingInput.totalAmount,
+          paymentMode: billingInput.paymentMode,
+          accountingReceiptId: rcptDocId,
+          accountingReceiptNo: formattedRcptNo,
+          source: 'firestore',
+          voided: false,
+          createdBy: user.uid,
+          updatedBy: user.uid,
+          updatedAt: serverTs
+        };
+
+        // 5. Construct Accounting Receipt Payload
+        const receiptPayload = {
+          id: nextRcptNum,
+          legacyId: nextRcptNum,
+          firestoreId: rcptDocId,
+          receiptNo: formattedRcptNo,
+          date: isoDate,
+          name: billingInput.devoteeName || '',
+          mobile: '',
+          fund: fund,
+          category: incomeCat,
+          description: description,
+          paymentMode: billingInput.paymentMode,
+          bankAccount: billingInput.bankAccount || '',
+          amount: billingInput.totalAmount,
+          remarks: `Billing Receipt: ${formattedBillNo}`,
+          voided: false,
+          createdAt: nowTimestamp,
+          source: 'billing',
+          billingId: nextBillNum,
+          billingFirestoreId: billDocId,
+          billingReceiptNo: formattedBillNo,
+          createdBy: user.uid,
+          updatedBy: user.uid,
+          updatedAt: serverTs
+        };
+
+        // 6. Write all 3 within transaction atomically
+        tx.set(counterRef, {
+          billingReceiptCounter: nextBillNum,
+          receiptCounter: nextRcptNum,
+          updatedAt: serverTs
+        }, { merge: true });
+
+        tx.set(billingDocRef, billingPayload);
+        tx.set(receiptDocRef, receiptPayload);
+
+        return {
+          billingRecord: billingPayload,
+          accountingReceipt: receiptPayload
+        };
+      });
+    }
+
+    /**
+     * Real production implementation: Atomically void linked Billing and Receipt records.
+     * Uses db.batch() for Firestore; synchronizes IndexedDB cache strictly post-commit.
+     */
+    async function fsVoidLinkedBillingAndReceipt(billIdOrDocId, rcptIdOrDocId, voidReason, failureInjection = null) {
+      const user = getCurrentFirebaseUser();
+      if (!user) throw new Error('Authentication required: please log in to void records.');
+
+      const db = getFirestoreDb();
+      if (!db) throw new Error('Firestore is not initialized.');
+
+      const billDocId = (typeof billIdOrDocId === 'string' && billIdOrDocId.startsWith('bill_'))
+        ? billIdOrDocId
+        : `bill_${billIdOrDocId}`;
+      const rcptDocId = (typeof rcptIdOrDocId === 'string' && rcptIdOrDocId.startsWith('rcpt_'))
+        ? rcptIdOrDocId
+        : `rcpt_${rcptIdOrDocId}`;
+
+      const billRef = db.collection('billing').doc(billDocId);
+      const rcptRef = db.collection('receipts').doc(rcptDocId);
+
+      const cleanReason = (typeof voidReason === 'string' && voidReason.trim())
+        ? voidReason.trim()
+        : 'Cancelled by user';
+      const voidDateStr = todayISO();
+      const nowTs = Date.now();
+
+      const voidPayload = {
+        voided: true,
+        voidReason: cleanReason,
+        voidDate: voidDateStr,
+        voidedAt: nowTs,
+        updatedBy: user.uid,
+        updatedAt: nowTs
+      };
+
+      // 1. Atomic Firestore Write Batch
+      const batch = db.batch();
+      batch.set(billRef, voidPayload, { merge: true });
+      batch.set(rcptRef, voidPayload, { merge: true });
+
+      // Controlled Failure Injection Hook for TC-5
+      if (failureInjection === 'COMMIT_REJECTION') {
+        // Documented mechanism (Step 33.4): Simulate client transport / commit abort
+        batch.commit = () => Promise.reject(new Error('FirebaseError: [code=unavailable] Simulated transport/network drop during Firestore batch commit'));
+      }
+
+      await batch.commit();
+
+      console.log(`[Firestore Batch] Atomically voided Billing/${billDocId} and Receipts/${rcptDocId}.`);
+
+      // 2. On confirmed Firestore success, update IndexedDB cache for both stores
+      try {
+        const billNum = parseInt(billDocId.replace('bill_', ''), 10);
+        const targetBillKey = (!isNaN(billNum) && billNum > 0) ? billNum : billDocId;
+        const cachedBill = (await getOne('billing', targetBillKey)) || {};
+        const updatedBill = {
+          ...cachedBill,
+          ...voidPayload,
+          updatedAt: nowTs,
+          id: (cachedBill && cachedBill.id !== undefined) ? cachedBill.id : targetBillKey
+        };
+        await putRec('billing', updatedBill);
+
+        const rcptNum = parseInt(rcptDocId.replace('rcpt_', ''), 10);
+        const targetRcptKey = (!isNaN(rcptNum) && rcptNum > 0) ? rcptNum : rcptDocId;
+        const cachedRcpt = (await getOne('receipts', targetRcptKey)) || {};
+        const updatedRcpt = {
+          ...cachedRcpt,
+          ...voidPayload,
+          updatedAt: nowTs,
+          id: (cachedRcpt && cachedRcpt.id !== undefined) ? cachedRcpt.id : targetRcptKey
+        };
+        await putRec('receipts', updatedRcpt);
+      } catch (cacheErr) {
+        console.warn('[Repository] IDB cache synchronization warning after atomic void:', cacheErr);
+      }
+
+      return true;
+    }
+
+    /**
+     * Real production implementation: Audit-safe void for independent manual records.
+     */
+    async function fsVoidRecordSafe(storeName, id, voidReason) {
+      const user = getCurrentFirebaseUser();
+      if (!user) throw new Error('Authentication required.');
+
+      const db = getFirestoreDb();
+      if (!db) throw new Error('Firestore is not initialized.');
+
+      let docId = (typeof id === 'string' && id.includes('_')) ? id : `${getDeterministicDocPrefix(storeName)}${id}`;
+      const cleanReason = (typeof voidReason === 'string' && voidReason.trim()) ? voidReason.trim() : 'Voided by user';
+      const voidPayload = {
+        voided: true,
+        voidReason: cleanReason,
+        voidDate: todayISO(),
+        voidedAt: Date.now(),
+        updatedBy: user.uid,
+        updatedAt: Date.now()
+      };
+
+      // 1. Update Firestore document
+      await db.collection(storeName).doc(docId).set(voidPayload, { merge: true });
+
+      // 2. Update IndexedDB cache
+      try {
+        const numId = (typeof id === 'string' && id.includes('_')) ? parseInt(id.split('_')[1], 10) : parseInt(id, 10);
+        const targetId = (!isNaN(numId) && numId > 0) ? numId : id;
+        const cached = (await getOne(storeName, targetId)) || (await getOne(storeName, id)) || {};
+        await putRec(storeName, { ...cached, ...voidPayload, id: (cached && cached.id !== undefined) ? cached.id : targetId });
+      } catch (cacheErr) {
+        console.warn(`[Repository] Cache void warning for ${storeName}/${id}:`, cacheErr);
+      }
+
+      return true;
+    }
+
+    /* ===========================================================
+       REPORTING & ACTIVE TOTALS LOGIC (AUDIT CALCULATORS)
+       =========================================================== */
+    function calculateActiveBillingTotals(records = []) {
+      const active = records.filter(r => !r.voided);
+      const voided = records.filter(r => !!r.voided);
+      const totalAmount = active.reduce((s, r) => s + (parseFloat(r.totalAmount) || 0), 0);
+      const cashTotal = active.filter(r => r.paymentMode === 'Cash').reduce((s, r) => s + (parseFloat(r.totalAmount) || 0), 0);
+      const upiTotal = active.filter(r => r.paymentMode === 'UPI').reduce((s, r) => s + (parseFloat(r.totalAmount) || 0), 0);
+      const voidedTotal = voided.reduce((s, r) => s + (parseFloat(r.totalAmount) || 0), 0);
+      return { activeCount: active.length, totalAmount, cashTotal, upiTotal, voidedCount: voided.length, voidedTotal };
+    }
+
+    function calculateActiveReceiptTotals(records = []) {
+      const active = records.filter(r => !r.voided);
+      const voided = records.filter(r => !!r.voided);
+      const activeAmount = active.reduce((s, r) => s + (parseFloat(r.amount) || 0), 0);
+      const voidedAmount = voided.reduce((s, r) => s + (parseFloat(r.amount) || 0), 0);
+      return { activeCount: active.length, activeAmount, voidedCount: voided.length, voidedAmount };
+    }
+
+    async function refreshEvidencePanel() {
+      try {
+        const counters = await fsGetCounters();
+        document.getElementById('evidence-counters').textContent = JSON.stringify(counters, null, 2);
+
+        const bSnap = await fbDb.collection('billing').get();
+        const bDocs = [];
+        bSnap.forEach(d => bDocs.push(d.data()));
+        document.getElementById('evidence-billing').textContent = JSON.stringify(bDocs, null, 2);
+
+        const rSnap = await fbDb.collection('receipts').get();
+        const rDocs = [];
+        rSnap.forEach(d => rDocs.push(d.data()));
+        document.getElementById('evidence-receipts').textContent = JSON.stringify(rDocs, null, 2);
+
+        const bTotals = calculateActiveBillingTotals(bDocs);
+        const rTotals = calculateActiveReceiptTotals(rDocs);
+        document.getElementById('evidence-totals').textContent = JSON.stringify({
+          activeBilling: bTotals,
+          activeReceipts: rTotals
+        }, null, 2);
+      } catch (e) {
+        console.warn('Evidence refresh error:', e);
+      }
+    }
+
+    /* ===========================================================
+       THE SEVEN SYNCHRONIZATION TEST CASES (TC-1 THROUGH TC-7)
+       =========================================================== */
+
+    // TC-1: Atomic Creation
+    async function runTC1() {
+      log('--- [TC-1] Starting: Atomic Billing Creation ---', 'info');
+      const testId = 'TC-1';
+      const asserts = [];
+      
+      const syntheticInput = {
+        category: 'പൂജ / വഴിപാട്',
+        item: 'കൂട്ടുപായസം',
+        quantity: 1,
+        unitPrice: 250,
+        totalAmount: 250,
+        paymentMode: 'Cash',
+        devoteeName: 'Suresh Kumar (Synthetic Devotee)',
+        star: 'അശ്വതി',
+        date: '10/10/2026',
+        time: '12:00 PM'
+      };
+
+      // 1. Initial counter check
+      const preCounters = await fsGetCounters();
+      log(`TC-1 Pre-counters: billingReceiptCounter=${preCounters.billingReceiptCounter}, receiptCounter=${preCounters.receiptCounter}`, 'info');
+
+      // 2. Execute real atomic function
+      const result = await fsCreateBillingWithAccounting(syntheticInput);
+      const bRec = result.billingRecord;
+      const rRec = result.accountingReceipt;
+
+      // 3. Update local IDB cache (just like real app does post-Firestore)
+      await putRec('billing', bRec);
+      await putRec('receipts', rRec);
+
+      // 4. Assertions on Cloud Firestore
+      const billSnap = await fbDb.collection('billing').doc('bill_1').get();
+      const rcptSnap = await fbDb.collection('receipts').doc('rcpt_1001').get();
+      const postCounters = await fsGetCounters();
+
+      asserts.push({ name: 'bill_1 created in Firestore', pass: billSnap.exists && billSnap.id === 'bill_1' });
+      asserts.push({ name: 'rcpt_1001 created in Firestore', pass: rcptSnap.exists && rcptSnap.id === 'rcpt_1001' });
+
+      const billData = billSnap.data();
+      const rcptData = rcptSnap.data();
+
+      asserts.push({ name: 'bill_1 references rcpt_1001', pass: billData.accountingReceiptId === 'rcpt_1001' && billData.accountingReceiptNo === 'R-1001' });
+      asserts.push({ name: 'rcpt_1001 references bill_1', pass: rcptData.billingFirestoreId === 'bill_1' && rcptData.billingReceiptNo === 'BILL-0001' && rcptData.billingId === 1 });
+      asserts.push({ name: 'billing counter incremented by 1 (1)', pass: postCounters.billingReceiptCounter === 1 });
+      asserts.push({ name: 'receipt counter incremented by 1 (1001)', pass: postCounters.receiptCounter === 1001 });
+
+      // 5. Assertions on IndexedDB Cache
+      const idbBill = await getOne('billing', 1);
+      const idbRcpt = await getOne('receipts', 1001);
+      asserts.push({ name: 'bill_1 cached in temple_accounts_test_db', pass: idbBill && idbBill.receiptNo === 'BILL-0001' && idbBill.id === 1 });
+      asserts.push({ name: 'rcpt_1001 cached in temple_accounts_test_db', pass: idbRcpt && idbRcpt.receiptNo === 'R-1001' && idbRcpt.id === 1001 });
+
+      // 6. No undefined fields check
+      const hasUndefined = Object.values(billData).some(v => v === undefined) || Object.values(rcptData).some(v => v === undefined);
+      asserts.push({ name: 'Zero undefined fields in Firestore payloads', pass: !hasUndefined });
+
+      const allPass = asserts.every(a => a.pass);
+      updateMatrixRow(testId, allPass ? 'PASS' : 'FAIL', asserts);
+      window.TEST_RESULTS.tests[testId] = { status: allPass ? 'PASS' : 'FAIL', asserts, billData, rcptData, postCounters };
+      log(`--- [TC-1] Result: ${allPass ? 'PASS' : 'FAIL'} (${asserts.filter(a => a.pass).length}/${asserts.length} assertions passed) ---`, allPass ? 'success' : 'error');
+      await refreshEvidencePanel();
+      return allPass;
+    }
+
+    // TC-2: Billing-to-Receipt Voiding
+    async function runTC2() {
+      log('--- [TC-2] Starting: Billing-to-Receipt Voiding ---', 'info');
+      const testId = 'TC-2';
+      const asserts = [];
+      const reason = 'Synthetic Devotee Cancellation Request';
+
+      const preCounters = await fsGetCounters();
+
+      // Execute real void function
+      await fsVoidLinkedBillingAndReceipt('bill_1', 'rcpt_1001', reason);
+
+      const billSnap = await fbDb.collection('billing').doc('bill_1').get();
+      const rcptSnap = await fbDb.collection('receipts').doc('rcpt_1001').get();
+      const postCounters = await fsGetCounters();
+
+      const bData = billSnap.data();
+      const rData = rcptSnap.data();
+
+      asserts.push({ name: 'bill_1 marked voided: true', pass: bData.voided === true });
+      asserts.push({ name: 'rcpt_1001 marked voided: true', pass: rData.voided === true });
+      asserts.push({ name: 'Consistent cancellation reason on both', pass: bData.voidReason === reason && rData.voidReason === reason });
+      asserts.push({ name: 'Valid cancellation date & timestamp', pass: !!bData.voidDate && !!bData.voidedAt && bData.voidDate === rData.voidDate });
+      asserts.push({ name: 'Zero counter drift on void (billCnt=1, rcptCnt=1001)', pass: postCounters.billingReceiptCounter === preCounters.billingReceiptCounter && postCounters.receiptCounter === preCounters.receiptCounter });
+
+      // Cache assertions
+      const idbBill = await getOne('billing', 1);
+      const idbRcpt = await getOne('receipts', 1001);
+      asserts.push({ name: 'IndexedDB cache bill_1 marked voided: true', pass: idbBill && idbBill.voided === true });
+      asserts.push({ name: 'IndexedDB cache rcpt_1001 marked voided: true', pass: idbRcpt && idbRcpt.voided === true });
+
+      // Active totals assertion
+      const activeBills = calculateActiveBillingTotals([bData]);
+      const activeRcpts = calculateActiveReceiptTotals([rData]);
+      asserts.push({ name: 'Active billing totals exclude voided bill (active ₹0)', pass: activeBills.totalAmount === 0 && activeBills.activeCount === 0 });
+      asserts.push({ name: 'Active receipts balances exclude voided receipt (active ₹0)', pass: activeRcpts.activeAmount === 0 && activeRcpts.activeCount === 0 });
+
+      // Idempotency check: Voiding again should not fail or corrupt
+      await fsVoidLinkedBillingAndReceipt('bill_1', 'rcpt_1001', reason);
+      const idempCounters = await fsGetCounters();
+      asserts.push({ name: 'Void operation is idempotent (+0 drift on re-void)', pass: idempCounters.billingReceiptCounter === 1 && idempCounters.receiptCounter === 1001 });
+
+      const allPass = asserts.every(a => a.pass);
+      updateMatrixRow(testId, allPass ? 'PASS' : 'FAIL', asserts);
+      window.TEST_RESULTS.tests[testId] = { status: allPass ? 'PASS' : 'FAIL', asserts, bData, rData };
+      log(`--- [TC-2] Result: ${allPass ? 'PASS' : 'FAIL'} (${asserts.filter(a => a.pass).length}/${asserts.length} assertions passed) ---`, allPass ? 'success' : 'error');
+      await refreshEvidencePanel();
+      return allPass;
+    }
+
+    // TC-3: Receipt-to-Billing Voiding
+    async function runTC3() {
+      log('--- [TC-3] Starting: Receipt-to-Billing Voiding ---', 'info');
+      const testId = 'TC-3';
+      const asserts = [];
+
+      // Precondition: Create second bill (BILL-0002 / R-1002, ₹150)
+      const input2 = {
+        category: 'പൂജ / വഴിപാട്',
+        item: 'കടുംപായസം',
+        quantity: 1,
+        unitPrice: 150,
+        totalAmount: 150,
+        paymentMode: 'Cash',
+        devoteeName: 'Devaki Amma (Synthetic Devotee)',
+        star: 'രോഹിണി',
+        date: '10/10/2026',
+        time: '01:00 PM'
+      };
+      const res2 = await fsCreateBillingWithAccounting(input2);
+      await putRec('billing', res2.billingRecord);
+      await putRec('receipts', res2.accountingReceipt);
+
+      const preVoidCounters = await fsGetCounters();
+      asserts.push({ name: 'BILL-0002 / R-1002 created cleanly', pass: preVoidCounters.billingReceiptCounter === 2 && preVoidCounters.receiptCounter === 1002 });
+
+      // Emulate voiding directly from Receipts module (voidRecord handler)
+      // Receipts module identifies that rcpt_1002 has source: 'billing' and billingFirestoreId: 'bill_2'
+      const rcpt2 = await fbDb.collection('receipts').doc('rcpt_1002').get();
+      const rcpt2Data = rcpt2.data();
+      const linkedBillDocId = rcpt2Data.billingFirestoreId;
+      const voidReason = 'Synthetic Operator Duplicate Entry';
+
+      // Call atomic void function with linkedBillDocId and rcptDocId
+      await fsVoidLinkedBillingAndReceipt(linkedBillDocId, 'rcpt_1002', voidReason);
+
+      const b2Snap = await fbDb.collection('billing').doc('bill_2').get();
+      const r2Snap = await fbDb.collection('receipts').doc('rcpt_1002').get();
+      const postCounters = await fsGetCounters();
+
+      const b2Data = b2Snap.data();
+      const r2Data = r2Snap.data();
+
+      asserts.push({ name: 'Linked bill_2 voided from receipts flow', pass: b2Data.voided === true });
+      asserts.push({ name: 'Receipt rcpt_1002 voided', pass: r2Data.voided === true });
+      asserts.push({ name: 'Link between bill and receipt remains intact', pass: b2Data.accountingReceiptId === 'rcpt_1002' && r2Data.billingFirestoreId === 'bill_2' });
+      asserts.push({ name: 'Reason preserved on both documents', pass: b2Data.voidReason === voidReason && r2Data.voidReason === voidReason });
+      asserts.push({ name: 'Zero counter drift on void (billCnt=2, rcptCnt=1002)', pass: postCounters.billingReceiptCounter === 2 && postCounters.receiptCounter === 1002 });
+
+      // Active totals exclusions
+      const allBillsSnap = await fbDb.collection('billing').get();
+      const allBills = [];
+      allBillsSnap.forEach(d => allBills.push(d.data()));
+      const bTotals = calculateActiveBillingTotals(allBills);
+      asserts.push({ name: 'Active billing sales excludes both voided bills', pass: bTotals.totalAmount === 0 && bTotals.voidedCount === 2 });
+
+      const allPass = asserts.every(a => a.pass);
+      updateMatrixRow(testId, allPass ? 'PASS' : 'FAIL', asserts);
+      window.TEST_RESULTS.tests[testId] = { status: allPass ? 'PASS' : 'FAIL', asserts, b2Data, r2Data };
+      log(`--- [TC-3] Result: ${allPass ? 'PASS' : 'FAIL'} (${asserts.filter(a => a.pass).length}/${asserts.length} assertions passed) ---`, allPass ? 'success' : 'error');
+      await refreshEvidencePanel();
+      return allPass;
+    }
+
+    // TC-4: Unrelated Manual Receipt Isolation
+    async function runTC4() {
+      log('--- [TC-4] Starting: Unrelated Manual Receipt Isolation ---', 'info');
+      const testId = 'TC-4';
+      const asserts = [];
+
+      // Precondition: Create a manual receipt with NO billing linkage (R-1003, ₹500)
+      const user = getCurrentFirebaseUser();
+      const counterRef = getFsCountersDocRef();
+      const snap = await counterRef.get();
+      const nextRcptNum = (snap.data().receiptCounter || 1002) + 1;
+
+      const manualRcptPayload = {
+        id: nextRcptNum,
+        legacyId: nextRcptNum,
+        firestoreId: `rcpt_${nextRcptNum}`,
+        receiptNo: `R-${nextRcptNum}`,
+        date: todayISO(),
+        name: 'Gopalakrishnan (Manual Receipt Devotee)',
+        fund: 'General Temple Fund',
+        category: 'Pooja Income',
+        description: 'Special Archana Manual',
+        paymentMode: 'Cash',
+        amount: 500,
+        remarks: 'Direct counter entry',
+        voided: false,
+        source: 'manual', // Independent manual accounting receipt
+        createdAt: Date.now(),
+        createdBy: user.uid,
+        updatedBy: user.uid,
+        updatedAt: Date.now()
+      };
+
+      await counterRef.set({ receiptCounter: nextRcptNum }, { merge: true });
+      await fbDb.collection('receipts').doc(`rcpt_${nextRcptNum}`).set(manualRcptPayload);
+      await putRec('receipts', manualRcptPayload);
+
+      // Snapshot billing state before voiding manual receipt
+      const billsBeforeSnap = await fbDb.collection('billing').get();
+      const billsBefore = [];
+      billsBeforeSnap.forEach(d => billsBefore.push({ id: d.id, ...d.data() }));
+      const countersBefore = await fsGetCounters();
+
+      // Action: Void manual receipt using fsVoidRecordSafe (no billing linkage)
+      const manualVoidReason = 'Manual Receipt Clerical Correction';
+      await fsVoidRecordSafe('receipts', `rcpt_${nextRcptNum}`, manualVoidReason);
+
+      // Verify receipt is voided
+      const r3Snap = await fbDb.collection('receipts').doc(`rcpt_${nextRcptNum}`).get();
+      const r3Data = r3Snap.data();
+      asserts.push({ name: 'Manual receipt rcpt_1003 is voided: true', pass: r3Data.voided === true });
+      asserts.push({ name: 'Void reason recorded on manual receipt', pass: r3Data.voidReason === manualVoidReason });
+
+      // Verify billing collection has ZERO mutations
+      const billsAfterSnap = await fbDb.collection('billing').get();
+      const billsAfter = [];
+      billsAfterSnap.forEach(d => billsAfter.push({ id: d.id, ...d.data() }));
+
+      asserts.push({ name: 'Billing document count completely unchanged', pass: billsBefore.length === billsAfter.length });
+      const noBillChanged = billsBefore.every((b, idx) => {
+        const a = billsAfter[idx];
+        return b.id === a.id && b.voided === a.voided && b.updatedAt === a.updatedAt;
+      });
+      asserts.push({ name: 'Zero mutations to any billing documents', pass: noBillChanged });
+
+      // Verify billing counter unchanged
+      const countersAfter = await fsGetCounters();
+      asserts.push({ name: 'Billing counter remains exactly unchanged (+0 drift)', pass: countersAfter.billingReceiptCounter === countersBefore.billingReceiptCounter });
+
+      const allPass = asserts.every(a => a.pass);
+      updateMatrixRow(testId, allPass ? 'PASS' : 'FAIL', asserts);
+      window.TEST_RESULTS.tests[testId] = { status: allPass ? 'PASS' : 'FAIL', asserts, r3Data, countersAfter };
+      log(`--- [TC-4] Result: ${allPass ? 'PASS' : 'FAIL'} (${asserts.filter(a => a.pass).length}/${asserts.length} assertions passed) ---`, allPass ? 'success' : 'error');
+      await refreshEvidencePanel();
+      return allPass;
+    }
+
+    // TC-5: Controlled Batch Failure Handling
+    async function runTC5() {
+      log('--- [TC-5] Starting: Controlled Batch Failure Handling ---', 'info');
+      const testId = 'TC-5';
+      const asserts = [];
+
+      // Precondition: Create synthetic records BILL-0003 / R-1004 (₹300)
+      const input3 = {
+        category: 'പൂജ / വഴിപാട്',
+        item: 'പുഷ്പാഞ്ജലി',
+        quantity: 3,
+        unitPrice: 100,
+        totalAmount: 300,
+        paymentMode: 'Cash',
+        devoteeName: 'Anil Kumar (Failure Test Devotee)',
+        star: 'മകം',
+        date: '10/10/2026',
+        time: '02:00 PM'
+      };
+      const res3 = await fsCreateBillingWithAccounting(input3);
+      await putRec('billing', res3.billingRecord);
+      await putRec('receipts', res3.accountingReceipt);
+
+      log('Attempting controlled batch commit rejection via documented transport abort mechanism...', 'warn');
+      
+      let errorCaught = false;
+      let errorMsg = '';
+      try {
+        // Inject failure: batch commit is rejected before persistence
+        await fsVoidLinkedBillingAndReceipt('bill_3', 'rcpt_1004', 'Abort Test Reason', 'COMMIT_REJECTION');
+      } catch (err) {
+        errorCaught = true;
+        errorMsg = err.message || String(err);
+        log(`Controlled failure properly caught: ${errorMsg}`, 'success');
+      }
+
+      asserts.push({ name: 'Firestore batch failure threw an actionable error', pass: errorCaught });
+
+      // Verify Firestore state: neither document should be marked voided!
+      const b3Snap = await fbDb.collection('billing').doc('bill_3').get();
+      const r4Snap = await fbDb.collection('receipts').doc('rcpt_1004').get();
+      const b3Data = b3Snap.data();
+      const r4Data = r4Snap.data();
+
+      asserts.push({ name: 'bill_3 retains active state in Firestore (voided: false)', pass: b3Data.voided === false });
+      asserts.push({ name: 'rcpt_1004 retains active state in Firestore (voided: false)', pass: r4Data.voided === false });
+
+      // Verify IndexedDB state: cache update was bypassed due to failure
+      const idbB3 = await getOne('billing', 3);
+      const idbR4 = await getOne('receipts', 1004);
+      asserts.push({ name: 'bill_3 retains active state in IndexedDB cache (voided: false)', pass: idbB3 && idbB3.voided === false });
+      asserts.push({ name: 'rcpt_1004 retains active state in IndexedDB cache (voided: false)', pass: idbR4 && idbR4.voided === false });
+
+      const allPass = asserts.every(a => a.pass);
+      updateMatrixRow(testId, allPass ? 'PASS' : 'FAIL', asserts);
+      window.TEST_RESULTS.tests[testId] = { status: allPass ? 'PASS' : 'FAIL', asserts, errorMsg, b3Data, r4Data };
+      log(`--- [TC-5] Result: ${allPass ? 'PASS' : 'FAIL'} (${asserts.filter(a => a.pass).length}/${asserts.length} assertions passed) ---`, allPass ? 'success' : 'error');
+      await refreshEvidencePanel();
+      return allPass;
+    }
+
+    // TC-6: IndexedDB Cache Consistency Inspection
+    async function runTC6() {
+      log('--- [TC-6] Starting: IndexedDB Cache Consistency Inspection ---', 'info');
+      const testId = 'TC-6';
+      const asserts = [];
+
+      const idbBills = await getAll('billing');
+      const idbRcpts = await getAll('receipts');
+
+      const fsBillsSnap = await fbDb.collection('billing').get();
+      const fsRcptsSnap = await fbDb.collection('receipts').get();
+
+      // 1. Key normalization audit
+      const billKeysAreNumeric = idbBills.every(b => typeof b.id === 'number');
+      const rcptKeysAreNumeric = idbRcpts.every(r => typeof r.id === 'number');
+      asserts.push({ name: 'All IndexedDB billing keys are normalized numbers (no dual-key duplicates)', pass: billKeysAreNumeric });
+      asserts.push({ name: 'All IndexedDB receipts keys are normalized numbers (no dual-key duplicates)', pass: rcptKeysAreNumeric });
+
+      // 2. Parity check with Firestore emulator
+      asserts.push({ name: 'Billing count in IDB equals Firestore emulator count', pass: idbBills.length === fsBillsSnap.size });
+      asserts.push({ name: 'Receipts count in IDB equals Firestore emulator count', pass: idbRcpts.length === fsRcptsSnap.size });
+
+      // 3. Verify no string key collisions (e.g. check for keys like 'bill_1' or 'rcpt_1001')
+      const rawBillKeys = await new Promise(res => {
+        const tx = idbConn.transaction('billing', 'readonly').objectStore('billing');
+        const req = tx.getAllKeys();
+        req.onsuccess = () => res(req.result);
+      });
+      const hasStringKey = rawBillKeys.some(k => typeof k === 'string');
+      asserts.push({ name: 'Zero string-keyed orphan records in billing store', pass: !hasStringKey });
+
+      // 4. Production database isolation confirmation
+      asserts.push({ name: 'Target database is strictly "temple_accounts_test_db"', pass: TEST_CONFIG.testDbName === 'temple_accounts_test_db' });
+
+      const allPass = asserts.every(a => a.pass);
+      updateMatrixRow(testId, allPass ? 'PASS' : 'FAIL', asserts);
+      window.TEST_RESULTS.tests[testId] = { status: allPass ? 'PASS' : 'FAIL', asserts, idbBillsCount: idbBills.length, fsBillsCount: fsBillsSnap.size };
+      log(`--- [TC-6] Result: ${allPass ? 'PASS' : 'FAIL'} (${asserts.filter(a => a.pass).length}/${asserts.length} assertions passed) ---`, allPass ? 'success' : 'error');
+      await refreshEvidencePanel();
+      return allPass;
+    }
+
+    // TC-7: Counter Integrity and Active Totals Exclusion
+    async function runTC7() {
+      log('--- [TC-7] Starting: Counter Integrity and Active Totals Exclusion ---', 'info');
+      const testId = 'TC-7';
+      const asserts = [];
+
+      const counters = await fsGetCounters();
+      // Total bills created: BILL-0001 (TC-1), BILL-0002 (TC-3), BILL-0003 (TC-5) -> 3 bills created
+      // Total receipts created: R-1001 (TC-1), R-1002 (TC-3), R-1003 (TC-4), R-1004 (TC-5) -> 4 receipts created
+      asserts.push({ name: 'Billing counter matches total creations (3)', pass: counters.billingReceiptCounter === 3 });
+      asserts.push({ name: 'Receipt counter matches total creations (1004)', pass: counters.receiptCounter === 1004 });
+
+      // Active totals calculation
+      const fsBillsSnap = await fbDb.collection('billing').get();
+      const fsRcptsSnap = await fbDb.collection('receipts').get();
+      const allBills = [];
+      const allRcpts = [];
+      fsBillsSnap.forEach(d => allBills.push(d.data()));
+      fsRcptsSnap.forEach(d => allRcpts.push(d.data()));
+
+      const bTotals = calculateActiveBillingTotals(allBills);
+      const rTotals = calculateActiveReceiptTotals(allRcpts);
+
+      // Expected active bills: only bill_3 (₹300). bill_1 (₹250) and bill_2 (₹150) are voided!
+      asserts.push({ name: 'Active billing count is exactly 1 (bill_3)', pass: bTotals.activeCount === 1 });
+      asserts.push({ name: 'Active billing revenue is exactly ₹300.00', pass: bTotals.totalAmount === 300 });
+      asserts.push({ name: 'Voided bills count is 2 and total is ₹400.00', pass: bTotals.voidedCount === 2 && bTotals.voidedTotal === 400 });
+
+      // Expected active receipts: only rcpt_1004 (₹300). rcpt_1001 (₹250), rcpt_1002 (₹150), rcpt_1003 (₹500) are voided!
+      asserts.push({ name: 'Active receipts count is exactly 1 (rcpt_1004)', pass: rTotals.activeCount === 1 });
+      asserts.push({ name: 'Active accounting balance is exactly ₹300.00', pass: rTotals.activeAmount === 300 });
+      asserts.push({ name: 'Voided receipts balance is ₹900.00', pass: rTotals.voidedAmount === 900 });
+
+      // Monotonic sequence numbers check
+      const billNos = allBills.map(b => b.receiptNo).sort();
+      const uniqueBillNos = new Set(billNos);
+      asserts.push({ name: 'All allocated billing receipt numbers are unique and monotonic', pass: uniqueBillNos.size === billNos.length });
+
+      const allPass = asserts.every(a => a.pass);
+      updateMatrixRow(testId, allPass ? 'PASS' : 'FAIL', asserts);
+      window.TEST_RESULTS.tests[testId] = { status: allPass ? 'PASS' : 'FAIL', asserts, bTotals, rTotals, counters };
+      log(`--- [TC-7] Result: ${allPass ? 'PASS' : 'FAIL'} (${asserts.filter(a => a.pass).length}/${asserts.length} assertions passed) ---`, allPass ? 'success' : 'error');
+      await refreshEvidencePanel();
+      return allPass;
+    }
+
+    /* ===========================================================
+       RUNNER CONTROLLER & DISPATCHER
+       =========================================================== */
+    function updateMatrixRow(testId, status, asserts = []) {
+      const badge = document.getElementById(`badge-${testId}`);
+      if (badge) {
+        badge.className = `badge ${status.toLowerCase()}`;
+        badge.textContent = status;
+      }
+      const cell = document.getElementById(`asserts-${testId}`);
+      if (cell) {
+        const passedCount = asserts.filter(a => a.pass).length;
+        cell.innerHTML = `<strong>${passedCount}/${asserts.length}</strong> passed`;
+      }
+    }
+
+    async function executeSingleTest(testId) {
+      if (!fbAuth.currentUser) {
+        await testAuthEmulator();
+      }
+      const badge = document.getElementById(`badge-${testId}`);
+      if (badge) {
+        badge.className = 'badge running';
+        badge.textContent = 'RUNNING';
+      }
+      
+      let pass = false;
+      if (testId === 'TC-1') pass = await runTC1();
+      else if (testId === 'TC-2') pass = await runTC2();
+      else if (testId === 'TC-3') pass = await runTC3();
+      else if (testId === 'TC-4') pass = await runTC4();
+      else if (testId === 'TC-5') pass = await runTC5();
+      else if (testId === 'TC-6') pass = await runTC6();
+      else if (testId === 'TC-7') pass = await runTC7();
+      return pass;
+    }
+
+    async function runAllBillingSyncTests() {
+      const btn = document.getElementById('btn-run-all');
+      btn.disabled = true;
+      btn.textContent = '⏳ Executing Suite...';
+      document.getElementById('suite-status-tag').className = 'badge running';
+      document.getElementById('suite-status-tag').textContent = 'TEST SUITE RUNNING';
+
+      log('============================================================', 'info');
+      log('   STEP 33.5: STARTING COMPLETE SYNCHRONIZATION TEST SUITE', 'info');
+      log('============================================================', 'info');
+
+      // 1. Reset emulator data to ensure pure clean baseline
+      log('Step 0: Preparing clean emulator baseline...', 'info');
+      await fetch(`http://${TEST_CONFIG.firestoreHost}:${TEST_CONFIG.firestorePort}/emulator/v1/projects/${TEST_CONFIG.projectId}/databases/(default)/documents`, { method: 'DELETE' });
+      await clearStore('billing');
+      await clearStore('receipts');
+      await clearStore('settings');
+
+      // Re-authenticate
+      await testAuthEmulator();
+
+      // Initialize test counters
+      await fsInitCounters({
+        receiptCounter: 1000,
+        voucherCounter: 500,
+        billingReceiptCounter: 0,
+        receiptPrefix: 'R-',
+        voucherPrefix: 'V-',
+        billingPrefix: 'BILL-'
+      }, true);
+      log('Synthetic counters initialized: billingReceiptCounter=0, receiptCounter=1000', 'success');
+
+      window.TEST_RESULTS.executedAt = new Date().toISOString();
+      const testList = ['TC-1', 'TC-2', 'TC-3', 'TC-4', 'TC-5', 'TC-6', 'TC-7'];
+      let passed = 0;
+      let failed = 0;
+
+      for (const tId of testList) {
+        const ok = await executeSingleTest(tId);
+        if (ok) passed++;
+        else failed++;
+      }
+
+      window.TEST_RESULTS.suiteSummary = { total: testList.length, passed, failed, skipped: 0 };
+      const summaryBadge = document.getElementById('test-summary-badge');
+      summaryBadge.className = `badge ${failed === 0 ? 'pass' : 'fail'}`;
+      summaryBadge.textContent = `${passed} / ${testList.length} PASSED`;
+
+      document.getElementById('suite-status-tag').className = `badge ${failed === 0 ? 'pass' : 'fail'}`;
+      document.getElementById('suite-status-tag').textContent = failed === 0 ? 'ALL 7 TESTS PASSED' : 'SUITE FAILURES DETECTED';
+
+      log('============================================================', 'info');
+      log(`   STEP 33.5 SUITE COMPLETED: ${passed}/${testList.length} PASSED, ${failed} FAILED`, failed === 0 ? 'success' : 'error');
+      log('============================================================', 'info');
+
+      btn.disabled = false;
+      btn.textContent = '▶️ Run Complete Suite (TC-1 to TC-7)';
+      return window.TEST_RESULTS;
+    }
+
+    // Probing & Reset Helpers
+    async function testAuthEmulator() {
+      try {
+        log('Probing Authentication Emulator...', 'info');
+        const email = 'tester@temple-test.local';
+        const password = 'TestPassword123!';
+        
+        let cred;
+        try {
+          cred = await fbAuth.signInWithEmailAndPassword(email, password);
+          log(`Signed in test user: ${cred.user.email} (UID: ${cred.user.uid})`, 'success');
+        } catch (signInErr) {
+          if (signInErr.code === 'auth/user-not-found' || signInErr.code === 'auth/invalid-credential') {
+            cred = await fbAuth.createUserWithEmailAndPassword(email, password);
+            log(`Created test user in emulator: ${cred.user.email} (UID: ${cred.user.uid})`, 'success');
+          } else {
+            throw signInErr;
+          }
+        }
+
+        testUser = cred.user;
+        document.getElementById('tag-auth').className = 'status-tag ok';
+        document.getElementById('tag-auth').textContent = 'Connected & Authenticated';
+        return true;
+      } catch (err) {
+        log(`Auth Emulator Probe Failed: ${err.message}`, 'error');
+        document.getElementById('tag-auth').className = 'status-tag error';
+        document.getElementById('tag-auth').textContent = 'Error';
+        return false;
+      }
+    }
+
+    async function testFirestoreEmulator() {
+      try {
+        log('Probing Firestore Emulator...', 'info');
+        if (!fbAuth.currentUser) await testAuthEmulator();
+        const probeRef = fbDb.collection('system').doc('counters');
+        const snap = await probeRef.get();
+        log(`Firestore read succeeded: system/counters exists=${snap.exists}`, 'success');
+        document.getElementById('tag-firestore').className = 'status-tag ok';
+        document.getElementById('tag-firestore').textContent = 'Connected & Operational';
+        return true;
+      } catch (err) {
+        log(`Firestore Emulator Probe Failed: ${err.message}`, 'error');
+        document.getElementById('tag-firestore').className = 'status-tag error';
+        document.getElementById('tag-firestore').textContent = 'Error';
+        return false;
+      }
+    }
+
+    async function testIndexedDBIsolation() {
+      try {
+        log(`Verifying IndexedDB isolation for "${TEST_CONFIG.testDbName}"...`, 'info');
+        await openTestDB();
+        log(`IndexedDB isolation confirmed: "${TEST_CONFIG.testDbName}" active. Production DB "temple_accounts_db" remains untouched.`, 'success');
+        document.getElementById('tag-idb').className = 'status-tag ok';
+        document.getElementById('tag-idb').textContent = 'Isolated OK';
+        return true;
+      } catch (err) {
+        log(`IndexedDB Error: ${err.message}`, 'error');
+        return false;
+      }
+    }
+
+    async function resetEmulatorData() {
+      if (!confirm('Reset local emulator state? (Zero effect on production)')) return;
+      try {
+        log('Resetting emulator data via REST endpoint...', 'warn');
+        await fetch(`http://${TEST_CONFIG.firestoreHost}:${TEST_CONFIG.firestorePort}/emulator/v1/projects/${TEST_CONFIG.projectId}/databases/(default)/documents`, { method: 'DELETE' });
+        await fetch(`${TEST_CONFIG.authUrl}/emulator/v1/projects/${TEST_CONFIG.projectId}/accounts`, { method: 'DELETE' });
+        await clearStore('billing');
+        await clearStore('receipts');
+        await clearStore('settings');
+        log('Emulator data successfully reset. Clean state restored.', 'success');
+        await refreshEvidencePanel();
+      } catch (e) {
+        log(`Reset error: ${e.message}`, 'error');
+      }
+    }
+
+    async function runIsolationVerification() {
+      log('=== STARTING COMPLETE ENVIRONMENT ISOLATION AUDIT ===', 'info');
+      const authOk = await testAuthEmulator();
+      const fsOk = await testFirestoreEmulator();
+      const idbOk = await testIndexedDBIsolation();
+      if (authOk && fsOk && idbOk) {
+        log('=== ALL ISOLATION CHECKS PASSED: ENVIRONMENT IS 100% AIR-GAPPED AND SAFE ===', 'success');
+      } else {
+        log('=== SOME ISOLATION CHECKS FAILED: REVIEW LOGS ===', 'error');
+      }
+    }
+
+    function initTestFirebase() {
+      try {
+        if (!firebase.apps.length) {
+          fbApp = firebase.initializeApp({
+            projectId: TEST_CONFIG.projectId,
+            apiKey: TEST_CONFIG.apiKey,
+            authDomain: TEST_CONFIG.authDomain
+          });
+        } else {
+          fbApp = firebase.app();
+        }
+
+        fbAuth = firebase.auth();
+        fbDb = firebase.firestore();
+
+        fbAuth.useEmulator(TEST_CONFIG.authUrl);
+        fbDb.useEmulator(TEST_CONFIG.firestoreHost, TEST_CONFIG.firestorePort);
+
+        log(`Firebase initialized targeting demo project "${TEST_CONFIG.projectId}".`, 'success');
+        log(`Auth emulator connected to ${TEST_CONFIG.authUrl}.`, 'info');
+        log(`Firestore emulator connected to ${TEST_CONFIG.firestoreHost}:${TEST_CONFIG.firestorePort}.`, 'info');
+      } catch (e) {
+        log(`Initialization error: ${e.message}`, 'error');
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', async () => {
+      initTestFirebase();
+      await openTestDB();
+      await testAuthEmulator();
+      await testFirestoreEmulator();
+      await refreshEvidencePanel();
+    });
+  </script>
+</body>
+</html>

@@ -1,8 +1,8 @@
-﻿const http = require('http');
+const http = require('http');
 const fs = require('fs');
 const path = require('path');
 
-const PORT = 3000;
+const PORT = process.env.PORT || 3001;
 const MIME = {
   '.html': 'text/html; charset=utf-8',
   '.js': 'text/javascript',
@@ -14,6 +14,14 @@ const server = http.createServer((req, res) => {
   let reqPath = req.url.split('?')[0];
   if (reqPath === '/' || reqPath === '') reqPath = '/Temple_Accounts-1.html';
   const filePath = path.join(__dirname, reqPath);
+
+  // Prevent access to dotfiles (.env, .git) or backups
+  const baseName = path.basename(filePath);
+  if (baseName.startsWith('.') || reqPath.startsWith('/backups')) {
+    res.writeHead(403, { 'Content-Type': 'text/plain' });
+    res.end('403 Forbidden');
+    return;
+  }
 
   if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
     const ext = path.extname(filePath);

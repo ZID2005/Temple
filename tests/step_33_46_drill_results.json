@@ -1,0 +1,152 @@
+{
+  "timestamp": "2026-10-12T16:08:57.465Z",
+  "sourceProject": "demo-backup-drill-source-1791821337151",
+  "restoreProject": "demo-backup-drill-restore-1791821337151",
+  "backupSha256": "E796D542D7C957D30FF5727AA907D9B5A0F2D931FC591E5E75702BCF6819747F",
+  "totalExportedDocs": 28,
+  "collectionCounts": {
+    "settings": 1,
+    "funds": 3,
+    "incomeCategories": 3,
+    "expenseCategories": 3,
+    "bankAccounts": 2,
+    "billing": 3,
+    "receipts": 4,
+    "payments": 2,
+    "transfers": 1,
+    "chittyMembers": 2,
+    "chittyCollections": 2,
+    "chittyPayouts": 1,
+    "loans": 1
+  },
+  "passCount": 21,
+  "failCount": 0,
+  "results": [
+    {
+      "testId": "FIXTURE-01",
+      "description": "Source synthetic dataset complete (36 total docs)",
+      "status": "PASS",
+      "details": "Actual: 36"
+    },
+    {
+      "testId": "EXPORT-01",
+      "description": "13 application collections exported with exactly 28 records",
+      "status": "PASS",
+      "details": "Count: 28"
+    },
+    {
+      "testId": "EXPORT-02",
+      "description": "system/counters exported accurately with GSC=1004",
+      "status": "PASS",
+      "details": "Counters GSC: 1004"
+    },
+    {
+      "testId": "EXPORT-03",
+      "description": "Schema version v23.1 metadata present",
+      "status": "PASS",
+      "details": "23.1"
+    },
+    {
+      "testId": "SCOPE-AUDIT-01",
+      "description": "system/res_* documents are OMITTED from downloadBackup() export scope",
+      "status": "PASS",
+      "details": "Expected limitation confirmed"
+    },
+    {
+      "testId": "SCOPE-AUDIT-02",
+      "description": "system/op_* documents are OMITTED from downloadBackup() export scope",
+      "status": "PASS",
+      "details": "Expected limitation confirmed"
+    },
+    {
+      "testId": "EXPORT-VOID-01",
+      "description": "Voided billing record (bill_3) preserved in export with voidReason",
+      "status": "PASS",
+      "details": "Cancelled"
+    },
+    {
+      "testId": "EXPORT-VOID-02",
+      "description": "Voided receipt record (rcpt_3) preserved in export",
+      "status": "PASS",
+      "details": "voided: true"
+    },
+    {
+      "testId": "EXPORT-LINK-01",
+      "description": "Billing accountingReceiptId linkage preserved",
+      "status": "PASS",
+      "details": "rcpt_1"
+    },
+    {
+      "testId": "RESTORE-VAL-01",
+      "description": "Phase 3 Validation rules passed cleanly on exported JSON",
+      "status": "PASS",
+      "details": ""
+    },
+    {
+      "testId": "RESTORE-EXEC-01",
+      "description": "All 28 application records written to target environment",
+      "status": "PASS",
+      "details": "Restored: 28"
+    },
+    {
+      "testId": "COMPARE-01",
+      "description": "Funds collection count matches source (3/3)",
+      "status": "PASS",
+      "details": "Count: 3"
+    },
+    {
+      "testId": "COMPARE-02",
+      "description": "Billing collection count matches source (3/3)",
+      "status": "PASS",
+      "details": "Count: 3"
+    },
+    {
+      "testId": "COMPARE-03",
+      "description": "Receipts collection count matches source (4/4)",
+      "status": "PASS",
+      "details": "Count: 4"
+    },
+    {
+      "testId": "COMPARE-VOID-01",
+      "description": "Restored bill_3 retains voided status",
+      "status": "PASS",
+      "details": "voided: true"
+    },
+    {
+      "testId": "COMPARE-CTR-01",
+      "description": "Restored counters match source globalSequenceCounter=1004",
+      "status": "PASS",
+      "details": "GSC: 1004"
+    },
+    {
+      "testId": "COMPARE-MISSING-01",
+      "description": "system/res_* is absent in restored environment (by design limitation)",
+      "status": "PASS",
+      "details": "Confirmed absent"
+    },
+    {
+      "testId": "COMPARE-MISSING-02",
+      "description": "system/op_* is absent in restored environment (by design limitation)",
+      "status": "PASS",
+      "details": "Confirmed absent"
+    },
+    {
+      "testId": "SAFE-GUARD-01",
+      "description": "Safety Rule 6: Newer live record bill_1 is PRESERVED (restore write skipped)",
+      "status": "PASS",
+      "details": ""
+    },
+    {
+      "testId": "SAFE-GUARD-02",
+      "description": "Safety Rule 10: Live void status on bill_2 is PRESERVED",
+      "status": "PASS",
+      "details": ""
+    },
+    {
+      "testId": "SAFE-GUARD-03",
+      "description": "Counter Monotonic Guard: Live counter 1010 PRESERVED over stale backup 1004",
+      "status": "PASS",
+      "details": "Merged GSC: 1010"
+    }
+  ]
+}

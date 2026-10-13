@@ -1,0 +1,41 @@
+# Operating System Files
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Environment & Secrets
+.env
+.env.*
+*.env
+!.env.example
+
+# Local Firebase Configuration (client-side secrets)
+firebase-config.js
+!firebase-config.example.js
+
+# Database backups & HTML snapshots (contain private financial data & historical keys)
+backups/
+
+# Logs
+logs/
+*.log
+firebase-debug.log*
+firestore-debug.log*
+
+# Node / Package managers (if any)
+node_modules/
+
+# Editor & Browser profiles
+.vscode/
+.chrome_profile/
+
+# Vercel Deployment Artifacts
+.vercel/
+.vercel
+
+# Temporary / Scratch directories
+scratch/
+
+# Test screenshots & test result artifacts
+step_*.png
+tests/*_test_results.json

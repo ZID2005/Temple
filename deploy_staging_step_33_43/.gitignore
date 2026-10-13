@@ -1,0 +1,19 @@
+# Operating System Files
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Environment & Secrets
+.env
+.env.*
+*.env
+
+# Generated runtime configuration
+firebase-config.js
+
+# Vercel Deployment Artifacts
+.vercel/
+.vercel
+
+# Node modules
+node_modules/

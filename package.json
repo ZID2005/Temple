@@ -1,0 +1,13 @@
+{
+  "name": "temple-accounts",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Temple Accounts & Fund Management Web Application",
+  "scripts": {
+    "build": "node scripts/generate-firebase-config.js",
+    "test:vercel-config": "node tests/test_step_33_39_vercel_config.js",
+    "test:isolation": "node tests/test_step_33_40_production_isolation.js",
+    "test:staging": "node tests/test_step_33_43_clean_vercel_release_package.js",
+    "test": "node tests/test_step_33_39_vercel_config.js && node tests/test_step_33_40_production_isolation.js && node tests/test_step_33_43_clean_vercel_release_package.js"
+  }
+}

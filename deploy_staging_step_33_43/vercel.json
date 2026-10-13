@@ -1,0 +1,58 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "cleanUrls": false,
+  "rewrites": [
+    {
+      "source": "/",
+      "destination": "/Temple_Accounts-1.html"
+    },
+    {
+      "source": "/(backups|tests|scripts|reports|logs|temp_disposable_step_33_32|scratch|\\.vscode|\\.chrome_profile)(/.*)?",
+      "destination": "/404-shielded",
+      "statusCode": 404
+    },
+    {
+      "source": "/(.*)\\.(rules|candidate|log|env|json|md|txt)$",
+      "destination": "/404-shielded",
+      "statusCode": 404
+    },
+    {
+      "source": "/(.*)example\\.js$",
+      "destination": "/404-shielded",
+      "statusCode": 404
+    },
+    {
+      "source": "/(server\\.js|serve_app\\.js)",
+      "destination": "/404-shielded",
+      "statusCode": 404
+    },
+    {
+      "source": "/(\\.gitignore|\\.env.*)",
+      "destination": "/404-shielded",
+      "statusCode": 404
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://esm.sh; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firestore.googleapis.com https://*.googleapis.com https://esm.sh blob:; frame-src 'self' https://temple-f4f7d.firebaseapp.com https://*.firebaseapp.com; frame-ancestors 'none';"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        }
+      ]
+    }
+  ]
+}

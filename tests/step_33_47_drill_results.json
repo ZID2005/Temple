@@ -1,0 +1,161 @@
+{
+  "timestamp": "2026-10-12T18:48:12.626Z",
+  "sourceProject": "demo-step3347-src-1791830891921",
+  "targetProject": "demo-step3347-tgt-1791830891921",
+  "exportSha256": "2A0A917EA44B8CCCB4317443E7D002A3E9379CEFA9B0DC3C15B384BEFE96406A",
+  "totalChecks": 25,
+  "passed": 25,
+  "failed": 0,
+  "results": [
+    {
+      "testId": "EXPORT-APP-01",
+      "description": "13 application collections exported accurately (21 docs)",
+      "status": "PASS",
+      "details": "Count: 21"
+    },
+    {
+      "testId": "EXPORT-CTR-01",
+      "description": "system/counters exported accurately with GSC=1004",
+      "status": "PASS",
+      "details": ""
+    },
+    {
+      "testId": "EXPORT-RES-01",
+      "description": "system/res_* reservation documents fully included in export",
+      "status": "PASS",
+      "details": "Count: 4"
+    },
+    {
+      "testId": "EXPORT-OP-01",
+      "description": "system/op_* idempotency documents fully included in export",
+      "status": "PASS",
+      "details": "Count: 4"
+    },
+    {
+      "testId": "EXPORT-SCHEMA-01",
+      "description": "Schema version v23.2 established in metadata",
+      "status": "PASS",
+      "details": "Version: 23.2"
+    },
+    {
+      "testId": "EXPORT-SHA256-01",
+      "description": "Export integrity verified via SHA-256 checksum",
+      "status": "PASS",
+      "details": "2A0A917EA44B8CCCB4317443E7D002A3E9379CEFA9B0DC3C15B384BEFE96406A"
+    },
+    {
+      "testId": "EXPORT-RES-FIELDS-01",
+      "description": "Reservation fields and linkages preserved in export",
+      "status": "PASS",
+      "details": ""
+    },
+    {
+      "testId": "EXPORT-OP-FIELDS-01",
+      "description": "Idempotency fingerprint and committed status preserved in export",
+      "status": "PASS",
+      "details": ""
+    },
+    {
+      "testId": "EXPORT-VOID-RES-01",
+      "description": "Voided reservation preserved with voidReason",
+      "status": "PASS",
+      "details": ""
+    },
+    {
+      "testId": "RESTORE-CLEAN-01",
+      "description": "Safe restore executed successfully into clean target",
+      "status": "PASS",
+      "details": ""
+    },
+    {
+      "testId": "RESTORE-APP-01",
+      "description": "All 21 application collection records restored",
+      "status": "PASS",
+      "details": "Restored: 21"
+    },
+    {
+      "testId": "RESTORE-RES-01",
+      "description": "All 4 reservation records restored to system/res_*",
+      "status": "PASS",
+      "details": "Restored: 4"
+    },
+    {
+      "testId": "RESTORE-OP-01",
+      "description": "All 4 idempotency records restored to system/op_*",
+      "status": "PASS",
+      "details": "Restored: 4"
+    },
+    {
+      "testId": "VERIFY-RES-DOC-01",
+      "description": "Target system/res_1001 restored with audit metadata",
+      "status": "PASS",
+      "details": ""
+    },
+    {
+      "testId": "VERIFY-OP-DOC-01",
+      "description": "Target system/op_bill_1 restored with intact fingerprint",
+      "status": "PASS",
+      "details": ""
+    },
+    {
+      "testId": "VERIFY-CTR-DOC-01",
+      "description": "Target system/counters restored with GSC=1004",
+      "status": "PASS",
+      "details": ""
+    },
+    {
+      "testId": "MONOTONIC-01",
+      "description": "Older backup (1004) did NOT regress live counter (1025)",
+      "status": "PASS",
+      "details": "GSC: 1025"
+    },
+    {
+      "testId": "SAFE-NO-DELETE-01",
+      "description": "Live reservation res_1025 absent from backup was PRESERVED (zero deletions)",
+      "status": "PASS",
+      "details": ""
+    },
+    {
+      "testId": "VOID-PRESERVE-01",
+      "description": "Live voided reservation res_1002 preserved as voided; stale backup could not re-activate",
+      "status": "PASS",
+      "details": ""
+    },
+    {
+      "testId": "IDEMPOTENT-RETRY-01",
+      "description": "Restored idempotency record detected original commit; replay successful without duplicate creation",
+      "status": "PASS",
+      "details": ""
+    },
+    {
+      "testId": "IDEMPOTENT-VOID-01",
+      "description": "Retry on voided operation detected void status; replay correctly rejected",
+      "status": "PASS",
+      "details": ""
+    },
+    {
+      "testId": "INTERRUPTED-OP-01",
+      "description": "Uncommitted operation token absent in restored database; reconciliation reports uncommitted",
+      "status": "PASS",
+      "details": ""
+    },
+    {
+      "testId": "LEGACY-COMPAT-01",
+      "description": "Legacy v23.1 backup successfully restored by updated pipeline without error",
+      "status": "PASS",
+      "details": ""
+    },
+    {
+      "testId": "LEGACY-COMPAT-02",
+      "description": "Existing reservations remained intact when restoring legacy backup",
+      "status": "PASS",
+      "details": ""
+    },
+    {
+      "testId": "SEC-SCAN-01",
+      "description": "Backup with injected credentials rejected before writing to Firestore",
+      "status": "PASS",
+      "details": ""
+    }
+  ]
+}

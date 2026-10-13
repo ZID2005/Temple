@@ -1,0 +1,802 @@
+{
+  "auditMetadata": {
+    "step": "33.52",
+    "project": "Temple Accounts & Fund Management",
+    "temple": "Marutha Chamundi Devi Temple / മറുതാ ചാമുണ്ഡി ദേവി ക്ഷേത്രം",
+    "timestamp": "2026-10-12T23:55:00+05:30",
+    "mode": "read_only_audit_and_planning",
+    "verdict": "READY FOR PLANNING",
+    "productionConnected": false,
+    "recordsDeleted": 0,
+    "countersReset": 0,
+    "rulesPromoted": false,
+    "airGapIsolated": true
+  },
+  "baselineHashes": {
+    "workingApplication": {
+      "path": "Temple_Accounts-1.html",
+      "expectedSha256": "0BC9B28B094D83CE85880E62821897834FE1DCBF14A48BB98A061EDCCAC20BBC",
+      "actualSha256": "0BC9B28B094D83CE85880E62821897834FE1DCBF14A48BB98A061EDCCAC20BBC",
+      "status": "MATCH"
+    },
+    "candidateRules": {
+      "path": "firestore.rules.candidate",
+      "expectedSha256": "E0D2F9D11DE6E92644339A3332566B16CD0A58360598EF70E60279B890DA902D",
+      "actualSha256": "E0D2F9D11DE6E92644339A3332566B16CD0A58360598EF70E60279B890DA902D",
+      "status": "MATCH"
+    },
+    "activeRules": {
+      "path": "firestore.rules",
+      "expectedSha256": "7BFEF0B0F4C31A5DAFC6FB29C8C4BBD55CBAD3A8A590EFC34BD87F4600CF90BD",
+      "actualSha256": "7BFEF0B0F4C31A5DAFC6FB29C8C4BBD55CBAD3A8A590EFC34BD87F4600CF90BD",
+      "status": "MATCH"
+    },
+    "frozenReleasePackage": {
+      "path": "deploy_staging_step_33_43/Temple_Accounts-1.html",
+      "expectedSha256": "AEB01303F22F69E284D680A55E182FC78312C48E4266C02809179DF789E87CBC",
+      "actualSha256": "AEB01303F22F69E284D680A55E182FC78312C48E4266C02809179DF789E87CBC",
+      "status": "MATCH"
+    }
+  },
+  "modules": [
+    {
+      "moduleName": "Dashboard",
+      "uiLabel": "Dashboard",
+      "sourceCodeLocation": "Temple_Accounts-1.html:7150-7630",
+      "firestoreCollections": [
+        "receipts",
+        "payments",
+        "transfers",
+        "loans",
+        "chittyCollections",
+        "chittyPayouts",
+        "funds",
+        "settings"
+      ],
+      "indexedDbStores": [
+        "receipts",
+        "payments",
+        "transfers",
+        "loans",
+        "chittyCollections",
+        "chittyPayouts",
+        "funds",
+        "settings"
+      ],
+      "recordClassification": "derived_data",
+      "evidenceSource": "Source code review (Temple_Accounts-1.html:6424-6506, 7150-7210)",
+      "verificationStatus": "verified_locally",
+      "linkedDependencies": [
+        "getCashBalance() aggregates receipts, payments, transfers, loans, chittyCollections, chittyPayouts, settings.openingCash",
+        "getBankBalance() aggregates receipts, payments, transfers, loans, chittyCollections, chittyPayouts, settings.openingBank",
+        "getAllFundBalances() aggregates fund balances across active receipts, payments, chitty",
+        "getLoanOutstanding() aggregates loans and settings.openingLoans",
+        "getChittyOutstanding() aggregates chittyCollections",
+        "monthIncomeExpense() aggregates active receipts and payments",
+        "todayReceiptsSum and todayPaymentsSum derive from active receipts/payments where date == todayISO()",
+        "7-day trend bars derive from active receipts over past 7 calendar dates"
+      ],
+      "orphanRisk": "Zero orphan risk directly in dashboard; metric values automatically recalculate and drop to ₹0.00 once underlying transaction collections are cleared.",
+      "recalculationMechanism": "Full automatic in-memory dynamic recalculation on view load (navigate('dashboard')) or via refresh button. Filtered by notVoided().",
+      "preservationRequirements": "Opening balance settings (settings.openingCash, openingBank, openingGeneralFund, etc.) must be verified and set to 0.00 (or ratified baseline).",
+      "proposedCleanupAction": "No direct document deletion in Dashboard. Underlying transactions are cleared in their respective primary stores; dashboard automatically refreshes to ₹0.00."
+    },
+    {
+      "moduleName": "Billing",
+      "uiLabel": "Billing",
+      "sourceCodeLocation": "Temple_Accounts-1.html:10961-11496, 18226-18613",
+      "firestoreCollections": [
+        "billing",
+        "receipts",
+        "system"
+      ],
+      "indexedDbStores": [
+        "billing",
+        "receipts"
+      ],
+      "recordClassification": "confirmed_dummy_dataset",
+      "evidenceSource": "Source code review (fsCreateBillingWithAccounting, fsVoidLinkedBillingAndReceipt); PreStep22_5 backup (bill_3..5); STEP 22.5 report",
+      "verificationStatus": "unverified",
+      "linkedDependencies": [
+        "billing/bill_{N} is bilaterally linked to receipts/rcpt_{N} sharing sequence N",
+        "accountingReceiptId points to receipts/rcpt_{N}",
+        "reservationDocId points to system/res_{N}",
+        "operationId points to system/op_{opId}",
+        "system/counters.globalSequenceCounter and billingReceiptCounter increment with each bill",
+        "thermal receipt reprint, devotee star history, and item sales frequency read billing store"
+      ],
+      "orphanRisk": "Deleting billing/bill_{N} without deleting or voiding receipts/rcpt_{N} creates orphaned accounting receipts. Deleting receipt without billing creates orphaned bills and breaks thermal reprint.",
+      "recalculationMechanism": "switchBillingTab('active') and switchBillingTab('voided') query allBillingRecords() dynamically from Firestore/IndexedDB cache.",
+      "preservationRequirements": "Master pooja offerings in BILLING_DEFAULT_ITEMS (14 Malayalam pooja items) and sequence counters in system/counters must be preserved.",
+      "proposedCleanupAction": "Catalog all live billing IDs via authorized read-only inspection. Delete in synchronized batch with linked receipts, or mark voided. Sequence counters must NOT be decremented."
+    },
+    {
+      "moduleName": "Receipts",
+      "uiLabel": "Receipts",
+      "sourceCodeLocation": "Temple_Accounts-1.html:7631-8023, 18627-18750",
+      "firestoreCollections": [
+        "receipts",
+        "billing",
+        "system"
+      ],
+      "indexedDbStores": [
+        "receipts"
+      ],
+      "recordClassification": "confirmed_dummy_dataset",
+      "evidenceSource": "Source code review (fsCreateIndependentReceipt, fsVoidRecordSafe); PreStep22_5 backup (rcpt_1001..1005); STEP 22.5 report",
+      "verificationStatus": "unverified",
+      "linkedDependencies": [
+        "Linked billing receipts point to billing/bill_{N} via billingFirestoreId and billingId",
+        "Independent receipts point to system/res_{N} and system/op_{opId}",
+        "Feeds directly into Cash Book (if paymentMode == 'Cash'), Bank Book (if Bank/UPI), General Ledger (credit), Trial Balance, Dashboard, Reports",
+        "Updates system/counters.globalSequenceCounter and receiptCounter"
+      ],
+      "orphanRisk": "Deleting independent receipts without coordinating reservation records leaves reservations orphaned. Deleting billing-linked receipts breaks billing module links.",
+      "recalculationMechanism": "allReceipts() and activeReceipts() query receipts store. navigate('receipts') triggers fresh read and redraws register.",
+      "preservationRequirements": "Number reservation registry (system/res_*) and monotonic counters (system/counters) must be preserved to prevent reuse of numbers.",
+      "proposedCleanupAction": "Inventory actual live receipt documents. For test records, execute authorized deletion or retain voided state. Under candidate rules, deletion requires admin backend or console."
+    },
+    {
+      "moduleName": "Payments",
+      "uiLabel": "Payments",
+      "sourceCodeLocation": "Temple_Accounts-1.html:11497-11673",
+      "firestoreCollections": [
+        "payments"
+      ],
+      "indexedDbStores": [
+        "payments"
+      ],
+      "recordClassification": "confirmed_dummy_dataset",
+      "evidenceSource": "Source code review (VIEW_RENDERERS.payments, savePayment, allPayments); PreStep22_5 backup (0 docs)",
+      "verificationStatus": "unverified",
+      "linkedDependencies": [
+        "voucherNo generated via nextVoucherNo() / system/counters.voucherCounter",
+        "fund references master funds collection (e.g. General Temple Fund)",
+        "category references master expenseCategories collection (64 categories)",
+        "bankAccount references master bankAccounts collection",
+        "Feeds into Cash Book (debit/payment), Bank Book (withdrawal), General Ledger (debit), Reports, Dashboard month expenses"
+      ],
+      "orphanRisk": "Deletion removes debit entries from Cash Book, Bank Book, and Ledger; closing balances increase accordingly. If foreign keys to funds/categories exist, category charts must update cleanly.",
+      "recalculationMechanism": "allPayments() and activePayments() read payments store; balance reducers dynamically recalculate on view load.",
+      "preservationRequirements": "Master expense categories (64 items) and funds must be preserved. Voucher numbering continuity in system/counters must be preserved.",
+      "proposedCleanupAction": "Audit payments collection in live Firestore. If any test expense vouchers exist, execute authorized deletion. Verify Cash Book and Bank Book recalculate to exact expected figures."
+    },
+    {
+      "moduleName": "Cash Book",
+      "uiLabel": "Cash Book",
+      "sourceCodeLocation": "Temple_Accounts-1.html:11710-11791, 11815-11902",
+      "firestoreCollections": [
+        "receipts",
+        "payments",
+        "transfers",
+        "loans",
+        "chittyCollections",
+        "chittyPayouts",
+        "settings"
+      ],
+      "indexedDbStores": [
+        "receipts",
+        "payments",
+        "transfers",
+        "loans",
+        "chittyCollections",
+        "chittyPayouts",
+        "settings"
+      ],
+      "recordClassification": "derived_data",
+      "evidenceSource": "Source code review (buildCashBookRows, applyCashBookCategoryFilter, updateCashBookTotals)",
+      "verificationStatus": "verified_locally",
+      "linkedDependencies": [
+        "buildCashBookRows merges cash receipts, cash payments, cash loans, cash chitty collections/payouts, and contra transfers (fromAcc/toAcc == 'Cash')",
+        "Opening balance loaded from settings.openingCash",
+        "Chronological sorting by date with running balance accumulation"
+      ],
+      "orphanRisk": "No primary documents stored under 'cashbook'. Inconsistent deletion of paired contra transfers or voided items would cause running balance jumps.",
+      "recalculationMechanism": "Fully dynamic in buildCashBookRows(). Running balance is calculated row-by-row in chronological order.",
+      "preservationRequirements": "settings.openingCash must be set to 0.00 (or approved baseline starting cash).",
+      "proposedCleanupAction": "No documents to delete in cashbook. Cleanup of primary transaction stores automatically resets Cash Book to opening balance."
+    },
+    {
+      "moduleName": "Bank Book",
+      "uiLabel": "Bank Book",
+      "sourceCodeLocation": "Temple_Accounts-1.html:11792-11814, 11903-11969",
+      "firestoreCollections": [
+        "receipts",
+        "payments",
+        "transfers",
+        "loans",
+        "chittyCollections",
+        "chittyPayouts",
+        "settings"
+      ],
+      "indexedDbStores": [
+        "receipts",
+        "payments",
+        "transfers",
+        "loans",
+        "chittyCollections",
+        "chittyPayouts",
+        "settings"
+      ],
+      "recordClassification": "derived_data",
+      "evidenceSource": "Source code review (buildBankBookRows, updateBankBookTotals)",
+      "verificationStatus": "verified_locally",
+      "linkedDependencies": [
+        "buildBankBookRows merges receipts (Bank/UPI), payments (Bank/UPI), loans (Bank/UPI), chitty collections/payouts (Bank/UPI), and transfers (fromAcc/toAcc == 'Bank')",
+        "Opening balance loaded from settings.openingBank",
+        "Chronological sorting by date with running balance accumulation"
+      ],
+      "orphanRisk": "No primary documents stored under 'bankbook'. Partial deletion of transfers causes asymmetric balance corruption.",
+      "recalculationMechanism": "Fully dynamic in buildBankBookRows(). updateBankBookTotals() dynamically sums visible deposits and withdrawals.",
+      "preservationRequirements": "settings.openingBank must be set to 0.00 (or verified bank passbook opening balance).",
+      "proposedCleanupAction": "No documents to delete in bankbook. Cleanup of primary transaction stores automatically resets Bank Book to opening balance."
+    },
+    {
+      "moduleName": "General Ledger",
+      "uiLabel": "Ledger",
+      "sourceCodeLocation": "Temple_Accounts-1.html:11970-12314",
+      "firestoreCollections": [
+        "receipts",
+        "payments",
+        "funds"
+      ],
+      "indexedDbStores": [
+        "receipts",
+        "payments",
+        "funds"
+      ],
+      "recordClassification": "derived_data",
+      "evidenceSource": "Source code review (VIEW_RENDERERS.ledger, updateLedgerTotals, exportLedgerPDF)",
+      "verificationStatus": "verified_locally",
+      "linkedDependencies": [
+        "Combines all active receipts (credits) and all active payments (debits) across all funds",
+        "Filtered by fund, date range (from/to)",
+        "Dynamic footer calculates total debit and total credit for visible rows",
+        "Ledger PDF export reads window._ledgerRows"
+      ],
+      "orphanRisk": "No primary documents stored under 'ledger'. Zero orphan risk.",
+      "recalculationMechanism": "Dynamic combination in VIEW_RENDERERS.ledger and real-time DOM reducer updateLedgerTotals().",
+      "preservationRequirements": "Master fund definitions in funds collection must be preserved.",
+      "proposedCleanupAction": "No documents to delete in ledger. Once receipts and payments are cleared, ledger table displays zero rows and ₹0.00 totals."
+    },
+    {
+      "moduleName": "Funds",
+      "uiLabel": "Settings > Funds",
+      "sourceCodeLocation": "Temple_Accounts-1.html:6252, 6463-6486, 14215-14384",
+      "firestoreCollections": [
+        "funds",
+        "receipts",
+        "payments",
+        "chittyCollections",
+        "chittyPayouts",
+        "settings"
+      ],
+      "indexedDbStores": [
+        "funds"
+      ],
+      "recordClassification": "master_configuration",
+      "evidenceSource": "Source code review (DEFAULT_FUNDS, getAllFundBalances); PreStep22_5 backup (6 docs)",
+      "verificationStatus": "verified_locally",
+      "linkedDependencies": [
+        "Master funds: General Temple Fund, Punarudharanam Fund, Chitty Fund, Festival Fund, Donation / Restricted Fund, Other Fund",
+        "settings.openingGeneralFund, openingPunarudharanamFund, openingChittyBalance",
+        "Referenced by receipts.fund and payments.fund"
+      ],
+      "orphanRisk": "DELETING MASTER FUNDS WOULD BREAK ENTIRE ACCOUNTING SYSTEM. Receipts and payments would reference non-existent funds.",
+      "recalculationMechanism": "getFundBalance(fundName) calculates net balance from transactions plus opening balance.",
+      "preservationRequirements": "100% PRESERVE ALL 6 MASTER FUND DOCUMENTS. Do NOT delete fund definitions.",
+      "proposedCleanupAction": "Preserve all fund definitions. Reset opening fund balances in settings to 0.00 (or ratified figure). Remove dummy transactions associated with funds."
+    },
+    {
+      "moduleName": "Income Categories",
+      "uiLabel": "Settings > Income Categories",
+      "sourceCodeLocation": "Temple_Accounts-1.html:6251, 14215-14384",
+      "firestoreCollections": [
+        "incomeCategories",
+        "receipts"
+      ],
+      "indexedDbStores": [
+        "incomeCategories"
+      ],
+      "recordClassification": "master_configuration",
+      "evidenceSource": "Source code review (DEFAULT_INCOME_CATEGORIES); PreStep22_5 backup (7 docs)",
+      "verificationStatus": "verified_locally",
+      "linkedDependencies": [
+        "7 Master heads: Pooja Income, Archana Income, Vazhipadu Income, Donation Income, Festival Collection, General Contribution, Other Income",
+        "Referenced by receipts.category and billing automatic mapping"
+      ],
+      "orphanRisk": "Deleting categories breaks receipt category dropdowns, billing category mapping, and report aggregations.",
+      "recalculationMechanism": "allIncomeCategories() reads master list.",
+      "preservationRequirements": "100% PRESERVE ALL 7 MASTER INCOME CATEGORIES.",
+      "proposedCleanupAction": "Preserve all master income categories. Zero deletions."
+    },
+    {
+      "moduleName": "Expense Categories",
+      "uiLabel": "Settings > Expense Categories",
+      "sourceCodeLocation": "Temple_Accounts-1.html:6238-6250, 14215-14384",
+      "firestoreCollections": [
+        "expenseCategories",
+        "payments"
+      ],
+      "indexedDbStores": [
+        "expenseCategories"
+      ],
+      "recordClassification": "master_configuration",
+      "evidenceSource": "Source code review (DEFAULT_EXPENSE_CATEGORIES); PreStep22_5 backup (71 docs)",
+      "verificationStatus": "verified_locally",
+      "linkedDependencies": [
+        "64+ Master heads covering Pooja Materials, Maintenance, Salary, Festival, Office, Construction, etc.",
+        "Referenced by payments.category"
+      ],
+      "orphanRisk": "Deleting categories breaks payment voucher entry and expense category analysis.",
+      "recalculationMechanism": "allExpenseCategories() reads master list.",
+      "preservationRequirements": "100% PRESERVE ALL MASTER EXPENSE CATEGORIES.",
+      "proposedCleanupAction": "Preserve all master expense categories. Zero deletions."
+    },
+    {
+      "moduleName": "Fund Transfers",
+      "uiLabel": "Fund Transfers",
+      "sourceCodeLocation": "Temple_Accounts-1.html:12315-12494",
+      "firestoreCollections": [
+        "transfers"
+      ],
+      "indexedDbStores": [
+        "transfers"
+      ],
+      "recordClassification": "confirmed_dummy_dataset",
+      "evidenceSource": "Source code review (VIEW_RENDERERS.transfers, saveTransfer, deleteTransfer); PreStep22_5 backup (0 docs)",
+      "verificationStatus": "unverified",
+      "linkedDependencies": [
+        "t.fromAcc and t.toAcc between 'Cash' and 'Bank'",
+        "Adjusts cash and bank balances simultaneously in getCashBalance(), getBankBalance(), buildCashBookRows(), buildBankBookRows()",
+        "Zero effect on income, expense, or fund balances (contra entries)"
+      ],
+      "orphanRisk": "Transfers are self-contained contra entries. Deleting a transfer restores both Cash and Bank balances symmetrically.",
+      "recalculationMechanism": "activeTransfers() reads transfers collection; excluded from income/expense.",
+      "preservationRequirements": "None (transfers are transactional).",
+      "proposedCleanupAction": "Query live transfers collection. If test contra transfers exist, delete them under authorized procedure. Verify Cash and Bank balances reconcile."
+    },
+    {
+      "moduleName": "Chitty",
+      "uiLabel": "Chitty",
+      "sourceCodeLocation": "Temple_Accounts-1.html:12495-13078",
+      "firestoreCollections": [
+        "chittyMembers",
+        "chittyCollections",
+        "chittyPayouts"
+      ],
+      "indexedDbStores": [
+        "chittyMembers",
+        "chittyCollections",
+        "chittyPayouts"
+      ],
+      "recordClassification": "confirmed_dummy_dataset",
+      "evidenceSource": "Source code review (VIEW_RENDERERS.chitty, saveChittyMember, saveChittyCollection, saveChittyPayout); PreStep22_5 backup (0 docs)",
+      "verificationStatus": "unverified",
+      "linkedDependencies": [
+        "chittyCollections and chittyPayouts reference chittyMembers.id via memberId and memberName",
+        "Feeds into Chitty Fund balance (getFundBalance('Chitty Fund'))",
+        "Feeds into Cash Book and Bank Book based on paymentMode",
+        "Member individual statements aggregate member-specific collections and payouts"
+      ],
+      "orphanRisk": "Deleting chittyMembers while retaining collections/payouts creates dangling member references. Deleting collections/payouts changes Chitty Fund balance and member balances.",
+      "recalculationMechanism": "allChittyMembers(), allChittyCollections(), allChittyPayouts() read stores. Dynamic stat cards recalculate on view load.",
+      "preservationRequirements": "If real devotees were enrolled as chitty members, their membership records must be preserved. If all chitty data is test data, all 3 stores must be cleared together.",
+      "proposedCleanupAction": "Inspect live chitty stores. Classify subscriber records with trustees. Clear test collections and payouts, recalculate Chitty Fund balance to 0.00."
+    },
+    {
+      "moduleName": "Loans",
+      "uiLabel": "Loans",
+      "sourceCodeLocation": "Temple_Accounts-1.html:13079-13146",
+      "firestoreCollections": [
+        "loans",
+        "settings"
+      ],
+      "indexedDbStores": [
+        "loans",
+        "settings"
+      ],
+      "recordClassification": "confirmed_dummy_dataset",
+      "evidenceSource": "Source code review (VIEW_RENDERERS.loans, saveLoan, getLoanOutstanding); PreStep22_5 backup (0 docs)",
+      "verificationStatus": "unverified",
+      "linkedDependencies": [
+        "Tracks loanReceived (disbursement/borrowing) and repayment by person/institution",
+        "Feeds into getCashBalance(), getBankBalance(), buildCashBookRows(), buildBankBookRows(), getLoanOutstanding(), and Trial Balance",
+        "Opening balance loaded from settings.openingLoans"
+      ],
+      "orphanRisk": "Loans are self-contained debt ledger records. Deletion updates outstanding loan balance and cash/bank balance.",
+      "recalculationMechanism": "allLoans() reads loans store; getLoanOutstanding() calculates net outstanding.",
+      "preservationRequirements": "settings.openingLoans must be set to 0.00 (or verified baseline loan figure).",
+      "proposedCleanupAction": "Inspect live loans collection. Delete test loan records. Verify getLoanOutstanding() evaluates to ₹0.00."
+    },
+    {
+      "moduleName": "Reports and Exports",
+      "uiLabel": "Reports",
+      "sourceCodeLocation": "Temple_Accounts-1.html:13147-13437",
+      "firestoreCollections": [
+        "receipts",
+        "payments",
+        "funds"
+      ],
+      "indexedDbStores": [
+        "receipts",
+        "payments",
+        "funds"
+      ],
+      "recordClassification": "derived_data",
+      "evidenceSource": "Source code review (runRangeReport, exportCSV, downloadCSV)",
+      "verificationStatus": "verified_locally",
+      "linkedDependencies": [
+        "runRangeReport filters active receipts and payments within user date range (from/to)",
+        "Fund-wise balances table reads getAllFundBalances()",
+        "CSV export generates raw tabular dump of receipts, payments, cashbook, or chitty stores"
+      ],
+      "orphanRisk": "No primary documents stored under 'reports'. Zero orphan risk.",
+      "recalculationMechanism": "Dynamic in-memory filtering over activeReceipts() and activePayments().",
+      "preservationRequirements": "None (ephemeral generated views).",
+      "proposedCleanupAction": "No documents to delete in reports. Automatically reflects clean state when underlying transaction stores are cleaned."
+    },
+    {
+      "moduleName": "IndexedDB and Local State",
+      "uiLabel": "Client Storage (IndexedDB, LocalStorage, Runtime State)",
+      "sourceCodeLocation": "Temple_Accounts-1.html:6205-6236, 17546-17590",
+      "firestoreCollections": [
+        "All 13 application collections"
+      ],
+      "indexedDbStores": [
+        "settings",
+        "funds",
+        "incomeCategories",
+        "expenseCategories",
+        "bankAccounts",
+        "receipts",
+        "payments",
+        "transfers",
+        "chittyMembers",
+        "chittyCollections",
+        "chittyPayouts",
+        "loans",
+        "billing"
+      ],
+      "recordClassification": "derived_data",
+      "evidenceSource": "Source code review (openDB, clearStore, fsGetAllSafe cache sync); Step 33.41A audit",
+      "verificationStatus": "verified_locally",
+      "linkedDependencies": [
+        "Secondary local cache mirroring remote Cloud Firestore",
+        "fsGetAllSafe automatically executes clearStore(storeName) and repopulates with remote Firestore records upon online authenticated read",
+        "localStorage keys: temple_pending_receipt_op, temple_pending_billing_op, temple_nav_collapsed"
+      ],
+      "orphanRisk": "If remote Firestore is cleaned but a client operates offline or before logging in, stale local records appear temporarily until authenticated fsGetAllSafe executes.",
+      "recalculationMechanism": "Automatic cache replacement on online login; or manual 'Clear site data' in browser Developer Tools.",
+      "preservationRequirements": "Browser local cache is disposable; Firestore is authoritative primary.",
+      "proposedCleanupAction": "Client browsers will automatically synchronize from clean Firestore upon next authenticated login. Operator runbook should also specify clearing browser site data once prior to live launch."
+    }
+  ],
+  "candidateRecords": [
+    {
+      "candidateId": "CAND-01",
+      "identifier": "rcpt_1001",
+      "receiptNo": "R-1001",
+      "collection": "receipts",
+      "devoteeOrParty": "STEP16 SMOKE TEST",
+      "amount": 20.0,
+      "mode": "Cash",
+      "date": "2026-09-27",
+      "classification": "confirmed_dummy_dataset",
+      "historicalStatus": "voided: true (in Step 22.5)",
+      "presenceInLocalFixture": "present",
+      "presenceInHistoricalBackup": "present (Temple_Accounts_PreStep22_5_TestCleanup_Backup_2026-10-01T23-10-35.json)",
+      "presenceInRepoHistory": "present (STEP_16, STEP_22_5, STEP_33_41A reports)",
+      "presenceInEmulator": "absent (disposable clean emulator)",
+      "presenceInProduction": "unverified (remote access prohibited)",
+      "proposedCleanupAction": "Requires live read-only verification in Firebase Console. Authorized deletion or retention as historical voided audit marker."
+    },
+    {
+      "candidateId": "CAND-02",
+      "identifier": "rcpt_1002",
+      "receiptNo": "R-1002",
+      "collection": "receipts",
+      "devoteeOrParty": "midhun",
+      "amount": 20.0,
+      "mode": "Cash",
+      "date": "2026-09-28",
+      "classification": "confirmed_dummy_dataset",
+      "historicalStatus": "voided: true (in Step 22.5)",
+      "presenceInLocalFixture": "present",
+      "presenceInHistoricalBackup": "present (Temple_Accounts_PreStep22_5_TestCleanup_Backup_2026-10-01T23-10-35.json)",
+      "presenceInRepoHistory": "present (STEP_22_5, STEP_33_41A reports)",
+      "presenceInEmulator": "absent",
+      "presenceInProduction": "unverified (remote access prohibited)",
+      "proposedCleanupAction": "Requires live read-only verification. Authorized deletion or retention as historical voided audit marker."
+    },
+    {
+      "candidateId": "CAND-03",
+      "identifier": "rcpt_1003",
+      "receiptNo": "R-1003",
+      "collection": "receipts",
+      "devoteeOrParty": "akhil",
+      "amount": 20.0,
+      "mode": "Cash",
+      "date": "2026-09-30",
+      "classification": "confirmed_dummy_dataset",
+      "historicalStatus": "voided: true (in Step 22.5; linked bill_3 deleted)",
+      "presenceInLocalFixture": "present",
+      "presenceInHistoricalBackup": "present (active in PreStep22_5 snapshot; voided in Step 22.5)",
+      "presenceInRepoHistory": "present (STEP_22_5, STEP_33_41A reports)",
+      "presenceInEmulator": "absent",
+      "presenceInProduction": "unverified (remote access prohibited)",
+      "proposedCleanupAction": "Requires live read-only verification. Authorized deletion or retention as historical voided audit marker."
+    },
+    {
+      "candidateId": "CAND-04",
+      "identifier": "rcpt_1004",
+      "receiptNo": "R-1004",
+      "collection": "receipts",
+      "devoteeOrParty": "manoj",
+      "amount": 20.0,
+      "mode": "Cash",
+      "date": "2026-10-01",
+      "classification": "confirmed_dummy_dataset",
+      "historicalStatus": "voided: true (in Step 22.5; linked bill_4 deleted)",
+      "presenceInLocalFixture": "present",
+      "presenceInHistoricalBackup": "present (active in PreStep22_5 snapshot; voided in Step 22.5)",
+      "presenceInRepoHistory": "present (STEP_22_5, STEP_33_41A reports)",
+      "presenceInEmulator": "absent",
+      "presenceInProduction": "unverified (remote access prohibited)",
+      "proposedCleanupAction": "Requires live read-only verification. Authorized deletion or retention as historical voided audit marker."
+    },
+    {
+      "candidateId": "CAND-05",
+      "identifier": "rcpt_1005",
+      "receiptNo": "R-1005",
+      "collection": "receipts",
+      "devoteeOrParty": "manoj",
+      "amount": 20.0,
+      "mode": "UPI (Canara Bank)",
+      "date": "2026-10-01",
+      "classification": "confirmed_dummy_dataset",
+      "historicalStatus": "voided: true (in Step 22.5; linked bill_5 deleted)",
+      "presenceInLocalFixture": "present",
+      "presenceInHistoricalBackup": "present (active in PreStep22_5 snapshot; voided in Step 22.5)",
+      "presenceInRepoHistory": "present (STEP_22_5, STEP_33_41A reports)",
+      "presenceInEmulator": "absent",
+      "presenceInProduction": "unverified (remote access prohibited)",
+      "proposedCleanupAction": "Requires live read-only verification. Authorized deletion or retention as historical voided audit marker."
+    },
+    {
+      "candidateId": "CAND-06",
+      "identifier": "migration_2026-09-27T15-29-05",
+      "receiptNo": "N/A",
+      "collection": "migration_staging",
+      "devoteeOrParty": "vibu@gmail.com (UID: rFvStQNfiINnPor66OzXuE1O9Lm1)",
+      "amount": 0.0,
+      "mode": "N/A",
+      "date": "2026-09-27",
+      "classification": "historical_test_artifact",
+      "historicalStatus": "status: COMPLETED (manifest of 106 staging records)",
+      "presenceInLocalFixture": "present",
+      "presenceInHistoricalBackup": "present (Temple_Accounts_PreStep22_5_TestCleanup_Backup_2026-10-01T23-10-35.json)",
+      "presenceInRepoHistory": "present (STEP_12, STEP_22_5, STEP_33_41A reports)",
+      "presenceInEmulator": "absent",
+      "presenceInProduction": "unverified (remote access prohibited)",
+      "proposedCleanupAction": "Requires live verification in Firebase Console. Authorized recursive deletion of collection migration_staging."
+    },
+    {
+      "candidateId": "CAND-07",
+      "identifier": "106_migration_staging_records",
+      "receiptNo": "N/A",
+      "collection": "migration_staging subcollections / manifest total",
+      "devoteeOrParty": "Step 12 staging batch metadata",
+      "amount": 508451.0,
+      "mode": "N/A",
+      "date": "2026-09-27",
+      "classification": "historical_test_artifact",
+      "historicalStatus": "Total count recorded in manifest (1 setting, 6 funds, 7 incCats, 71 expCats, 1 bank, 3 rcpts, 17 bills)",
+      "presenceInLocalFixture": "present (in backup manifest summary)",
+      "presenceInHistoricalBackup": "present (in backup manifest summary)",
+      "presenceInRepoHistory": "present",
+      "presenceInEmulator": "absent",
+      "presenceInProduction": "unverified (remote access prohibited)",
+      "proposedCleanupAction": "Included in migration_staging collection purge. Verify root collections unaffected."
+    },
+    {
+      "candidateId": "CAND-08",
+      "identifier": "diagnostic_records",
+      "receiptNo": "N/A",
+      "collection": "__system_diagnostics__/*",
+      "devoteeOrParty": "fsRunDiagnostics() test writes (test_tx_counter, diag_*)",
+      "amount": 0.0,
+      "mode": "N/A",
+      "date": "Ephemeral",
+      "classification": "historical_test_artifact",
+      "historicalStatus": "Diagnostic probe records",
+      "presenceInLocalFixture": "absent",
+      "presenceInHistoricalBackup": "absent",
+      "presenceInRepoHistory": "present (STEP_33_40, STEP_33_41A reports)",
+      "presenceInEmulator": "absent",
+      "presenceInProduction": "unverified (remote access prohibited)",
+      "proposedCleanupAction": "Verify presence in Firebase Console. Authorized purge of collection __system_diagnostics__."
+    },
+    {
+      "candidateId": "CAND-09",
+      "identifier": "screenshot_candidates_mash",
+      "receiptNo": "N/A",
+      "collection": "billing or receipts",
+      "devoteeOrParty": "twstg, fsfg, bhdfh, gegh",
+      "amount": 0.0,
+      "mode": "N/A",
+      "date": "Unknown",
+      "classification": "unverified",
+      "historicalStatus": "Cited in user prompts/screenshot discussions; 0 matches in local workspace, backups, or tests",
+      "presenceInLocalFixture": "absent",
+      "presenceInHistoricalBackup": "absent",
+      "presenceInRepoHistory": "absent (mentioned only in STEP_33_42/44/45 planning registers)",
+      "presenceInEmulator": "absent",
+      "presenceInProduction": "unverified (not_verifiable_without_production_access)",
+      "proposedCleanupAction": "Barred from deletion without live read-only query and trustee review."
+    },
+    {
+      "candidateId": "CAND-10",
+      "identifier": "screenshot_candidates_names",
+      "receiptNo": "N/A",
+      "collection": "billing or receipts",
+      "devoteeOrParty": "maya, arun",
+      "amount": 0.0,
+      "mode": "N/A",
+      "date": "Unknown",
+      "classification": "unverified",
+      "historicalStatus": "Authentic Kerala names; 0 matches in local workspace, backups, or tests",
+      "presenceInLocalFixture": "absent",
+      "presenceInHistoricalBackup": "absent",
+      "presenceInRepoHistory": "absent",
+      "presenceInEmulator": "absent",
+      "presenceInProduction": "unverified (not_verifiable_without_production_access)",
+      "proposedCleanupAction": "STRICTLY BARRED from deletion without live inspection, timestamp check, and trustee written sign-off."
+    },
+    {
+      "candidateId": "CAND-11",
+      "identifier": "prototype_backup_bills",
+      "receiptNo": "BILL-0001 through BILL-0017",
+      "collection": "Local file: backups/backup.json (Lines 436-701)",
+      "devoteeOrParty": "Rajesh, Suresh, Anil Kumar (₹501,501), Priya, etc.",
+      "amount": 508451.0,
+      "mode": "Cash / UPI",
+      "date": "2026-09-27",
+      "classification": "historical_test_artifact",
+      "historicalStatus": "Prototype development bills from 2026-09-27; purged from Firestore in Step 13/22.5",
+      "presenceInLocalFixture": "present (backups/backup.json)",
+      "presenceInHistoricalBackup": "present",
+      "presenceInRepoHistory": "present",
+      "presenceInEmulator": "absent",
+      "presenceInProduction": "absent (purged in Step 13/22.5; to be re-confirmed)",
+      "proposedCleanupAction": "PRESERVE ON DEVELOPER DISK. Shielded from web access by vercel.json rewrite returning HTTP 404."
+    }
+  ],
+  "protectedMetadata": [
+    {
+      "assetType": "sequence_counters",
+      "path": "system/counters",
+      "classification": "security_and_recovery_metadata",
+      "rationale": "Singleton high-water sequence marks (globalSequenceCounter, billingReceiptCounter, receiptCounter, voucherCounter). Resetting or decrementing causes duplicate receipt numbers and violates candidate Firestore rules.",
+      "preservationPolicy": "MANDATORY PRESERVATION. Never decrement or reset to 0. If starting fresh sequence is desired, committee must establish a higher starting mark (e.g., 10000)."
+    },
+    {
+      "assetType": "number_reservations",
+      "path": "system/res_*",
+      "classification": "security_and_recovery_metadata",
+      "rationale": "Atomic reservation records preventing allocation gaps and race conditions. Candidate rules prohibit physical deletion (allow delete: if false;).",
+      "preservationPolicy": "MANDATORY PRESERVATION. Existing reservations must be retained as tombstoned/voided audit markers. Never delete."
+    },
+    {
+      "assetType": "idempotency_records",
+      "path": "system/op_*",
+      "classification": "security_and_recovery_metadata",
+      "rationale": "Write-once cryptographic fingerprints preventing transaction replay and double-posting. Candidate rules strictly forbid update and delete.",
+      "preservationPolicy": "MANDATORY PRESERVATION. Committed operation tokens are permanent audit records."
+    },
+    {
+      "assetType": "restore_progress",
+      "path": "system/_restoreProgress",
+      "classification": "security_and_recovery_metadata",
+      "rationale": "Disaster recovery session state gating isRestoreSessionActive() in candidate rules.",
+      "preservationPolicy": "Retain completed progress marker; do not delete physically."
+    },
+    {
+      "assetType": "temple_settings",
+      "path": "settings/set_1",
+      "classification": "master_configuration",
+      "rationale": "Authentic Malayalam temple identity ('മറുതാ ചാമുണ്ഡി ദേവി ക്ഷേത്രം'), address, financial year, currency symbol.",
+      "preservationPolicy": "MANDATORY PRESERVATION. Only opening balance fields (openingCash, openingBank, etc.) are reset to verified zero baseline."
+    },
+    {
+      "assetType": "master_funds",
+      "path": "funds/*",
+      "classification": "master_configuration",
+      "rationale": "6 Core funds (General, Punarudharanam, Chitty, Festival, Donation, Other).",
+      "preservationPolicy": "100% PRESERVE ALL 6 FUND MASTER RECORDS."
+    },
+    {
+      "assetType": "master_categories",
+      "path": "incomeCategories/* and expenseCategories/*",
+      "classification": "master_configuration",
+      "rationale": "7 Income categories and 64 Expense categories.",
+      "preservationPolicy": "100% PRESERVE ALL INCOME AND EXPENSE CATEGORIES."
+    },
+    {
+      "assetType": "bank_accounts",
+      "path": "bankAccounts/*",
+      "classification": "master_configuration",
+      "rationale": "Default Canara Bank mapping.",
+      "preservationPolicy": "MANDATORY PRESERVATION."
+    },
+    {
+      "assetType": "vazhipadu_master_offerings",
+      "path": "BILLING_DEFAULT_ITEMS in application code",
+      "classification": "master_configuration",
+      "rationale": "14 Approved pooja offerings (Archana ₹20, Ganapathi Homam ₹750, etc.).",
+      "preservationPolicy": "MANDATORY PRESERVATION."
+    }
+  ],
+  "cleanupPhases": [
+    {
+      "phase": 1,
+      "name": "Obtain Authorized Production Backup",
+      "status": "pending_production_authorization",
+      "description": "Execute native application downloadBackup() under authorized admin session in temple-f4f7d. Optionally execute gcloud firestore export."
+    },
+    {
+      "phase": 2,
+      "name": "Verify Backup Integrity and Document Counts",
+      "status": "pending_production_authorization",
+      "description": "Verify RFC 8785 canonical SHA-256 integrity checksum, document counts across all 13 collections, system/counters, system/res_*, and system/op_*."
+    },
+    {
+      "phase": 3,
+      "name": "Inventory Actual Production Transaction IDs",
+      "status": "pending_production_authorization",
+      "description": "Execute read-only inspection via Firebase Console or authorized query script to record exact document IDs, devotee names, dates, amounts, and linkages."
+    },
+    {
+      "phase": 4,
+      "name": "Produce Surgical Deletion Manifest",
+      "status": "pending_production_authorization",
+      "description": "Generate machine-readable deletion manifest specifying exact document paths, deletion reasons, linked dependencies, and verification criteria."
+    },
+    {
+      "phase": 5,
+      "name": "Review Manifest and Obtain Trustee Authorization",
+      "status": "pending_production_authorization",
+      "description": "Present manifest and verification findings to Temple Trustees for written sign-off before any mutation is permitted."
+    },
+    {
+      "phase": 6,
+      "name": "Execute Cleanup via Controlled Mechanism",
+      "status": "pending_production_authorization",
+      "description": "Execute authorized deletion via Firebase Console or Admin SDK (since candidate client rules prohibit client deletion). Preserve counters and reservations."
+    },
+    {
+      "phase": 7,
+      "name": "Verify Multi-Module Consistency",
+      "status": "pending_production_authorization",
+      "description": "Verify all 13 collections, billing, receipts, payments, transfers, chitty, loans contain zero dangling records or orphaned links."
+    },
+    {
+      "phase": 8,
+      "name": "Recalculate and Validate Financial Summaries",
+      "status": "pending_production_authorization",
+      "description": "Verify Dashboard liquid position, Cash Book, Bank Book, General Ledger, and Trial Balance reflect exact zero (or approved opening baseline)."
+    },
+    {
+      "phase": 9,
+      "name": "Confirm Protected Data Integrity",
+      "status": "pending_production_authorization",
+      "description": "Verify temple settings, 6 funds, categories, bank account, sequence counters, and reservations remain completely intact."
+    },
+    {
+      "phase": 10,
+      "name": "Verify Clean Launch State on Production Bundle",
+      "status": "pending_production_authorization",
+      "description": "Clear client browser cache, perform cold-start login, verify flawless UI appearance with zero dummy data and zero console errors."
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "name": "temple-accounts",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Temple Accounts & Fund Management Web Application (Vercel Release Package)",
+  "scripts": {
+    "build": "node scripts/generate-firebase-config.js"
+  }
+}

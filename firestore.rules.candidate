@@ -1,0 +1,256 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper function to verify user authentication
+    // No public / unauthenticated access permitted anywhere in the database
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Helper function to verify that a disaster recovery restore session
+    // is actively registered in Firestore by the authenticated caller.
+    function isRestoreSessionActive() {
+      return isAuthenticated() &&
+        exists(/databases/$(database)/documents/system/_restoreProgress) &&
+        get(/databases/$(database)/documents/system/_restoreProgress).data.status == 'in_progress' &&
+        get(/databases/$(database)/documents/system/_restoreProgress).data.restoredBy == request.auth.uid;
+    }
+    
+    // -------------------------------------------------------------------------
+    // SYSTEM & CONFIGURATION PROTECTION
+    // -------------------------------------------------------------------------
+    
+    // 1. System Singleton Counters (/system/counters):
+    // Authenticated users can read and monotonically advance sequence counters.
+    // Arbitrary field injection and sequence rollback are strictly prohibited.
+    // Physical deletion is strictly prohibited.
+    match /system/counters {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && !exists(/databases/$(database)/documents/system/counters);
+      allow update: if isAuthenticated() &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'globalSequenceCounter', 'billingReceiptCounter', 'receiptCounter', 'voucherCounter',
+          'receiptPrefix', 'voucherPrefix', 'billingPrefix', 'billingReceiptPrefix',
+          'updatedAt', 'initializedAt', '_restoredAt', '_restoredBy', '_firestoreId', '_firestoreCollection'
+        ]) &&
+        request.resource.data.globalSequenceCounter is int &&
+        (!('globalSequenceCounter' in resource.data) || (request.resource.data.globalSequenceCounter >= resource.data.globalSequenceCounter)) &&
+        (!('billingReceiptCounter' in request.resource.data) || (request.resource.data.billingReceiptCounter is int && (!('billingReceiptCounter' in resource.data) || request.resource.data.billingReceiptCounter >= resource.data.billingReceiptCounter))) &&
+        (!('receiptCounter' in request.resource.data) || (request.resource.data.receiptCounter is int && (!('receiptCounter' in resource.data) || request.resource.data.receiptCounter >= resource.data.receiptCounter))) &&
+        (!('voucherCounter' in request.resource.data) || (request.resource.data.voucherCounter is int && (!('voucherCounter' in resource.data) || request.resource.data.voucherCounter >= resource.data.voucherCounter)));
+      allow delete: if false;
+    }
+
+    // 1b. System Restore Progress Tracker (/system/_restoreProgress):
+    // Dedicated system document tracking disaster recovery restoration phases.
+    // Progress writes are strictly authorized for authenticated operators.
+    // Physical deletion is strictly prohibited to preserve recovery audit history.
+    match /system/_restoreProgress {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() &&
+        request.resource.data.sessionId is string &&
+        request.resource.data.sessionId.matches('^rst_[0-9]+$') &&
+        request.resource.data.status == 'in_progress' &&
+        request.resource.data.restoredBy == request.auth.uid &&
+        request.resource.data.keys().hasAll(['sessionId', 'status', 'startedAt', 'currentPhase', 'completedPhases', 'restoredBy']);
+      allow update: if isAuthenticated() &&
+        request.resource.data.sessionId is string &&
+        request.resource.data.sessionId.matches('^rst_[0-9]+$') &&
+        request.resource.data.status in ['in_progress', 'completed', 'interrupted'] &&
+        request.resource.data.restoredBy == request.auth.uid &&
+        request.resource.data.keys().hasAll(['sessionId', 'status', 'startedAt', 'currentPhase', 'completedPhases', 'restoredBy']) &&
+        (
+          resource.data.restoredBy == request.auth.uid ||
+          resource.data.status in ['completed', 'interrupted']
+        );
+      allow delete: if false;
+    }
+
+    // 2. Sequence Number Reservations (/system/res_{N}):
+    // Created atomically during sequential billing and independent receipt transactions,
+    // or safely restored during verified disaster recovery restore sessions.
+    // Must match sequence format, valid structural schema, and authenticated caller UID.
+    // Existing reservations are immutable except for atomic voiding transitions.
+    // Physical deletion is strictly prohibited.
+    match /system/{resId} {
+      allow read: if isAuthenticated() && resId.matches('^res_[0-9]+$');
+      
+      allow create: if isAuthenticated() &&
+        resId.matches('^res_[0-9]+$') &&
+        request.resource.data.seqNumber is int &&
+        request.resource.data.seqNumber > 0 &&
+        resId == ('res_' + string(request.resource.data.seqNumber)) &&
+        ((request.resource.data.type == 'billing_linked' && request.resource.data.source == 'billing') ||
+         (request.resource.data.type == 'independent_receipt' && request.resource.data.source == 'receipts')) &&
+        (!('operationId' in request.resource.data) || (request.resource.data.operationId is string && request.resource.data.operationId.matches('^op_[A-Za-z0-9_-]+$'))) &&
+        request.resource.data.keys().hasAll(['seqNumber', 'formattedNo', 'type', 'status', 'voided', 'createdBy', 'source']) &&
+        (
+          // Path 1: Ordinary Application Creation (active reservation created by current user)
+          (
+            request.resource.data.createdBy == request.auth.uid &&
+            request.resource.data.status == 'active' &&
+            request.resource.data.voided == false
+          ) ||
+          // Path 2: Disaster Recovery Restore (preserves historical author and voided status)
+          (
+            isRestoreSessionActive() &&
+            request.resource.data._restoredBy == request.auth.uid &&
+            request.resource.data._restoredAt is string &&
+            request.resource.data.createdBy is string &&
+            request.resource.data.createdBy.size() > 0 &&
+            (
+              (request.resource.data.status == 'active' && request.resource.data.voided == false) ||
+              (request.resource.data.status == 'voided' && request.resource.data.voided == true)
+            )
+          )
+        );
+        
+      allow update: if isAuthenticated() &&
+        resId.matches('^res_[0-9]+$') &&
+        (!('voided' in resource.data) || resource.data.voided == false) &&
+        request.resource.data.voided == true &&
+        request.resource.data.status == 'voided' &&
+        (!('seqNumber' in request.resource.data) || request.resource.data.seqNumber == resource.data.seqNumber) &&
+        (!('type' in request.resource.data) || request.resource.data.type == resource.data.type) &&
+        (!('createdBy' in request.resource.data) || request.resource.data.createdBy == resource.data.createdBy) &&
+        (!('operationId' in request.resource.data) || !('operationId' in resource.data) || request.resource.data.operationId == resource.data.operationId);
+        
+      allow delete: if false;
+    }
+
+    // 3. Idempotency Operation Audit Records (/system/op_{operationId}):
+    // Created atomically during billing/receipt transactions with caller UID binding,
+    // or restored during verified disaster recovery restore sessions.
+    // 100% write-once and immutable: modification and deletion are strictly denied
+    // to prevent cross-user tampering, replay hijacking, and audit log modification.
+    match /system/{opId} {
+      allow read: if isAuthenticated() && opId.matches('^op_[A-Za-z0-9_-]+$');
+      
+      allow create: if isAuthenticated() &&
+        opId.matches('^op_[A-Za-z0-9_-]+$') &&
+        request.resource.data.operationId is string &&
+        request.resource.data.operationId == opId &&
+        request.resource.data.status == 'committed' &&
+        request.resource.data.seqNumber is int &&
+        request.resource.data.seqNumber > 0 &&
+        (request.resource.data.type == 'billing_linked' || request.resource.data.type == 'independent_receipt') &&
+        request.resource.data.fingerprint is string &&
+        request.resource.data.keys().hasAll(['operationId', 'type', 'status', 'seqNumber', 'formattedNo', 'fingerprint', 'createdBy']) &&
+        (
+          // Path 1: Ordinary Application Creation (bound to current operator UID)
+          (request.resource.data.createdBy == request.auth.uid) ||
+          // Path 2: Disaster Recovery Restore (preserves historical author UID)
+          (
+            isRestoreSessionActive() &&
+            request.resource.data._restoredBy == request.auth.uid &&
+            request.resource.data._restoredAt is string &&
+            request.resource.data.createdBy is string &&
+            request.resource.data.createdBy.size() > 0
+          )
+        );
+        
+      allow update: if false;
+      allow delete: if false;
+    }
+    
+    // Settings collection:
+    // Authenticated users can read and update system preferences and metadata.
+    // Physical deletion of settings is strictly prohibited.
+    match /settings/{docId} {
+      allow read: if isAuthenticated();
+      allow create, update: if isAuthenticated();
+      allow delete: if false;
+    }
+    
+    // -------------------------------------------------------------------------
+    // PROTECTED FINANCIAL AUDIT RECORDS (NON-DESTRUCTIVE / VOID-ONLY)
+    // -------------------------------------------------------------------------
+    
+    // Billing records:
+    // Authenticated users can read, create, and update (for atomic voiding/reprint).
+    // Physical deletion is strictly prohibited to preserve audit trail integrity.
+    match /billing/{docId} {
+      allow read: if isAuthenticated();
+      allow create, update: if isAuthenticated();
+      allow delete: if false;
+    }
+    
+    // Receipts records:
+    // Authenticated users can read, create, and update (for atomic voiding/sync).
+    // Physical deletion is strictly prohibited to preserve audit trail integrity.
+    match /receipts/{docId} {
+      allow read: if isAuthenticated();
+      allow create, update: if isAuthenticated();
+      allow delete: if false;
+    }
+    
+    // -------------------------------------------------------------------------
+    // OPERATIONAL APPLICATION COLLECTIONS
+    // -------------------------------------------------------------------------
+    
+    // Master data collections:
+    match /funds/{docId} {
+      allow read, write: if isAuthenticated();
+    }
+    
+    match /incomeCategories/{docId} {
+      allow read, write: if isAuthenticated();
+    }
+    
+    match /expenseCategories/{docId} {
+      allow read, write: if isAuthenticated();
+    }
+    
+    match /bankAccounts/{docId} {
+      allow read, write: if isAuthenticated();
+    }
+    
+    // Transactional accounting & scheme collections:
+    match /payments/{docId} {
+      allow read, write: if isAuthenticated();
+    }
+    
+    match /transfers/{docId} {
+      allow read, write: if isAuthenticated();
+    }
+    
+    match /loans/{docId} {
+      allow read, write: if isAuthenticated();
+    }
+    
+    match /chittyMembers/{docId} {
+      allow read, write: if isAuthenticated();
+    }
+    
+    match /chittyCollections/{docId} {
+      allow read, write: if isAuthenticated();
+    }
+    
+    match /chittyPayouts/{docId} {
+      allow read, write: if isAuthenticated();
+    }
+    
+    // -------------------------------------------------------------------------
+    // DIAGNOSTICS & MIGRATION STAGING
+    // -------------------------------------------------------------------------
+    
+    // Diagnostics & smoke test collection: authenticated users only
+    match /__system_diagnostics__/{docId} {
+      allow read, write: if isAuthenticated();
+    }
+    
+    // Migration staging namespace (manifest & staging subcollections)
+    match /migration_staging/{migrationId} {
+      allow read, write: if isAuthenticated();
+      
+      match /{subCollection}/{docId} {
+        allow read, write: if isAuthenticated();
+      }
+    }
+    
+    // NOTE: All unknown / unlisted collections are implicitly denied by default
+    // as no matching allow rule exists.
+  }
+}

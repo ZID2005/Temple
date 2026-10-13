@@ -1,0 +1,230 @@
+{
+  "schemaVersion": "1.0.0",
+  "syntheticFixtureId": "synthetic_demo_step3353_fixture",
+  "generatedAt": "2026-10-12T18:48:27.114Z",
+  "executionMode": "dry-run",
+  "isProductionData": false,
+  "candidateCounts": {
+    "totalManifestEntries": 16,
+    "validatedCandidates": 8,
+    "rejectedEntries": 2,
+    "protectedEntries": 5,
+    "unverifiedEntries": 1,
+    "missingDependencies": 0,
+    "conflictingRelationships": 2,
+    "recordsProposedForCleanup": 0,
+    "recordsExplicitlyPreserved": 5
+  },
+  "validatedCandidates": [],
+  "rejectedEntries": [
+    {
+      "index": 11,
+      "collection": "unsupported_test_col",
+      "docId": "bad_col_doc_1",
+      "reason": "Unsupported collection path: unsupported_test_col",
+      "entry": {
+        "collection": "unsupported_test_col",
+        "docId": "bad_col_doc_1",
+        "recordType": "invalid",
+        "classification": "confirmed_test_transaction",
+        "evidence": "Unsupported collection path test entry",
+        "cleanupReason": "Test entry",
+        "verificationStatus": "verified_synthetic",
+        "approvalStatus": "trustee_approved"
+      }
+    },
+    {
+      "index": 12,
+      "reason": "Missing or empty document ID",
+      "entry": {
+        "collection": "billing",
+        "docId": "",
+        "recordType": "invalid",
+        "classification": "confirmed_test_transaction",
+        "evidence": "Missing document ID test entry",
+        "cleanupReason": "Test entry",
+        "verificationStatus": "verified_synthetic",
+        "approvalStatus": "trustee_approved"
+      }
+    }
+  ],
+  "protectedEntries": [
+    {
+      "index": 6,
+      "collection": "system",
+      "docId": "counters",
+      "reason": "Exact protected system or configuration path: system/counters",
+      "assetType": "sequence_counters",
+      "entry": {
+        "collection": "system",
+        "docId": "counters",
+        "recordType": "sequence_counters",
+        "classification": "numbering_and_recovery_metadata",
+        "evidence": "High-water sequence counter store",
+        "cleanupReason": "Audit check for denylist enforcement",
+        "verificationStatus": "verified_locally",
+        "approvalStatus": "trustee_approved"
+      }
+    },
+    {
+      "index": 7,
+      "collection": "system",
+      "docId": "res_1001",
+      "reason": "Sequence reservation document (system/res_*)",
+      "assetType": "sequence_reservation",
+      "entry": {
+        "collection": "system",
+        "docId": "res_1001",
+        "recordType": "sequence_reservation",
+        "classification": "numbering_and_recovery_metadata",
+        "evidence": "Atomic reservation for seq 1001",
+        "cleanupReason": "Audit check for denylist enforcement",
+        "verificationStatus": "verified_locally",
+        "approvalStatus": "trustee_approved"
+      }
+    },
+    {
+      "index": 8,
+      "collection": "system",
+      "docId": "op_bill_1001",
+      "reason": "Immutable idempotency token (system/op_*)",
+      "assetType": "idempotency_record",
+      "entry": {
+        "collection": "system",
+        "docId": "op_bill_1001",
+        "recordType": "idempotency_record",
+        "classification": "numbering_and_recovery_metadata",
+        "evidence": "Immutable idempotency token",
+        "cleanupReason": "Audit check for denylist enforcement",
+        "verificationStatus": "verified_locally",
+        "approvalStatus": "trustee_approved"
+      }
+    },
+    {
+      "index": 9,
+      "collection": "settings",
+      "docId": "set_1",
+      "reason": "Exact protected system or configuration path: settings/set_1",
+      "assetType": "master_configuration",
+      "entry": {
+        "collection": "settings",
+        "docId": "set_1",
+        "recordType": "temple_settings",
+        "classification": "master_configuration",
+        "evidence": "Temple master configuration and opening balances",
+        "cleanupReason": "Audit check for master config preservation",
+        "verificationStatus": "verified_locally",
+        "approvalStatus": "trustee_approved"
+      }
+    },
+    {
+      "index": 10,
+      "collection": "funds",
+      "docId": "fund_1",
+      "reason": "Master fund definition (funds/*)",
+      "assetType": "master_configuration",
+      "entry": {
+        "collection": "funds",
+        "docId": "fund_1",
+        "recordType": "master_fund",
+        "classification": "master_configuration",
+        "evidence": "General Temple Fund definition",
+        "cleanupReason": "Audit check for master config preservation",
+        "verificationStatus": "verified_locally",
+        "approvalStatus": "trustee_approved"
+      }
+    }
+  ],
+  "unverifiedEntries": [
+    {
+      "index": 15,
+      "collection": "billing",
+      "docId": "bill_unverified_twstg",
+      "reason": "Record is unverified and cannot be automatically approved for cleanup.",
+      "entry": {
+        "collection": "billing",
+        "docId": "bill_unverified_twstg",
+        "recordType": "billing_record",
+        "classification": "unverified_record",
+        "evidence": "Candidate devotee name \"twstg\" cited in discussions; 0 matches in local workspace",
+        "cleanupReason": "Unverified test record requiring explicit forensic identification",
+        "verificationStatus": "unverified",
+        "approvalStatus": "pending_trustee_review"
+      }
+    }
+  ],
+  "dependencyConflicts": [
+    {
+      "entryDocId": "tx_bad_conflict",
+      "reason": "Incomplete or invalid transfer pair (fromAcc: \"Cash in Hand\", toAcc: \"Cash in Hand\")."
+    },
+    {
+      "entryDocId": "cc_bad_member",
+      "missingDocPath": "chittyMembers/cm_999",
+      "reason": "Chitty transaction cc_bad_member references inconsistent/nonexistent member cm_999."
+    }
+  ],
+  "missingDependencies": [],
+  "preservedMetadata": [
+    {
+      "assetType": "sequence_counters",
+      "targetPath": "system/counters",
+      "rule": "MANDATORY MONOTONIC PRESERVATION. Counter must never be decremented, reset to zero, or deleted.",
+      "status": "UNTOUCHED"
+    },
+    {
+      "assetType": "sequence_reservations",
+      "targetPath": "system/res_*",
+      "rule": "MANDATORY AUDIT PRESERVATION. Historical sequence reservations remain intact.",
+      "status": "UNTOUCHED"
+    },
+    {
+      "assetType": "idempotency_tokens",
+      "targetPath": "system/op_*",
+      "rule": "IMMUTABLE AUDIT MARKERS. Write-once operation records remain permanently intact.",
+      "status": "UNTOUCHED"
+    },
+    {
+      "assetType": "master_configuration",
+      "targetPath": "settings/set_1, funds/*, incomeCategories/*, expenseCategories/*, bankAccounts/*",
+      "rule": "100% PRESERVED. Temple settings, 6 accounting funds, category master records, and bank accounts are never modified by cleanup.",
+      "status": "UNTOUCHED"
+    }
+  ],
+  "localCachePlan": {
+    "strategy": "SELECTIVE_EVICTION_BY_DOC_ID",
+    "mechanism": "Evict only verified candidate document IDs from local IndexedDB object stores (billing, receipts, payments, transfers, loans, chitty) after verified cloud cleanup.",
+    "prohibitedActions": [
+      "DO NOT call indexedDB.deleteDatabase()",
+      "DO NOT call clearStore(\"settings\")",
+      "DO NOT call clearStore(\"funds\")",
+      "DO NOT clear unrelated browser cache or user session state"
+    ],
+    "proposedLocalEvictions": []
+  },
+  "executionStatus": {
+    "isExecutionEnabled": false,
+    "reasonsExecutionBlocked": [
+      "STEP 33.53 GOVERNANCE: Execute mode is strictly disabled in STEP 33.53.",
+      "FIRESTORE_SECURITY_RULES: Candidate rules enforce \"allow delete: if false;\" across financial collections.",
+      "AUTHORIZATION_GATE: Requires independent written sign-off from Temple Trustees prior to any mutation.",
+      "BACKUP_PREREQUISITE: Requires verified production backup under schema v23.2 with SHA-256 integrity verification immediately prior to execution."
+    ]
+  },
+  "futureApprovedExecutionRunbook": [
+    "1. Secure verified production snapshot via authorized administrator session.",
+    "2. Verify snapshot SHA-256 integrity using RFC 8785 canonical digest.",
+    "3. Inspect live production document IDs to generate authoritative live manifest.",
+    "4. Present live manifest to Temple Trustees for formal written approval.",
+    "5. Execute batch deletion via authorized administrative channel (Firebase Console or privileged Admin script).",
+    "6. Perform post-cleanup multi-module reconciliation verifying Dashboard, Cash Book, Bank Book, and Ledger reflect ₹0.00 baseline without errors.",
+    "7. Verify monotonic counters and sequence reservations remain completely intact."
+  ],
+  "dryRunChecksum": "BE3C131DBFBBD7B023813FA9BDF34F695D2358F33C774B45607A2171AD28DFEA",
+  "testVerificationSummary": {
+    "totalTests": 25,
+    "passed": 25,
+    "failed": 0,
+    "verdict": "PASS"
+  }
+}
