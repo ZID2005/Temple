@@ -1,0 +1,233 @@
+{
+  "manifestVersion": "1.0.0",
+  "step": "STEP 33.58",
+  "generatedAt": "2026-10-14T10:57:30+05:30",
+  "targetDirectory": "deploy_staging_step_33_58",
+  "targetPlatform": "Vercel Static Web Hosting",
+  "backendProjectId": "temple-f4f7d",
+  "overallVerdict": "PASS",
+  "summary": {
+    "totalFiles": 6,
+    "totalDirectories": 1,
+    "totalSizeBytes": 933446,
+    "runtimeFilesCount": 3,
+    "buildTimeFilesCount": 3,
+    "prohibitedFilesCount": 0,
+    "customVazhipaduIncluded": true,
+    "sourceParity": "100% BIT-FOR-BIT MATCH WITH STEP 33.57 BASELINE"
+  },
+  "files": [
+    {
+      "relativePath": "Temple_Accounts-1.html",
+      "sizeBytes": 792927,
+      "sha256": "657A4C1C116DADAAFD02FE3DB5F2799EC5B9F9FA105F260132EB1D20EEAD1F58",
+      "sourcePath": "Temple_Accounts-1.html",
+      "sourceSha256": "657A4C1C116DADAAFD02FE3DB5F2799EC5B9F9FA105F260132EB1D20EEAD1F58",
+      "parityMatch": true,
+      "purpose": "Primary Single Page Application containing Temple Accounts & Fund Management UI, Malayalam ledger views, unified monotonic numbering, thermal receipt printer, and approved Custom Vazhipadu feature.",
+      "requiredAtRuntime": true,
+      "evidence": "Referenced by Vercel rewrite route '/' and direct path '/Temple_Accounts-1.html'. Contains 100% of client business logic, inline CSS, and SVG assets."
+    },
+    {
+      "relativePath": "ogl.esm.js",
+      "sizeBytes": 132772,
+      "sha256": "819275B4972348396BBD0ECCF07A46E367CA4E939AAADB2E777523CA168D78D2",
+      "sourcePath": "ogl.esm.js",
+      "sourceSha256": "819275B4972348396BBD0ECCF07A46E367CA4E939AAADB2E777523CA168D78D2",
+      "parityMatch": true,
+      "purpose": "Minimal WebGL library providing background shader visual effects for application header and dashboard.",
+      "requiredAtRuntime": true,
+      "evidence": "Dynamically imported via import('./ogl.esm.js') in Temple_Accounts-1.html (lines 111-118). Self-contained local dependency."
+    },
+    {
+      "relativePath": "vercel.json",
+      "sizeBytes": 1767,
+      "sha256": "ACAA507172EA852D8158CF44ACAE42F044FCEE92A46C80228B0E8CFEA71CB5D1",
+      "sourcePath": "vercel.json",
+      "sourceSha256": "ACAA507172EA852D8158CF44ACAE42F044FCEE92A46C80228B0E8CFEA71CB5D1",
+      "parityMatch": true,
+      "purpose": "Vercel routing, sensitive path shielding (HTTP 404), and security headers configuration.",
+      "requiredAtRuntime": true,
+      "evidence": "Directs '/' to '/Temple_Accounts-1.html', blocks access to sensitive paths (/scripts, /package.json, /.gitignore, *.rules, *.json), and enforces strict CSP and X-Frame-Options: DENY."
+    },
+    {
+      "relativePath": "package.json",
+      "sizeBytes": 244,
+      "sha256": "8FBBCC4AC8B4B1B8EEE5B7A4FCBD21F84C1A7886671175CBEA906249A103D394",
+      "sourcePath": "deploy_staging_step_33_43/package.json",
+      "sourceSha256": "8FBBCC4AC8B4B1B8EEE5B7A4FCBD21F84C1A7886671175CBEA906249A103D394",
+      "parityMatch": true,
+      "purpose": "Deployment package manifest declaring the build command for Vercel build pipeline.",
+      "requiredAtRuntime": false,
+      "evidence": "Specifies 'npm run build' which invokes node scripts/generate-firebase-config.js. Contains zero devDependencies or root test scripts."
+    },
+    {
+      "relativePath": ".gitignore",
+      "sizeBytes": 232,
+      "sha256": "0FB0FEA8B5EC9514BCCCC8154C220670417E849AA45C3CD8EF108904B9DCABB4",
+      "sourcePath": "deploy_staging_step_33_43/.gitignore",
+      "sourceSha256": "0FB0FEA8B5EC9514BCCCC8154C220670417E849AA45C3CD8EF108904B9DCABB4",
+      "parityMatch": true,
+      "purpose": "Version control hygiene configuration.",
+      "requiredAtRuntime": false,
+      "evidence": "Prevents accidental tracking of .env, generated firebase-config.js, .vercel/, and node_modules/."
+    },
+    {
+      "relativePath": "scripts/generate-firebase-config.js",
+      "sizeBytes": 5504,
+      "sha256": "B206DAFF0E58FBD7EDF86AF63E8C98E2FA3EEF51A16EF6E237DBA232DFA738C4",
+      "sourcePath": "scripts/generate-firebase-config.js",
+      "sourceSha256": "B206DAFF0E58FBD7EDF86AF63E8C98E2FA3EEF51A16EF6E237DBA232DFA738C4",
+      "parityMatch": true,
+      "purpose": "Zero-dependency build script that generates firebase-config.js from Vercel environment variables during deployment.",
+      "requiredAtRuntime": false,
+      "evidence": "Executed by package.json build script to output window.FIREBASE_CONFIG. Shielded from public HTTP serving via vercel.json 404 rewrite."
+    }
+  ],
+  "cryptographicBaselines": {
+    "workingApplication": {
+      "path": "Temple_Accounts-1.html",
+      "expectedSha256": "657A4C1C116DADAAFD02FE3DB5F2799EC5B9F9FA105F260132EB1D20EEAD1F58",
+      "actualSha256": "657A4C1C116DADAAFD02FE3DB5F2799EC5B9F9FA105F260132EB1D20EEAD1F58",
+      "status": "MATCH"
+    },
+    "frozenReleaseApplication": {
+      "path": "deploy_staging_step_33_43/Temple_Accounts-1.html",
+      "expectedSha256": "AEB01303F22F69E284D680A55E182FC78312C48E4266C02809179DF789E87CBC",
+      "actualSha256": "AEB01303F22F69E284D680A55E182FC78312C48E4266C02809179DF789E87CBC",
+      "status": "MATCH (PRESERVED)"
+    },
+    "stagedApplication": {
+      "path": "deploy_staging_step_33_58/Temple_Accounts-1.html",
+      "expectedSha256": "657A4C1C116DADAAFD02FE3DB5F2799EC5B9F9FA105F260132EB1D20EEAD1F58",
+      "actualSha256": "657A4C1C116DADAAFD02FE3DB5F2799EC5B9F9FA105F260132EB1D20EEAD1F58",
+      "status": "MATCH"
+    },
+    "activeFirestoreRules": {
+      "path": "firestore.rules",
+      "expectedSha256": "7BFEF0B0F4C31A5DAFC6FB29C8C4BBD55CBAD3A8A590EFC34BD87F4600CF90BD",
+      "actualSha256": "7BFEF0B0F4C31A5DAFC6FB29C8C4BBD55CBAD3A8A590EFC34BD87F4600CF90BD",
+      "status": "MATCH (UNTOUCHED)"
+    },
+    "candidateFirestoreRules": {
+      "path": "firestore.rules.candidate",
+      "expectedSha256": "E0D2F9D11DE6E92644339A3332566B16CD0A58360598EF70E60279B890DA902D",
+      "actualSha256": "E0D2F9D11DE6E92644339A3332566B16CD0A58360598EF70E60279B890DA902D",
+      "status": "MATCH (QUARANTINED)"
+    },
+    "vercelConfiguration": {
+      "path": "vercel.json",
+      "expectedSha256": "ACAA507172EA852D8158CF44ACAE42F044FCEE92A46C80228B0E8CFEA71CB5D1",
+      "actualSha256": "ACAA507172EA852D8158CF44ACAE42F044FCEE92A46C80228B0E8CFEA71CB5D1",
+      "status": "MATCH"
+    },
+    "firebaseConfiguration": {
+      "path": "firebase.json",
+      "expectedSha256": "E87125F3EC6439A59BA44D80A6DCC46378A27A0644B0CDA30ABEAFD2EFB67E20",
+      "actualSha256": "E87125F3EC6439A59BA44D80A6DCC46378A27A0644B0CDA30ABEAFD2EFB67E20",
+      "status": "MATCH (UNTOUCHED)"
+    },
+    "cleanupOrchestrator": {
+      "path": "scripts/cleanup_orchestrator.js",
+      "expectedSha256": "41F440C1CBB5D188D836A031C15A256357933D35AD2A780B9C824335B3CA9715",
+      "actualSha256": "41F440C1CBB5D188D836A031C15A256357933D35AD2A780B9C824335B3CA9715",
+      "status": "MATCH (DISABLED)"
+    }
+  },
+  "verificationChecks": [
+    {
+      "checkId": "CHK-01",
+      "description": "Source HTML Hash matches STEP 33.57 baseline (657A4C1C...)",
+      "status": "PASS"
+    },
+    {
+      "checkId": "CHK-02",
+      "description": "Staged HTML Hash matches expected baseline (657A4C1C...)",
+      "status": "PASS"
+    },
+    {
+      "checkId": "CHK-03",
+      "description": "Source and Staged HTML Hash and byte parity (100% exact match)",
+      "status": "PASS"
+    },
+    {
+      "checkId": "CHK-04",
+      "description": "Presence of Custom Vazhipadu implementation in staged copy",
+      "status": "PASS"
+    },
+    {
+      "checkId": "CHK-05",
+      "description": "13-item predefined catalogue invariant in BILLING_DEFAULT_ITEMS",
+      "status": "PASS"
+    },
+    {
+      "checkId": "CHK-06",
+      "description": "Local dependency and asset integrity (ogl.esm.js, Google CDN, SVG)",
+      "status": "PASS"
+    },
+    {
+      "checkId": "CHK-07",
+      "description": "Package file inclusion/exclusion rules (exactly 6 files)",
+      "status": "PASS"
+    },
+    {
+      "checkId": "CHK-08",
+      "description": "Static routing and security-header configuration by inspection",
+      "status": "PASS"
+    },
+    {
+      "checkId": "CHK-09",
+      "description": "Absence of secret-bearing and development-only files",
+      "status": "PASS"
+    },
+    {
+      "checkId": "CHK-10",
+      "description": "Preservation of frozen release artifact (deploy_staging_step_33_43)",
+      "status": "PASS"
+    }
+  ],
+  "prohibitedArtifactsAudit": {
+    "envFiles": "ABSENT",
+    "privateKeysAndCredentials": "ABSENT",
+    "databaseBackups": "ABSENT",
+    "testSuitesAndFixtures": "ABSENT",
+    "auditReports": "ABSENT",
+    "debugLogs": "ABSENT",
+    "gitRepositories": "ABSENT",
+    "firestoreRules": "ABSENT",
+    "cleanupScripts": "ABSENT",
+    "emulatorConfigs": "ABSENT"
+  },
+  "outstandingLaunchBlockers": [
+    {
+      "blockerId": "BLK-01",
+      "title": "Active Firestore Rules Permit Deletions",
+      "details": "Active rules on production Firebase ('temple-f4f7d') permit authenticated users to delete documents in operational collections.",
+      "status": "UNRESOLVED - Candidate rules quarantined"
+    },
+    {
+      "blockerId": "BLK-02",
+      "title": "Quarantined Hardened Security Rules Unpromoted",
+      "details": "Candidate rules ('firestore.rules.candidate') enforce deletion lockout ('allow delete: if false') but remain unpromoted to active production.",
+      "status": "UNRESOLVED - Pending release cutover authorization"
+    },
+    {
+      "blockerId": "BLK-03",
+      "title": "Missing Fresh Production Backup Under Current Schema (v23.2)",
+      "details": "Local backup repository contains pre-v23.1 export from 2026-10-01 lacking reservations and canonical SHA-256 checksums.",
+      "status": "UNRESOLVED - Requires authorized administrator backup window"
+    },
+    {
+      "blockerId": "BLK-04",
+      "title": "Restore Behavior Across >500 Documents Non-Atomic",
+      "details": "Client-side restore chunks writes into 500-operation batches, which lacks cross-batch all-or-nothing rollback semantics.",
+      "status": "DOCUMENTED LIMITATION - Requires pre-restore safety snapshot"
+    },
+    {
+      "blockerId": "BLK-05",
+      "title": "Production Test-Record Cleanup Prerequisites Blocked",
+      "details": "All five mandatory production cleanup safety gates remain fail-closed: PROD-BACKUP-STATUS-01, CLEANUP-PREREQ-BACKUP, CLEANUP-PREREQ-INVENTORY, CLEANUP-PREREQ-MANIFEST, CLEANUP-PREREQ-TRUSTEE.",
+      "status": "BLOCKED - Requires separate trustee approval and live backup"
+    }
+  ]
+}

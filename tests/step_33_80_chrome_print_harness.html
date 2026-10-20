@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>STEP 33.80 Chromium Print Media Verification</title>
+  <style>
+    /* Thermal Receipt Paper Card (80mm Realistic View) */
+.receipt-paper-box {
+  background: #ffffff;
+  border: 1px dashed #c4bcb0;
+  border-radius: 6px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.07), 0 1px 3px rgba(0, 0, 0, 0.04);
+  padding: 16px 14px 14px;
+  width: 100%;
+  max-width: 380px;
+  margin: 0 auto;
+  font-family: 'Consolas', 'Courier New', 'Noto Sans Malayalam', 'Segoe UI', monospace;
+  font-size: 12px;
+  line-height: 1.42;
+  color: #0f1115;
+  box-sizing: border-box;
+  position: relative;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+.th-receipt {
+  width: 100%;
+  font-family: 'Consolas', 'Courier New', 'Noto Sans Malayalam', 'Segoe UI', monospace;
+  color: #0f1115;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-variant-numeric: tabular-nums;
+}
+.th-center { text-align: center; }
+.th-bold { font-weight: 700; color: #000000; }
+.th-title {
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.32;
+  margin-bottom: 2px;
+  letter-spacing: 0.15px;
+  color: #000000;
+}
+.th-sub {
+  font-size: 10.5px;
+  font-weight: 500;
+  line-height: 1.35;
+  margin-bottom: 4px;
+  color: #374151;
+}
+.th-line {
+  border-bottom: 1px dashed #4b5563;
+  margin: 5px 0;
+  width: 100%;
+  display: block;
+}
+.th-flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  width: 100%;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.38;
+}
+.th-row {
+  margin: 2px 0;
+  font-size: 11.5px;
+  line-height: 1.38;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  word-break: break-word;
+}
+.th-row > span:first-child {
+  color: #374151;
+  flex-shrink: 0;
+}
+.th-row > b,
+.th-row > span:last-child {
+  color: #000000;
+  text-align: right;
+  word-break: break-word;
+}
+.th-total {
+  font-size: 13.5px;
+  font-weight: 800;
+  margin-top: 3px;
+  letter-spacing: 0.2px;
+  color: #000000;
+  font-variant-numeric: tabular-nums;
+}
+.th-blessing {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  margin-top: 6px;
+  text-align: center;
+  color: #1f2937;
+}
+.th-roster-name,
+.th-roster-star {
+  font-size: 13px;
+}
+
+
+    /* Apply print CSS rules directly */
+    /* 80mm & 58mm Thermal Receipt Printing (STEP 33.60 Upgrade to 80mm) */
+  body.printing-billing-80mm,
+  body.printing-billing-58mm,
+  body.printing-receipt-80mm {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #fff !important;
+    width: 80mm !important;
+  }
+  body.printing-billing-80mm #app-shell,
+  body.printing-billing-58mm #app-shell,
+  body.printing-receipt-80mm #app-shell,
+  body.printing-receipt-80mm #login-container,
+  body.printing-receipt-80mm #darkveil-canvas,
+  body.printing-receipt-80mm .modal-backdrop,
+  body.printing-receipt-80mm .toast,
+  body.printing-receipt-80mm #audioUnlockModal,
+  body.printing-receipt-80mm #receiptPrinterOverlay {
+    display: none !important;
+  }
+  body.printing-billing-80mm #print-area,
+  body.printing-billing-58mm #print-area,
+  body.printing-receipt-80mm #print-area,
+  #print-area.billing-80mm,
+  #print-area.billing-58mm,
+  body.printing-receipt-80mm #print-area.receipt-print {
+    display: block !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 80mm !important;
+    max-width: 80mm !important;
+    min-height: 10mm !important;
+    margin: 0 !important;
+    padding: 3mm 4mm 4mm 4mm !important;
+    background: #fff !important;
+    color: #000 !important;
+    font-family: 'Consolas', 'Courier New', 'Noto Sans Malayalam', 'Segoe UI', monospace !important;
+    font-size: 11.5px !important;
+    line-height: 1.35 !important;
+    box-shadow: none !important;
+    border: none !important;
+    box-sizing: border-box !important;
+  }
+  #print-area.billing-80mm *,
+  #print-area.billing-58mm * {
+    visibility: visible !important;
+    color: #000 !important;
+    background: transparent !important;
+    box-sizing: border-box !important;
+  }
+  #print-area.billing-80mm .th-receipt,
+  #print-area.billing-58mm .th-receipt {
+    width: 100% !important;
+    max-width: 80mm !important;
+    font-family: 'Consolas', 'Courier New', 'Noto Sans Malayalam', 'Segoe UI', monospace !important;
+    color: #000 !important;
+    font-variant-numeric: tabular-nums !important;
+  }
+  #print-area.billing-80mm .th-center,
+  #print-area.billing-58mm .th-center {
+    text-align: center !important;
+  }
+  #print-area.billing-80mm .th-bold,
+  #print-area.billing-58mm .th-bold {
+    font-weight: bold !important;
+  }
+  #print-area.billing-80mm .th-line,
+  #print-area.billing-58mm .th-line {
+    border-bottom: 1px dashed #000 !important;
+    margin: 4px 0 !important;
+    width: 100% !important;
+    display: block !important;
+  }
+  #print-area.billing-80mm .th-flex,
+  #print-area.billing-58mm .th-flex {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: baseline !important;
+    width: 100% !important;
+    font-variant-numeric: tabular-nums !important;
+  }
+  #print-area.billing-80mm .th-row,
+  #print-area.billing-58mm .th-row {
+    font-size: 11.5px !important;
+    margin: 2px 0 !important;
+    line-height: 1.35 !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: baseline !important;
+    gap: 6px !important;
+  }
+  #print-area.billing-80mm .th-title,
+  #print-area.billing-58mm .th-title {
+    font-size: 13.5px !important;
+    font-weight: bold !important;
+    line-height: 1.25 !important;
+    margin-bottom: 2px !important;
+  }
+  #print-area.billing-80mm .th-sub,
+  #print-area.billing-58mm .th-sub {
+    font-size: 10.5px !important;
+    line-height: 1.25 !important;
+    margin-bottom: 3px !important;
+  }
+  #print-area.billing-80mm .th-total,
+  #print-area.billing-58mm .th-total {
+    font-size: 13.5px !important;
+    font-weight: bold !important;
+    font-variant-numeric: tabular-nums !important;
+  }
+  #print-area.billing-80mm .th-blessing,
+  #print-area.billing-58mm .th-blessing {
+    font-size: 10px !important;
+    font-weight: bold !important;
+    margin-top: 5px !important;
+    text-align: center !important;
+  }
+  #print-area.billing-80mm .th-roster-row,
+  #print-area.billing-58mm .th-roster-row {
+    font-size: 11.5px !important;
+    margin: 2.5px 0 !important;
+    line-height: 1.35 !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: flex-start !important;
+    gap: 4px !important;
+  }
+  #print-area.billing-80mm .th-roster-name,
+  #print-area.billing-80mm .th-roster-star,
+  #print-area.billing-58mm .th-roster-name,
+  #print-area.billing-58mm .th-roster-star {
+    font-size: 13.5px !important;
+  }
+
+  /* STEP 33.85: Receipts Table 80mm Thermal Receipt Typography & Layout */
+  body.printing-receipt-80mm #print-area * {
+    visibility: visible !important;
+    color: #000 !important;
+    background: transparent !important;
+    box-sizing: border-box !important;
+  }
+  body.printing-receipt-80mm #print-area .pr-line {
+    border-bottom: 1px dashed #000 !important;
+    margin: 4px 0 !important;
+    width: 100% !important;
+    display: block !important;
+  }
+  body.printing-receipt-80mm #print-area .pr-center {
+    text-align: center !important;
+  }
+  body.printing-receipt-80mm #print-area .pr-bold {
+    font-weight: bold !important;
+  }
+  body.printing-receipt-80mm #print-area .pr-flex {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: baseline !important;
+    width: 100% !important;
+    font-variant-numeric: tabular-nums !important;
+  }
+  body.printing-receipt-80mm #print-area .pr-title {
+    font-size: 13.5px !important;
+    font-weight: bold !important;
+    line-height: 1.25 !important;
+    margin-bottom: 2px !important;
+  }
+  body.printing-receipt-80mm #print-area .pr-sub {
+    font-size: 10.5px !important;
+    line-height: 1.25 !important;
+    margin-bottom: 3px !important;
+  }
+  body.printing-receipt-80mm #print-area .pr-amount {
+    font-size: 13.5px !important;
+    font-weight: bold !important;
+    font-variant-numeric: tabular-nums !important;
+  }
+  body.printing-receipt-80mm #print-area .pr-blessing {
+    font-size: 10px !important;
+    font-weight: bold !important;
+    margin-top: 5px !important;
+    text-align: center !important;
+  }
+
+  
+  </style>
+</head>
+<body>
+  <div id="print-area" class="billing-80mm"></div>
+  <div id="printResults"></div>
+
+  <script>
+    function esc(s) {
+      return String(s == null ? '' : s)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function renderThermalReceiptHTML(r, templeName, templeAddress) {
+  const qty = (typeof r.quantity === 'number') ? r.quantity : (typeof r.qty === 'number' ? r.qty : 1);
+  const unitPrice = (typeof r.unitPrice === 'number') ? r.unitPrice : 0;
+  const total = (typeof r.totalAmount === 'number') ? r.totalAmount : (typeof r.total === 'number' ? r.total : 0);
+  const category = r.category || r.cat || '';
+  const item = r.item || '';
+  const receiptNo = r.receiptNo || '';
+  const date = r.date || '';
+  const time = r.time || '';
+  const paymentMode = r.paymentMode || 'Cash';
+  const isVoided = !!r.voided;
+
+  // Full Devotee Roster with legacy fallback
+  const rawDevotees = (Array.isArray(r.devotees) && r.devotees.length > 0)
+    ? r.devotees
+    : [{ name: r.devoteeName || r.name || '', star: r.star || '' }];
+  const devotees = rawDevotees.filter(d => d && (d.name || d.star));
+  const displayDevotees = devotees.length > 0 ? devotees : [{ name: r.devoteeName || r.name || '---', star: r.star || '' }];
+
+  const unitPriceFormatted = unitPrice > 0 
+    ? `₹${unitPrice.toFixed(2)}` 
+    : (qty > 0 ? `₹${(total / qty).toFixed(2)}` : `₹${total.toFixed(2)}`);
+  const totalFormatted = total.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+  return `
+    <div class="th-receipt ${isVoided ? 'th-voided-receipt' : ''}">
+      <div class="th-center th-bold th-title">${esc(templeName)}</div>
+      <div class="th-center th-sub">${esc(templeAddress)}</div>
+      ${isVoided ? `
+        <div style="border: 2px dashed #b91c1c; background: #fff5f5; padding: 5px; margin: 6px 0; text-align: center; color: #b91c1c; font-weight: 900; font-size: 13px; letter-spacing: 1px;">
+          *** VOIDED / റദ്ദാക്കിയത് ***
+        </div>
+        ${r.voidReason ? `<div style="text-align: center; font-size: 10.5px; color: #b91c1c; margin-bottom: 4px; font-weight: 600;">Reason: ${esc(r.voidReason)}</div>` : ''}
+      ` : ''}
+      <div class="th-line"></div>
+      <div class="th-flex">
+        <span>No: <b>${esc(receiptNo)}</b> ${isVoided ? '<span style="color:#b91c1c;font-weight:bold;">[VOID]</span>' : ''}</span>
+        <span>${esc(date)} ${esc(time)}</span>
+      </div>
+      <div class="th-line"></div>
+      <div class="th-roster-section">
+        <div class="th-roster-head" style="display: flex; justify-content: space-between; font-weight: 700; font-size: 10.5px; padding-bottom: 2px; border-bottom: 1px dotted #888; margin-bottom: 4px; color: #333;">
+          <span style="width: 24px; text-align: left;">നം.</span>
+          <span style="flex: 1; text-align: left; padding: 0 4px;">പേര് (Devotee Name)</span>
+          <span style="width: 85px; text-align: right;">നാൾ (Star)</span>
+        </div>
+        ${displayDevotees.map((d, idx) => `
+          <div class="th-roster-row" style="display: flex; justify-content: space-between; align-items: flex-start; margin: 2.5px 0; font-size: 11.5px; line-height: 1.35; gap: 4px;">
+            <span style="width: 24px; text-align: left; font-weight: 600; flex-shrink: 0; color: #555;">${idx + 1}.</span>
+            <span class="th-roster-name" style="flex: 1; text-align: left; font-weight: 700; font-size: 13px; word-break: break-word; overflow-wrap: break-word; padding: 0 4px;">${esc(d.name || '---')}</span>
+            <span class="th-roster-star" style="width: 85px; text-align: right; font-weight: 600; font-size: 13px; flex-shrink: 0; word-break: break-word; color: #222;">${esc(d.star || '---')}</span>
+          </div>
+        `).join('')}
+      </div>
+      <div class="th-line"></div>
+      <div class="th-row"><span>വിഭാഗം:</span> ${esc(category)}</div>
+      <div class="th-row"><span>ഇനം:</span> <b>${esc(item)}</b></div>
+      <div class="th-flex" style="margin-top: 2px;">
+        <span>Qty: <b>${qty}</b> &times; ${unitPriceFormatted}</span>
+        <span>Amt: <b>₹${totalFormatted}</b></span>
+      </div>
+      <div class="th-line"></div>
+      <div class="th-flex th-bold th-total">
+        <span>ആകെ (Total):</span>
+        <span ${isVoided ? 'style="text-decoration:line-through;color:#991b1b;"' : ''}>₹${totalFormatted}</span>
+      </div>
+      <div class="th-flex" style="margin-top: 3px;">
+        <span>Payment:</span>
+        <span><b>${esc(paymentMode)}</b></span>
+      </div>
+      ${isVoided && r.voidDate ? `
+        <div class="th-line"></div>
+        <div style="text-align: center; font-size: 10px; color: #b91c1c;">
+          Cancelled on: ${esc(r.voidDate)}
+        </div>
+      ` : ''}
+      <div class="th-line"></div>
+      <div class="th-center th-blessing">*** അമ്മേ നാരായണ ദേവി നാരായണ ***</div>
+    </div>
+  `;
+}
+
+
+
+    (function runPrintTests() {
+      const results = {};
+      const templeName = 'മറുതാ ചാമുണ്ഡി ദേവി ക്ഷേത്രം';
+      const templeAddress = 'ആശാരിവിളാകം, കേരളദിത്യപുരം';
+
+      const sampleRec = {
+        receiptNo: 'BILL-901',
+        date: '17/10/2026',
+        time: '12:30 PM',
+        category: 'വഴിപാട്',
+        item: 'പുഷ്പാഞ്ജലി',
+        qty: 1,
+        unitPrice: 30,
+        totalAmount: 30,
+        paymentMode: 'Cash',
+        devotees: [{ name: 'അനന്തപദ്മനാഭൻ', star: 'തിരുവോണം' }]
+      };
+
+      const pArea = document.getElementById('print-area');
+      pArea.innerHTML = renderThermalReceiptHTML(sampleRec, templeName, templeAddress);
+
+      const pTitle = pArea.querySelector('.th-title');
+      const pName = pArea.querySelector('.th-roster-name');
+      const pStar = pArea.querySelector('.th-roster-star');
+      const pSNo = pArea.querySelector('.th-roster-row span:first-child');
+      const pHead = pArea.querySelector('.th-roster-head');
+
+      const csPTitle = window.getComputedStyle(pTitle);
+      const csPName = window.getComputedStyle(pName);
+      const csPStar = window.getComputedStyle(pStar);
+      const csPSNo = window.getComputedStyle(pSNo);
+      const csPHead = window.getComputedStyle(pHead);
+
+      results.print = {
+        titleFontSize: csPTitle.fontSize,
+        nameFontSize: csPName.fontSize,
+        starFontSize: csPStar.fontSize,
+        sNoFontSize: csPSNo.fontSize,
+        headFontSize: csPHead.fontSize,
+        nameFontWeight: csPName.fontWeight,
+        starFontWeight: csPStar.fontWeight,
+        nameMatchesTitle: csPName.fontSize === csPTitle.fontSize,
+        starMatchesTitle: csPStar.fontSize === csPTitle.fontSize
+      };
+
+      // Multi-devotee & Long Name Overflow in 80mm Print
+      const longRec = {
+        receiptNo: 'BILL-902',
+        date: '17/10/2026',
+        time: '12:35 PM',
+        category: 'വഴിപാട്',
+        item: 'ഗണപതി ഹോമം',
+        qty: 2,
+        unitPrice: 150,
+        totalAmount: 300,
+        paymentMode: 'Cash',
+        devotees: [
+          { name: 'ഡോ. വെങ്കിട്ടരാമൻ നമ്പൂതിരിപ്പാട് അമ്പലപ്പുഴ', star: 'പൂരുരുട്ടാതി' },
+          { name: 'ശ്രീ രാജരാജേശ്വരി മാതാ ഭക്തജന ട്രസ്റ്റ് പ്രതിനിധി ആനന്ദതീർത്ഥൻ', star: 'ഉത്രട്ടാതി' }
+        ]
+      };
+      pArea.innerHTML = renderThermalReceiptHTML(longRec, templeName, templeAddress);
+      const pRows = pArea.querySelectorAll('.th-roster-row');
+      const areaRect = pArea.getBoundingClientRect();
+      let hasOverflow = false;
+      pRows.forEach(row => {
+        const rRect = row.getBoundingClientRect();
+        if (rRect.right > areaRect.right + 2) hasOverflow = true;
+      });
+      results.printOverflow = hasOverflow;
+
+      document.getElementById('printResults').textContent = JSON.stringify(results);
+    })();
+  </script>
+</body>
+</html>

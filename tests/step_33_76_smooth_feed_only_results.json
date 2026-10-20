@@ -1,0 +1,228 @@
+{
+  "step": "33.76",
+  "title": "Remove Stepped Feed and Retain Smooth Feed",
+  "timestamp": "2026-10-17T18:55:44.342Z",
+  "environment": {
+    "nodeVersion": "v24.14.0",
+    "os": "win32",
+    "htmlSizeBytes": 844787,
+    "htmlSha256": "073494F8C19830D603E89071DD6CF3B3DD206AE76EC95B2CA0F5D6EFE03B70BE",
+    "backupSizeBytes": 834072,
+    "backupSha256": "12B29980C1F7470C88C5E9C3E60B44E537046E9CB819551D26AF48D48DCD713A"
+  },
+  "tests": [
+    {
+      "testId": "T1.1",
+      "name": "Backup file exists on disk with exact pre-step hash",
+      "passed": true,
+      "expected": "12B29980C1F7470C88C5E9C3E60B44E537046E9CB819551D26AF48D48DCD713A",
+      "actual": "12B29980C1F7470C88C5E9C3E60B44E537046E9CB819551D26AF48D48DCD713A",
+      "details": ""
+    },
+    {
+      "testId": "T1.2",
+      "name": "Backup file size matches exact pre-step size (834,072 bytes)",
+      "passed": true,
+      "expected": 834072,
+      "actual": 834072,
+      "details": ""
+    },
+    {
+      "testId": "T1.3",
+      "name": "Current HTML size reflects removal of stepped button (-238 bytes)",
+      "passed": false,
+      "expected": 833834,
+      "actual": 844787,
+      "details": ""
+    },
+    {
+      "testId": "T1.4",
+      "name": "Strict Isolation: Critical billing, receipt formatting, and print functions untouched in diff",
+      "passed": true,
+      "expected": 0,
+      "actual": 0,
+      "details": "Touched unexpected functions: "
+    },
+    {
+      "testId": "T2.1",
+      "name": "STEPPED FEED button markup completely removed from HTML",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "details": ""
+    },
+    {
+      "testId": "T2.2",
+      "name": "No onclick=\"ReceiptPrinter.toggleFeedMode()\" remains in HTML template",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "details": ""
+    },
+    {
+      "testId": "T2.3",
+      "name": "Replay button (↺) preserved in .printer-bezel-actions",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "details": ""
+    },
+    {
+      "testId": "T2.4",
+      "name": "Close icon button (✕) preserved in .printer-bezel-actions",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "details": ""
+    },
+    {
+      "testId": "T2.5",
+      "name": "Hardware bezel branding preserved (TEMPLE POS-80)",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "details": ""
+    },
+    {
+      "testId": "T3.1",
+      "name": "DOM Check: #printerModeToggleBtn is completely absent in runtime DOM",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "details": ""
+    },
+    {
+      "testId": "T3.2",
+      "name": "DOM Check: Replay and Close action buttons are present in header bezel",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "details": ""
+    },
+    {
+      "testId": "T3.3",
+      "name": "ReceiptPrinter.feedMode defaults to \"smooth\"",
+      "passed": true,
+      "expected": "smooth",
+      "actual": "smooth",
+      "details": ""
+    },
+    {
+      "testId": "T3.4",
+      "name": "ReceiptPrinter.setFeedMode() retains \"smooth\" mode",
+      "passed": true,
+      "expected": "smooth",
+      "actual": "smooth",
+      "details": ""
+    },
+    {
+      "testId": "T3.5",
+      "name": "ReceiptPrinter.toggleFeedMode() retains \"smooth\" mode",
+      "passed": true,
+      "expected": "smooth",
+      "actual": "smooth",
+      "details": ""
+    },
+    {
+      "testId": "T3.6",
+      "name": "ReceiptPrinter.updateModeButton() executes without throwing errors",
+      "passed": true,
+      "expected": null,
+      "actual": null,
+      "details": ""
+    },
+    {
+      "testId": "T3.7",
+      "name": "ReceiptPrinter.startPrinting() adds \"feed-smooth\" class (not \"feed-stepped\")",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "details": ""
+    },
+    {
+      "testId": "T3.8",
+      "name": "ReceiptPrinter.startPrinting() sets 2200ms duration for smooth feed curve",
+      "passed": true,
+      "expected": "2200ms",
+      "actual": "2200ms",
+      "details": ""
+    },
+    {
+      "testId": "T3.9",
+      "name": "ReceiptPrinter.setReady() transitions to \"RECEIPT READY\" state cleanly",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "details": ""
+    },
+    {
+      "testId": "T3.10",
+      "name": "ReceiptPrinter.replay() successfully retriggers print animation",
+      "passed": true,
+      "expected": "printing",
+      "actual": "printing",
+      "details": ""
+    },
+    {
+      "testId": "T3.11",
+      "name": "ReceiptPrinter.close() resets state to idle and closes overlay",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "details": ""
+    },
+    {
+      "testId": "T3.12",
+      "name": "CSSOM: .printer-receipt-sheet.feeding.feed-smooth animates receiptPaperFeedSmooth",
+      "passed": true,
+      "expected": true,
+      "actual": "2.2s cubic-bezier(0.33, 0, 0.2, 1) 0s 1 normal forwards running receiptPaperFeedSmooth",
+      "details": ""
+    },
+    {
+      "testId": "T3.13",
+      "name": "CSSOM: .printer-receipt-sheet.feeding.feed-stepped routes to receiptPaperFeedSmooth",
+      "passed": true,
+      "expected": true,
+      "actual": "2.2s cubic-bezier(0.33, 0, 0.2, 1) 0s 1 normal forwards running receiptPaperFeedSmooth",
+      "details": ""
+    },
+    {
+      "testId": "T3.14",
+      "name": "CSSOM: Feeding fallback :not(.feed-smooth):not(.feed-stepped) routes to receiptPaperFeedSmooth",
+      "passed": true,
+      "expected": true,
+      "actual": "2.2s cubic-bezier(0.33, 0, 0.2, 1) 0s 1 normal forwards running receiptPaperFeedSmooth",
+      "details": ""
+    },
+    {
+      "testId": "T4.1",
+      "name": "renderBillingReceiptPreview() preserved and unchanged",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "details": ""
+    },
+    {
+      "testId": "T4.2",
+      "name": "printBillingReceipt() preserved with 80mm dynamic layout & lifecycle guard",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "details": ""
+    },
+    {
+      "testId": "T4.3",
+      "name": "Physical P/PU receipt creation & parsing functions untouched",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "details": ""
+    }
+  ],
+  "summary": {
+    "total": 26,
+    "passed": 25,
+    "failed": 1
+  }
+}

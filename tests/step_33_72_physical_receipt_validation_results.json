@@ -1,0 +1,686 @@
+{
+  "timestamp": "2026-10-17T18:47:31.982Z",
+  "targetFile": "Temple_Accounts-1.html",
+  "targetFileSha256": "90D90592494634ED123B226E1DE4A389E0BB2304C01B3A49800181655CC24A0F",
+  "fileSizeBytes": 843499,
+  "totalTests": 75,
+  "passedTests": 75,
+  "failedTests": 0,
+  "tests": [
+    {
+      "id": "TC-33.72-01",
+      "name": "Target file is Temple_Accounts-1.html",
+      "group": "BASELINE",
+      "passed": true,
+      "expected": "Temple_Accounts-1.html",
+      "actual": "Temple_Accounts-1.html",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.72-02",
+      "name": "Pre-step 33.72 backup file exists in backups directory",
+      "group": "BASELINE",
+      "passed": true,
+      "expected": "Backup exists",
+      "actual": "Confirmed",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.72-03",
+      "name": "Pre-step backup matches expected STEP 33.71 hash",
+      "group": "BASELINE",
+      "passed": true,
+      "expected": "1A1C6333A942F67D04C9804BFC89222DCCB4E6BB108857FEA5EDBDAB24DEB307",
+      "actual": "1A1C6333A942F67D04C9804BFC89222DCCB4E6BB108857FEA5EDBDAB24DEB307",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.72-04",
+      "name": "Application post-modification SHA-256 differs from pre-change",
+      "group": "BASELINE",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.72-05",
+      "name": "Enter P600: parsed as valid Type P identifier",
+      "group": "FORMAT_PARSING",
+      "passed": true,
+      "expected": true,
+      "actual": "P600",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.72-06",
+      "name": "P600 maps to General Temple Fund and Pooja Income",
+      "group": "FORMAT_PARSING",
+      "passed": true,
+      "expected": true,
+      "actual": "General Temple Fund|Pooja Income",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.72-07",
+      "name": "Enter P900: upper boundary of P-series accepted",
+      "group": "FORMAT_PARSING",
+      "passed": true,
+      "expected": true,
+      "actual": "P900",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.72-08",
+      "name": "Enter PU1: parsed as valid Type PU identifier",
+      "group": "FORMAT_PARSING",
+      "passed": true,
+      "expected": true,
+      "actual": "PU1",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.72-09",
+      "name": "PU1 maps to Punarudharanam Fund and Donation Income",
+      "group": "FORMAT_PARSING",
+      "passed": true,
+      "expected": true,
+      "actual": "Punarudharanam Fund|Donation Income",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.72-10",
+      "name": "Enter PU2: subsequent sequential PU accepted",
+      "group": "FORMAT_PARSING",
+      "passed": true,
+      "expected": true,
+      "actual": "PU2",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.72-11",
+      "name": "Enter P599: rejected as out of range (< 600)",
+      "group": "FORMAT_PARSING",
+      "passed": true,
+      "expected": true,
+      "actual": "Physical puja receipt number \"P599\" is out of valid range (P600 through P900).",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.72-12",
+      "name": "Enter P901: rejected as out of range (> 900)",
+      "group": "FORMAT_PARSING",
+      "passed": true,
+      "expected": true,
+      "actual": "Physical puja receipt number \"P901\" is out of valid range (P600 through P900).",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.72-13",
+      "name": "Enter PU0: rejected (< 1 positive integer)",
+      "group": "FORMAT_PARSING",
+      "passed": true,
+      "expected": true,
+      "actual": "Invalid physical Punarudharanam receipt number \"PU0\". Must be a sequential positive integer (e.g. PU1, PU2).",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.72-14",
+      "name": "Enter PU-1: rejected with physical format error",
+      "group": "FORMAT_PARSING",
+      "passed": true,
+      "expected": true,
+      "actual": "Invalid physical receipt identifier format \"PU-1\". Expected P600-P900 for Puja or PU1+ for Punarudharanam.",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.72-15",
+      "name": "Enter PX100: rejected unsupported prefix",
+      "group": "FORMAT_PARSING",
+      "passed": true,
+      "expected": true,
+      "actual": "Invalid physical receipt identifier format \"PX100\". Expected P600-P900 for Puja or PU1+ for Punarudharanam.",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.72-16",
+      "name": "Enter P-600: rejected with physical format error",
+      "group": "FORMAT_PARSING",
+      "passed": true,
+      "expected": true,
+      "actual": "Invalid physical receipt identifier format \"P-600\". Expected P600-P900 for Puja or PU1+ for Punarudharanam.",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.72-17",
+      "name": "Enter P 600: rejected with physical format error (not ordinary error)",
+      "group": "FORMAT_PARSING",
+      "passed": true,
+      "expected": true,
+      "actual": "Invalid physical receipt identifier format \"P 600\". Expected P600-P900 for Puja or PU1+ for Punarudharanam.",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.72-18",
+      "name": "Lowercase p600 normalized to uppercase formattedId P600",
+      "group": "NORMALIZATION",
+      "passed": true,
+      "expected": true,
+      "actual": "P600",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.72-19",
+      "name": "Lowercase pu1 normalized to uppercase formattedId PU1",
+      "group": "NORMALIZATION",
+      "passed": true,
+      "expected": true,
+      "actual": "PU1",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.72-20",
+      "name": "Surrounding whitespace trimmed to P600",
+      "group": "NORMALIZATION",
+      "passed": true,
+      "expected": true,
+      "actual": "P600",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.72-21",
+      "name": "onReceiptNoInput(P600) sets General Temple Fund",
+      "group": "UI_INPUT_HANDLER",
+      "passed": true,
+      "expected": true,
+      "actual": "General Temple Fund",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.72-22",
+      "name": "onReceiptNoInput(P600) sets physical Puja hint badge",
+      "group": "UI_INPUT_HANDLER",
+      "passed": true,
+      "expected": true,
+      "actual": "<span style=\"color:#1976d2;font-weight:600;\">⚡ Physical Puja Receipt (P600) detected.</span> General Temple Fund / Puja mapping applied.",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.72-23",
+      "name": "onReceiptNoInput(PU1) sets Punarudharanam Fund & Donation Income",
+      "group": "UI_INPUT_HANDLER",
+      "passed": true,
+      "expected": true,
+      "actual": "Punarudharanam Fund|Donation Income",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.72-24",
+      "name": "onReceiptNoInput(PU1) sets physical Punarudharanam hint badge",
+      "group": "UI_INPUT_HANDLER",
+      "passed": true,
+      "expected": true,
+      "actual": "<span style=\"color:#7b1fa2;font-weight:600;\">⚡ Physical Punarudharanam Receipt (PU1) detected.</span> Renovation Fund mapping applied.",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.72-25",
+      "name": "onReceiptNoInput(P599) displays out-of-range error in hint",
+      "group": "UI_INPUT_HANDLER",
+      "passed": true,
+      "expected": true,
+      "actual": "<span style=\"color:var(--red,#d32f2f);\">Physical puja receipt number &quot;P599&quot; is out of valid range (P600 through P900).</span>",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.72-26",
+      "name": "onReceiptNoInput(\"\") resets to default sequence hint",
+      "group": "UI_INPUT_HANDLER",
+      "passed": true,
+      "expected": true,
+      "actual": "ℹ️ Enter a physical receipt identifier (P600–P900 for Puja, PU1+ for Punarudharanam), or leave blank for auto-allocated software sequence.",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.72-27",
+      "name": "Save P600 accepted by real form validation path without alert error",
+      "group": "SAVE_HANDLER",
+      "passed": true,
+      "expected": true,
+      "actual": null,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.72-28",
+      "name": "Save P600 routes through physical creation path (receipts/rcpt_phys_P600 exists)",
+      "group": "SAVE_HANDLER",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.72-29",
+      "name": "Save P600 creates secondary reservation record (system/res_phys_P600 exists)",
+      "group": "SAVE_HANDLER",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.72-30",
+      "name": "Save P600 preserves devotee name, star, amount, and receiptNo P600",
+      "group": "SAVE_HANDLER",
+      "passed": true,
+      "expected": true,
+      "actual": "{\"id\":\"rcpt_phys_P600\",\"firestoreId\":\"rcpt_phys_P600\",\"legacyId\":\"rcpt_phys_P600\",\"receiptNo\":\"P600\",\"originalReceiptNo\":\"P600\",\"isPhysical\":true,\"physicalType\":\"P\",\"reservationDocId\":\"res_phys_P600\",\"date\":\"2026-10-16\",\"name\":\"Bhaskaran Nair\",\"star\":\"Rohini\",\"mobile\":\"9876543210\",\"fund\":\"General Temple Fund\",\"category\":\"Pooja Income\",\"description\":\"Receipt Test Description\",\"paymentMode\":\"Cash\",\"bankAccount\":\"\",\"amount\":750,\"remarks\":\"Test remarks\",\"voided\":false,\"voidReason\":\"\",\"voidDate\":\"\",\"source\":\"physical\",\"createdAt\":1792262852040,\"createdBy\":\"admin_test_user\",\"createdByName\":\"Temple Admin\",\"operationId\":\"op_phys_rcpt_1792262852038_uzkzt5ri\",\"financialFingerprint\":\"v2|2026-10-16|General Temple Fund|Pooja Income|750.00|Cash||Bhaskaran Nair|9876543210|Receipt Test Description|Test remarks|P600\"}",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.72-31",
+      "name": "Save P600 has fund General Temple Fund and category Pooja Income",
+      "group": "SAVE_HANDLER",
+      "passed": true,
+      "expected": true,
+      "actual": "General Temple Fund|Pooja Income",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.72-32",
+      "name": "Save P600 created ZERO new billing records in billing collection",
+      "group": "SAVE_HANDLER",
+      "passed": true,
+      "expected": true,
+      "actual": 0,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.72-33",
+      "name": "Save P600 strictly isolates globalSequenceCounter (remains 42)",
+      "group": "SAVE_HANDLER",
+      "passed": true,
+      "expected": true,
+      "actual": 42,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.72-34",
+      "name": "Save PU1 accepted by real form validation path without alert error",
+      "group": "SAVE_HANDLER",
+      "passed": true,
+      "expected": true,
+      "actual": null,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.72-35",
+      "name": "Save PU1 creates receipts/rcpt_phys_PU1 and system/res_phys_PU1",
+      "group": "SAVE_HANDLER",
+      "passed": true,
+      "expected": true,
+      "actual": "rcpt: true, res: true",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.72-36",
+      "name": "Save PU1 strictly enforces Punarudharanam Fund & Donation Income mapping",
+      "group": "SAVE_HANDLER",
+      "passed": true,
+      "expected": true,
+      "actual": "Punarudharanam Fund|Donation Income",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.72-37",
+      "name": "Save PU1 created ZERO new billing records",
+      "group": "SAVE_HANDLER",
+      "passed": true,
+      "expected": true,
+      "actual": 0,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.72-38",
+      "name": "Save P900 upper boundary accepted and persisted",
+      "group": "SAVE_HANDLER",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.72-39",
+      "name": "Save PU2 sequential renovation receipt accepted and persisted",
+      "group": "SAVE_HANDLER",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.72-40",
+      "name": "Submit P599: rejected with physical out-of-range alert",
+      "group": "REJECTION_MATRIX",
+      "passed": true,
+      "expected": true,
+      "actual": "Physical puja receipt number \"P599\" is out of valid range (P600 through P900).",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.72-41",
+      "name": "Submit P599: zero database writes on rejection",
+      "group": "REJECTION_MATRIX",
+      "passed": true,
+      "expected": true,
+      "actual": false,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.72-42",
+      "name": "Submit P901: rejected with physical out-of-range alert",
+      "group": "REJECTION_MATRIX",
+      "passed": true,
+      "expected": true,
+      "actual": "Physical puja receipt number \"P901\" is out of valid range (P600 through P900).",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.72-43",
+      "name": "Submit PU0: rejected with sequential positive integer alert",
+      "group": "REJECTION_MATRIX",
+      "passed": true,
+      "expected": true,
+      "actual": "Invalid physical Punarudharanam receipt number \"PU0\". Must be a sequential positive integer (e.g. PU1, PU2).",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.72-44",
+      "name": "Submit PU-1: rejected with physical format alert (does not mislead with ordinary R-001)",
+      "group": "REJECTION_MATRIX",
+      "passed": true,
+      "expected": true,
+      "actual": "Invalid physical receipt identifier format \"PU-1\". Expected P600-P900 for Puja or PU1+ for Punarudharanam.",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.72-45",
+      "name": "Submit PX100: rejected with physical format alert",
+      "group": "REJECTION_MATRIX",
+      "passed": true,
+      "expected": true,
+      "actual": "Invalid physical receipt identifier format \"PX100\". Expected P600-P900 for Puja or PU1+ for Punarudharanam.",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.72-46",
+      "name": "Save & Print P601: persists physical receipt",
+      "group": "SAVE_AND_PRINT",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.72-47",
+      "name": "Save & Print P601: triggers print pipeline exactly once",
+      "group": "SAVE_AND_PRINT",
+      "passed": true,
+      "expected": true,
+      "actual": 1,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.72-48",
+      "name": "Save & Print P601: renders [PHYSICAL PUJA RECEIPT] banner in print preview",
+      "group": "SAVE_AND_PRINT",
+      "passed": true,
+      "expected": true,
+      "actual": "\n    <div class=\"pr-center pr-bold pr-title\">മറുതാ ചാമുണ്ഡി ദേവി ക്ഷേത്രം</div>\n    <div class=\"pr-center pr-sub\">ക്ഷേത്രം റോഡ്, കേരളം</div>\n    \n    <div class=\"pr-line\"></div>\n    <div class=\"pr-flex\">\n      <span>No: <b>P601</b> </span>\n      <span>16-10-2026</span>\n    </div>\n    <div class=\"pr-center\" style=\"font-size:11px; font-weight:bold; color:#1976d2; margin: 2px 0;\">[PHYSICAL PUJA RECEIPT]</div>\n    <div>Name: <b>Suresh Kumar</b></div>\n    <div>Star / നാൾ: <b>Rohini</b></div>\n    <div>Mobile: 9876543210</div>\n    <div class=\"pr-line\"></div>\n    <div>General Temple Fund — Pooja Income</div>\n    <div style=\"word-break: break-word; overflow-wrap: break-word;\">Receipt Test Description</div>\n    <div class=\"pr-flex pr-bold pr-amount\">\n      <span>Amount:</span>\n      <span >₹600.00</span>\n    </div>\n    <div>Mode: Cash</div>\n    <div style=\"font-size: 10.5px; word-break: break-word;\">In words: Six Hundred Rupees only</div>\n    <div class=\"pr-line\"></div>\n    <div class=\"pr-flex\" style=\"margin-top: 10px; font-size: 10.5px;\"><span></span><span>Treasurer / Authorized Person</span></div>\n    <div class=\"pr-center pr-bold pr-blessing\" style=\"margin-top: 6px;\">*** അമ്മേ നാരായണ ദേവി നാരായണ ***</div>\n  ",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.72-49",
+      "name": "Save & Print P601: print preview contains devotee name and amount",
+      "group": "SAVE_AND_PRINT",
+      "passed": true,
+      "expected": true,
+      "actual": "\n    <div class=\"pr-center pr-bold pr-title\">മറുതാ ചാമുണ്ഡി ദേവി ക്ഷേത്രം</div>\n    <div class=\"pr-center pr-sub\">ക്ഷേത്രം റോഡ്, കേരളം</div>\n    \n    <div class=\"pr-line\"></div>\n    <div class=\"pr-flex\">\n      <span>No: <b>P601</b> </span>\n      <span>16-10-2026</span>\n    </div>\n    <div class=\"pr-center\" style=\"font-size:11px; font-weight:bold; color:#1976d2; margin: 2px 0;\">[PHYSICAL PUJA RECEIPT]</div>\n    <div>Name: <b>Suresh Kumar</b></div>\n    <div>Star / നാൾ: <b>Rohini</b></div>\n    <div>Mobile: 9876543210</div>\n    <div class=\"pr-line\"></div>\n    <div>General Temple Fund — Pooja Income</div>\n    <div style=\"word-break: break-word; overflow-wrap: break-word;\">Receipt Test Description</div>\n    <div class=\"pr-flex pr-bold pr-amount\">\n      <span>Amount:</span>\n      <span >₹600.00</span>\n    </div>\n    <div>Mode: Cash</div>\n    <div style=\"font-size: 10.5px; word-break: break-word;\">In words: Six Hundred Rupees only</div>\n    <div class=\"pr-line\"></div>\n    <div class=\"pr-flex\" style=\"margin-top: 10px; font-size: 10.5px;\"><span></span><span>Treasurer / Authorized Person</span></div>\n    <div class=\"pr-center pr-bold pr-blessing\" style=\"margin-top: 6px;\">*** അമ്മേ നാരായണ ദേവി നാരായണ ***</div>\n  ",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.72-50",
+      "name": "Save & Print PU3: persists physical renovation receipt",
+      "group": "SAVE_AND_PRINT",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.72-51",
+      "name": "Save & Print PU3: triggers print pipeline",
+      "group": "SAVE_AND_PRINT",
+      "passed": true,
+      "expected": true,
+      "actual": 1,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.72-52",
+      "name": "Save & Print PU3: renders [PHYSICAL · PUNARUDHARANAM RECEIPT] banner",
+      "group": "SAVE_AND_PRINT",
+      "passed": true,
+      "expected": true,
+      "actual": "\n    <div class=\"pr-center pr-bold pr-title\">മറുതാ ചാമുണ്ഡി ദേവി ക്ഷേത്രം</div>\n    <div class=\"pr-center pr-sub\">ക്ഷേത്രം റോഡ്, കേരളം</div>\n    \n    <div class=\"pr-line\"></div>\n    <div class=\"pr-flex\">\n      <span>No: <b>PU3</b> </span>\n      <span>16-10-2026</span>\n    </div>\n    <div class=\"pr-center\" style=\"font-size:11px; font-weight:bold; color:#7b1fa2; margin: 2px 0;\">[PHYSICAL · PUNARUDHARANAM RECEIPT]</div>\n    <div>Name: <b>Devi Prasad</b></div>\n    <div>Star / നാൾ: <b>Rohini</b></div>\n    <div>Mobile: 9876543210</div>\n    <div class=\"pr-line\"></div>\n    <div>Punarudharanam Fund — Donation Income</div>\n    <div style=\"word-break: break-word; overflow-wrap: break-word;\">Receipt Test Description</div>\n    <div class=\"pr-flex pr-bold pr-amount\">\n      <span>Amount:</span>\n      <span >₹15,000.00</span>\n    </div>\n    <div>Mode: Cash</div>\n    <div style=\"font-size: 10.5px; word-break: break-word;\">In words: Fifteen Thousand Rupees only</div>\n    <div class=\"pr-line\"></div>\n    <div class=\"pr-flex\" style=\"margin-top: 10px; font-size: 10.5px;\"><span></span><span>Treasurer / Authorized Person</span></div>\n    <div class=\"pr-center pr-bold pr-blessing\" style=\"margin-top: 6px;\">*** അമ്മേ നാരായണ ദേവി നാരായണ ***</div>\n  ",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.72-53",
+      "name": "Save & Print does NOT create billing records (count remains 0)",
+      "group": "SAVE_AND_PRINT",
+      "passed": true,
+      "expected": true,
+      "actual": 0,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.72-54",
+      "name": "Submit duplicate P600: strictly rejected with duplicate error",
+      "group": "DUPLICATES_AND_VOIDS",
+      "passed": true,
+      "expected": true,
+      "actual": "Physical receipt identifier \"P600\" has already been entered or issued. Duplicate physical receipt numbers are strictly prohibited.",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.72-55",
+      "name": "Submit duplicate pu1 (case variation): strictly rejected as duplicate",
+      "group": "DUPLICATES_AND_VOIDS",
+      "passed": true,
+      "expected": true,
+      "actual": "Physical receipt identifier \"PU1\" has already been entered or issued. Duplicate physical receipt numbers are strictly prohibited.",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.72-56",
+      "name": "Voiding P600 marks authoritative receipt voided: true",
+      "group": "DUPLICATES_AND_VOIDS",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.72-57",
+      "name": "Voiding P600 marks secondary reservation status: \"voided\", voided: true",
+      "group": "DUPLICATES_AND_VOIDS",
+      "passed": true,
+      "expected": true,
+      "actual": "{\"seqNumber\":null,\"formattedNo\":\"P600\",\"physicalId\":\"P600\",\"physicalType\":\"P\",\"type\":\"physical_receipt\",\"status\":\"voided\",\"voided\":true,\"billDocId\":null,\"receiptDocId\":\"rcpt_phys_P600\",\"billReceiptNo\":null,\"receiptNo\":\"P600\",\"amount\":750,\"fund\":\"General Temple Fund\",\"category\":\"Pooja Income\",\"paymentMode\":\"Cash\",\"createdAt\":1792262852040,\"createdBy\":\"admin_test_user\",\"operationId\":\"op_phys_rcpt_1792262852038_uzkzt5ri\",\"voidReason\":\"Voided for testing\",\"voidDate\":\"2026-10-17\",\"voidedAt\":1792262852068,\"updatedBy\":\"admin_test_user\",\"updatedAt\":1792262852068}",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.72-58",
+      "name": "Re-entering voided P600 strictly rejected (identifier cannot be reused)",
+      "group": "DUPLICATES_AND_VOIDS",
+      "passed": true,
+      "expected": true,
+      "actual": "Physical receipt identifier \"P600\" has already been entered or issued. Duplicate physical receipt numbers are strictly prohibited.",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.72-59",
+      "name": "Voiding PU1 by direct identifier marks receipt voided: true",
+      "group": "DUPLICATES_AND_VOIDS",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.72-60",
+      "name": "Voiding PU1 marks secondary reservation status: \"voided\", voided: true",
+      "group": "DUPLICATES_AND_VOIDS",
+      "passed": true,
+      "expected": true,
+      "actual": "{\"seqNumber\":null,\"formattedNo\":\"PU1\",\"physicalId\":\"PU1\",\"physicalType\":\"PU\",\"type\":\"physical_receipt\",\"status\":\"voided\",\"voided\":true,\"billDocId\":null,\"receiptDocId\":\"rcpt_phys_PU1\",\"billReceiptNo\":null,\"receiptNo\":\"PU1\",\"amount\":2500,\"fund\":\"Punarudharanam Fund\",\"category\":\"Donation Income\",\"paymentMode\":\"Cash\",\"createdAt\":1792262852057,\"createdBy\":\"admin_test_user\",\"operationId\":\"op_phys_rcpt_1792262852057_u9jr85rh\",\"voidReason\":\"Renovation test void\",\"voidDate\":\"2026-10-17\",\"voidedAt\":1792262852069,\"updatedBy\":\"admin_test_user\",\"updatedAt\":1792262852069}",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.72-61",
+      "name": "Re-entering voided PU1 strictly rejected",
+      "group": "DUPLICATES_AND_VOIDS",
+      "passed": true,
+      "expected": true,
+      "actual": "Physical receipt identifier \"PU1\" has already been entered or issued. Duplicate physical receipt numbers are strictly prohibited.",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.72-62",
+      "name": "Counter untouched throughout all physical receipt operations (still 42)",
+      "group": "NUMBERING_ISOLATION",
+      "passed": true,
+      "expected": true,
+      "actual": 42,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.72-63",
+      "name": "Blank-number ordinary receipt creates rcpt_43 with receiptNo R-043",
+      "group": "NUMBERING_ISOLATION",
+      "passed": true,
+      "expected": true,
+      "actual": "R-043",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.72-64",
+      "name": "Blank-number ordinary receipt creates system/res_43",
+      "group": "NUMBERING_ISOLATION",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.72-65",
+      "name": "Ordinary receipt cleanly advances globalSequenceCounter from 42 to 43",
+      "group": "NUMBERING_ISOLATION",
+      "passed": true,
+      "expected": true,
+      "actual": 43,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.72-66",
+      "name": "fsCreateIndependentReceipt({manualReceiptNo: P602}) delegates to physical creation",
+      "group": "DELEGATION_ENGINE",
+      "passed": true,
+      "expected": true,
+      "actual": "P602",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.72-67",
+      "name": "fsCreateIndependentReceipt({receiptNo: PU4}) delegates to physical creation",
+      "group": "DELEGATION_ENGINE",
+      "passed": true,
+      "expected": true,
+      "actual": "PU4",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.72-68",
+      "name": "fsCreateIndependentReceipt(P599) throws specific physical error without fallthrough to generic R-001 error",
+      "group": "DELEGATION_ENGINE",
+      "passed": true,
+      "expected": true,
+      "actual": "Physical puja receipt number \"P599\" is out of valid range (P600 through P900).",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.72-69",
+      "name": "allReceipts includes both active and voided physical records",
+      "group": "ACCOUNTING_SYNCHRONIZATION",
+      "passed": true,
+      "expected": true,
+      "actual": 9,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.72-70",
+      "name": "activeReceipts strictly excludes voided physical receipts (P600 & PU1 absent)",
+      "group": "ACCOUNTING_SYNCHRONIZATION",
+      "passed": true,
+      "expected": true,
+      "actual": "P900,PU2,P601,PU3,R-043,P602,PU4",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.72-71",
+      "name": "CSV export classifies P900 as Physical Puja",
+      "group": "ACCOUNTING_SYNCHRONIZATION",
+      "passed": true,
+      "expected": true,
+      "actual": "Physical Puja",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.72-72",
+      "name": "CSV export classifies PU2 as Physical Punarudharanam",
+      "group": "ACCOUNTING_SYNCHRONIZATION",
+      "passed": true,
+      "expected": true,
+      "actual": "Physical Punarudharanam",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.72-73",
+      "name": "CSV export classifies R-043 as Software",
+      "group": "ACCOUNTING_SYNCHRONIZATION",
+      "passed": true,
+      "expected": true,
+      "actual": "Software",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.72-74",
+      "name": "reprintReceipt(\"P900\") correctly prints Physical Puja banner",
+      "group": "REPRINT_VERIFICATION",
+      "passed": true,
+      "expected": true,
+      "actual": "\n    <div class=\"pr-center pr-bold pr-title\">മറുതാ ചാമുണ്ഡി ദേവി ക്ഷേത്രം</div>\n    <div class=\"pr-center pr-sub\">ക്ഷേത്രം റോഡ്, കേരളം</div>\n    \n    <div class=\"pr-line\"></div>\n    <div class=\"pr-flex\">\n      <span>No: <b>P900</b> </span>\n      <span>16-10-2026</span>\n    </div>\n    <div class=\"pr-center\" style=\"font-size:11px; font-weight:bold; color:#1976d2; margin: 2px 0;\">[PHYSICAL PUJA RECEIPT]</div>\n    <div>Name: <b>Devotee Test</b></div>\n    <div>Star / നാൾ: <b>Rohini</b></div>\n    <div>Mobile: 9876543210</div>\n    <div class=\"pr-line\"></div>\n    <div>General Temple Fund — Pooja Income</div>\n    <div style=\"word-break: break-word; overflow-wrap: break-word;\">Receipt Test Description</div>\n    <div class=\"pr-flex pr-bold pr-amount\">\n      <span>Amount:</span>\n      <span >₹1,000.00</span>\n    </div>\n    <div>Mode: Cash</div>\n    <div style=\"font-size: 10.5px; word-break: break-word;\">In words: One Thousand Rupees only</div>\n    <div class=\"pr-line\"></div>\n    <div class=\"pr-flex\" style=\"margin-top: 10px; font-size: 10.5px;\"><span></span><span>Treasurer / Authorized Person</span></div>\n    <div class=\"pr-center pr-bold pr-blessing\" style=\"margin-top: 6px;\">*** അമ്മേ നാരായണ ദേവി നാരായണ ***</div>\n  ",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.72-75",
+      "name": "reprintReceipt(\"PU2\") correctly prints Physical Punarudharanam banner",
+      "group": "REPRINT_VERIFICATION",
+      "passed": true,
+      "expected": true,
+      "actual": "\n    <div class=\"pr-center pr-bold pr-title\">മറുതാ ചാമുണ്ഡി ദേവി ക്ഷേത്രം</div>\n    <div class=\"pr-center pr-sub\">ക്ഷേത്രം റോഡ്, കേരളം</div>\n    \n    <div class=\"pr-line\"></div>\n    <div class=\"pr-flex\">\n      <span>No: <b>PU2</b> </span>\n      <span>16-10-2026</span>\n    </div>\n    <div class=\"pr-center\" style=\"font-size:11px; font-weight:bold; color:#7b1fa2; margin: 2px 0;\">[PHYSICAL · PUNARUDHARANAM RECEIPT]</div>\n    <div>Name: <b>Devotee Test</b></div>\n    <div>Star / നാൾ: <b>Rohini</b></div>\n    <div>Mobile: 9876543210</div>\n    <div class=\"pr-line\"></div>\n    <div>Punarudharanam Fund — Donation Income</div>\n    <div style=\"word-break: break-word; overflow-wrap: break-word;\">Receipt Test Description</div>\n    <div class=\"pr-flex pr-bold pr-amount\">\n      <span>Amount:</span>\n      <span >₹5,000.00</span>\n    </div>\n    <div>Mode: Cash</div>\n    <div style=\"font-size: 10.5px; word-break: break-word;\">In words: Five Thousand Rupees only</div>\n    <div class=\"pr-line\"></div>\n    <div class=\"pr-flex\" style=\"margin-top: 10px; font-size: 10.5px;\"><span></span><span>Treasurer / Authorized Person</span></div>\n    <div class=\"pr-center pr-bold pr-blessing\" style=\"margin-top: 6px;\">*** അമ്മേ നാരായണ ദേവി നാരായണ ***</div>\n  ",
+      "detail": ""
+    }
+  ]
+}

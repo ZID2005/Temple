@@ -1,0 +1,77 @@
+{
+  "step": "33.137",
+  "target": "D:\\Temple\\Temple_Accounts-1.html",
+  "targetSha256": "45297BD26B59C69E1E9242BDA32AC0D866862268EF7B00DD437686688355BE98",
+  "runAt": "2026-10-19T14:08:59.735Z",
+  "environment": "Node vm sandbox + in-memory mock Firestore (synthetic only, no network)",
+  "passed": 11,
+  "total": 11,
+  "results": [
+    {
+      "id": "A1",
+      "name": "Numeric and physical reservations round-trip together",
+      "pass": true,
+      "detail": "restored res_1, res_2, res_3, res_phys_P600, res_phys_PU1"
+    },
+    {
+      "id": "A2",
+      "name": "Physical reservations with seqNumber null do not alter the global counter",
+      "pass": true,
+      "detail": "gsc 0 preserved with physical-only backup; gsc 3 with mixed backup"
+    },
+    {
+      "id": "A2b",
+      "name": "Older backup: physical reservation without _firestoreId is restored via physicalId",
+      "pass": true,
+      "detail": "docId derived as res_phys_P600"
+    },
+    {
+      "id": "A3",
+      "name": "Existing numeric-only backups remain compatible",
+      "pass": true,
+      "detail": "numeric-only and legacy numeric backups restore"
+    },
+    {
+      "id": "A4",
+      "name": "Physical receipts, reservations and operation records preserve links",
+      "pass": true,
+      "detail": "P600 and PU1 link chains intact; post-restore replay OK"
+    },
+    {
+      "id": "A5",
+      "name": "Corrupt or ambiguous physical records are rejected (fail closed, zero writes)",
+      "pass": true,
+      "detail": "12 corrupt variants rejected with 0 writes"
+    },
+    {
+      "id": "B6",
+      "name": "New independent receipt is blocked at sequence zero",
+      "pass": true,
+      "detail": "The accounting sequence has not been commissioned yet. The first transaction (sequence 001) must be a billing transaction. Please create the first bill from the Billing screen before recording an independent receipt."
+    },
+    {
+      "id": "B7",
+      "name": "First billing transaction allocates BILL-001 and R-001",
+      "pass": true,
+      "detail": "BILL-001 / R-001, gsc=1"
+    },
+    {
+      "id": "B8",
+      "name": "Independent receipt succeeds after commissioning",
+      "pass": true,
+      "detail": "R-002 after BILL-001; R-042/R-043 on commissioned counter"
+    },
+    {
+      "id": "B9",
+      "name": "Already committed idempotent retry remains safe",
+      "pass": true,
+      "detail": "replay returned R-002 with 0 writes, even at gsc 0"
+    },
+    {
+      "id": "B10",
+      "name": "Physical receipt creation remains unaffected",
+      "pass": true,
+      "detail": "P650 & delegated PU2 created at gsc 0; counters never written"
+    }
+  ]
+}

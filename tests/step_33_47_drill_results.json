@@ -1,8 +1,8 @@
 {
-  "timestamp": "2026-10-12T18:48:12.626Z",
-  "sourceProject": "demo-step3347-src-1791830891921",
-  "targetProject": "demo-step3347-tgt-1791830891921",
-  "exportSha256": "2A0A917EA44B8CCCB4317443E7D002A3E9379CEFA9B0DC3C15B384BEFE96406A",
+  "timestamp": "2026-10-13T16:38:17.075Z",
+  "sourceProject": "demo-step3347-src-1791909494525",
+  "targetProject": "demo-step3347-tgt-1791909494525",
+  "exportSha256": "CD63D3310DFCE2FDF181918C2405C666EFCA5A311F45B68D5B63FADD38E5FC74",
   "totalChecks": 25,
   "passed": 25,
   "failed": 0,
@@ -41,7 +41,7 @@
       "testId": "EXPORT-SHA256-01",
       "description": "Export integrity verified via SHA-256 checksum",
       "status": "PASS",
-      "details": "2A0A917EA44B8CCCB4317443E7D002A3E9379CEFA9B0DC3C15B384BEFE96406A"
+      "details": "CD63D3310DFCE2FDF181918C2405C666EFCA5A311F45B68D5B63FADD38E5FC74"
     },
     {
       "testId": "EXPORT-RES-FIELDS-01",

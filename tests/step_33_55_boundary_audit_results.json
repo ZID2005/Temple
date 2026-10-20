@@ -1,13 +1,13 @@
 {
   "step": "STEP 33.55",
   "title": "Final Cleanup-Tool Boundary Audit & Zero-Mutation Verification",
-  "runId": 1791831322763,
-  "timestamp": "2026-10-12T18:55:22.763Z",
+  "runId": 1791909527545,
+  "timestamp": "2026-10-13T16:38:47.545Z",
   "emulator": {
     "host": "127.0.0.1",
     "firestorePort": 8080,
     "authPort": 9099,
-    "projectId": "demo-step3355-1791831322763"
+    "projectId": "demo-step3355-1791909527545"
   },
   "summary": {
     "total": 129,
@@ -61,7 +61,7 @@
       "category": "AIR_GAP_AND_SAFETY_ISOLATION",
       "status": "PASS",
       "description": "100% loopback air-gapped demo-* project prefix; zero production connectivity",
-      "evidence": "Host: 127.0.0.1, Project: demo-step3355-1791831322763"
+      "evidence": "Host: 127.0.0.1, Project: demo-step3355-1791909527545"
     },
     {
       "id": "PATH-ORD-SYSTEM",
@@ -740,7 +740,7 @@
       "category": "VALIDATION_BEFORE_SIDE_EFFECTS",
       "status": "PASS",
       "description": "Database records in emulator 100% byte-for-byte identical before and after dryRun",
-      "evidence": "Before: 7E501C92FCB10B731F5F72A12294313DAFFB4145AEB47E55A8011C56766F2F2F, After: 7E501C92FCB10B731F5F72A12294313DAFFB4145AEB47E55A8011C56766F2F2F, Status: PROPOSAL_VALIDATED"
+      "evidence": "Before: A5E41EE1699579AECF7E8E4E70E85DE74F88124F7AD3E12AF041859050E57F5F, After: A5E41EE1699579AECF7E8E4E70E85DE74F88124F7AD3E12AF041859050E57F5F, Status: PROPOSAL_VALIDATED"
     },
     {
       "id": "VAL-SIDE-COUNTS-02",
@@ -754,7 +754,7 @@
       "category": "VALIDATION_BEFORE_SIDE_EFFECTS",
       "status": "PASS",
       "description": "Database 100% untouched following rejected execute() attempt",
-      "evidence": "PostExecHash: 7E501C92FCB10B731F5F72A12294313DAFFB4145AEB47E55A8011C56766F2F2F, Matches Baseline: true"
+      "evidence": "PostExecHash: A5E41EE1699579AECF7E8E4E70E85DE74F88124F7AD3E12AF041859050E57F5F, Matches Baseline: true"
     },
     {
       "id": "SAFE-DOC-MISSING",
@@ -922,7 +922,7 @@
       "category": "DRY_RUN_DETERMINISM_AND_ZERO_MUTATIONS",
       "status": "PASS",
       "description": "Dry-run output checksum is 100% deterministic across identical runs",
-      "evidence": "Run 1: B57C25619CA32FF451F4D87F28E971CB87C1BADFAF2D1C2B2CF8F3D526A2BBE1, Run 2: B57C25619CA32FF451F4D87F28E971CB87C1BADFAF2D1C2B2CF8F3D526A2BBE1"
+      "evidence": "Run 1: CC333E3D6E7BA588C38B57BEB75F40C6F5DA282277E236386303CAE5C1F1FD56, Run 2: CC333E3D6E7BA588C38B57BEB75F40C6F5DA282277E236386303CAE5C1F1FD56"
     },
     {
       "id": "DRY-DETERM-COUNTS",
@@ -943,7 +943,7 @@
       "category": "DRY_RUN_DETERMINISM_AND_ZERO_MUTATIONS",
       "status": "PASS",
       "description": "Modifying synthetic fixture data changes dry-run output and checksum in an explainable manner",
-      "evidence": "Original FP: FE5387D84CC6418DFCA8B247D3884AD07DCAE539CE0622DA919E6FF63A8E18D0, Mutated FP: 2BA2F166ACB1ED4D57F9012CDA62C569597F2D475216E0D8A37F977CB9FD4CDC"
+      "evidence": "Original FP: FEC516B339873D2C600D47FA3F024F0AB77C2AF2287724CF4A50A67312736C56, Mutated FP: 56B384D71C81BF83CB57421B467FCD0B47C7BE03896E7E5DA22C09DD1EDA8EB0"
     },
     {
       "id": "DRY-UNVERIFIED-BLOCKED",

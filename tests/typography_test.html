@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+  <meta charset="UTF-8">
+  <title>Typography Contrast Test</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 40px;
+      background: #5c1a12;
+      font-family: -apple-system, sans-serif;
+      color: #fff;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 30px;
+    }
+    .card {
+      position: relative;
+      background: #5c1a12;
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 16px;
+      padding: 40px 20px;
+      text-align: center;
+      min-height: 260px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .card-label {
+      position: absolute;
+      top: 10px;
+      left: 14px;
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      color: rgba(255,255,255,0.6);
+      text-transform: uppercase;
+      font-family: monospace;
+    }
+    /* Simulated rangoli center behind text in bottom row */
+    .has-rangoli-center {
+      background: radial-gradient(circle at center, #f7cf2a 0%, #e8432a 28%, #c8246b 50%, #5c1a12 75%);
+    }
+
+    /* Common typography styling */
+    .blessing {
+      display: block;
+      font-family: "Gayathri", "Manjari", "Noto Serif Malayalam", "Kartika", serif;
+      font-size: 20px;
+      letter-spacing: .08em;
+      margin-bottom: 8px;
+    }
+    .message {
+      margin: 0;
+      font-family: "Gayathri", "Manjari", "Noto Serif Malayalam", "Kartika", serif;
+      font-weight: 700;
+      font-size: 56px;
+      line-height: 1.1;
+      letter-spacing: .04em;
+    }
+    .subnote {
+      display: block;
+      font-family: "JetBrains Mono", Consolas, monospace;
+      font-size: 12px;
+      letter-spacing: .24em;
+      text-transform: uppercase;
+      margin-top: 14px;
+    }
+
+    /* Variant 1: Warm dark brown with crisp light rice-flour halo */
+    .v1 .blessing {
+      color: #2e1008;
+      font-weight: 600;
+      text-shadow: 0 1px 2px rgba(255, 248, 235, 0.95), 0 0 10px rgba(255, 245, 225, 0.8);
+    }
+    .v1 .message {
+      color: #260c06;
+      text-shadow: 0 1px 3px rgba(255, 248, 235, 0.95), 0 0 14px rgba(255, 246, 230, 0.85), 0 0 30px rgba(247, 207, 42, 0.5);
+    }
+    .v1 .subnote {
+      color: #38150c;
+      font-weight: 600;
+      text-shadow: 0 1px 2px rgba(255, 248, 235, 0.9), 0 0 8px rgba(255, 245, 225, 0.6);
+    }
+
+    /* Variant 2: Deep earthy terracotta with soft radial aura on wrapper */
+    .v2 .wrap {
+      padding: 18px 30px;
+      border-radius: 20px;
+      background: radial-gradient(ellipse at center, rgba(255, 248, 235, 0.82) 0%, rgba(255, 244, 220, 0.5) 60%, rgba(255, 244, 220, 0) 100%);
+    }
+    .v2 .blessing {
+      color: #36140d;
+      font-weight: 600;
+      text-shadow: 0 1px 1px rgba(255, 255, 255, 0.6);
+    }
+    .v2 .message {
+      color: #2b0e08;
+      text-shadow: 0 1px 2px rgba(255, 255, 255, 0.7), 0 0 12px rgba(247, 207, 42, 0.3);
+    }
+    .v2 .subnote {
+      color: #421910;
+      font-weight: 600;
+      letter-spacing: .25em;
+    }
+
+    /* Variant 3: Warm dark mahogany with dual warm rim */
+    .v3 .blessing {
+      color: #32120a;
+      font-weight: 600;
+      text-shadow: 0 1px 2px #fff8ee, 0 0 12px rgba(255, 245, 220, 0.9);
+    }
+    .v3 .message {
+      color: #280d06;
+      text-shadow: 0 2px 4px #fff8ee, 0 0 16px rgba(255, 246, 230, 0.9), 0 0 32px rgba(255, 240, 200, 0.6);
+    }
+    .v3 .subnote {
+      color: #3a160d;
+      font-weight: 600;
+      text-shadow: 0 1px 2px #fff8ee, 0 0 10px rgba(255, 245, 220, 0.8);
+    }
+
+    /* Variant 4: Terracotta with warm gold-and-rice glow */
+    .v4 .blessing {
+      color: #38150c;
+      font-weight: 600;
+      text-shadow: 0 1px 2px rgba(255, 255, 255, 0.9), 0 0 12px rgba(255, 248, 230, 0.7);
+    }
+    .v4 .message {
+      color: #2a0e07;
+      text-shadow: 0 1px 3px rgba(255, 255, 255, 0.95), 0 0 16px rgba(247, 207, 42, 0.6), 0 0 28px rgba(255, 248, 230, 0.8);
+    }
+    .v4 .subnote {
+      color: #451b10;
+      font-weight: 600;
+      text-shadow: 0 1px 2px rgba(255, 255, 255, 0.85);
+    }
+  </style>
+</head>
+<body>
+  <h2 style="text-align: center; margin-bottom: 24px;">Welcome Greeting Typography Candidates</h2>
+  
+  <h3 style="margin-left: 10px;">Row 1: On bare red-oxide floor (#5c1a12)</h3>
+  <div class="grid">
+    <div class="card v1">
+      <div class="card-label">Variant 1: Dark Brown + Light Rice Shadow</div>
+      <span class="blessing">മറുതാ ചാമുണ്ഡി ദേവി ക്ഷേത്രം</span>
+      <p class="message">സ്വാഗതം</p>
+      <span class="subnote">TEMPLE ACCOUNTS &amp; MANAGEMENT</span>
+    </div>
+    <div class="card v2">
+      <div class="card-label">Variant 2: Terracotta + Soft Radial Aura</div>
+      <div class="wrap">
+        <span class="blessing">മറുതാ ചാമുണ്ഡി ദേവി ക്ഷേത്രം</span>
+        <p class="message">സ്വാഗതം</p>
+        <span class="subnote">TEMPLE ACCOUNTS &amp; MANAGEMENT</span>
+      </div>
+    </div>
+  </div>
+
+  <h3 style="margin-left: 10px; margin-top: 30px;">Row 2: Over vibrant Rangoli center powder</h3>
+  <div class="grid">
+    <div class="card v1 has-rangoli-center">
+      <div class="card-label">Variant 1 over Rangoli Center</div>
+      <span class="blessing">മറുതാ ചാമുണ്ഡി ദേവി ക്ഷേത്രം</span>
+      <p class="message">സ്വാഗതം</p>
+      <span class="subnote">TEMPLE ACCOUNTS &amp; MANAGEMENT</span>
+    </div>
+    <div class="card v2 has-rangoli-center">
+      <div class="card-label">Variant 2 over Rangoli Center</div>
+      <div class="wrap">
+        <span class="blessing">മറുതാ ചാമുണ്ഡി ദേവി ക്ഷേത്രം</span>
+        <p class="message">സ്വാഗതം</p>
+        <span class="subnote">TEMPLE ACCOUNTS &amp; MANAGEMENT</span>
+      </div>
+    </div>
+  </div>
+
+  <h3 style="margin-left: 10px; margin-top: 30px;">Row 3: Variants 3 &amp; 4</h3>
+  <div class="grid">
+    <div class="card v3">
+      <div class="card-label">Variant 3: Mahogany + Dual Warm Rim (on floor)</div>
+      <span class="blessing">മറുതാ ചാമുണ്ഡി ദേവി ക്ഷേത്രം</span>
+      <p class="message">സ്വാഗതം</p>
+      <span class="subnote">TEMPLE ACCOUNTS &amp; MANAGEMENT</span>
+    </div>
+    <div class="card v3 has-rangoli-center">
+      <div class="card-label">Variant 3 over Rangoli Center</div>
+      <span class="blessing">മറുതാ ചാമുണ്ഡി ദേവി ക്ഷേത്രം</span>
+      <p class="message">സ്വാഗതം</p>
+      <span class="subnote">TEMPLE ACCOUNTS &amp; MANAGEMENT</span>
+    </div>
+  </div>
+</body>
+</html>

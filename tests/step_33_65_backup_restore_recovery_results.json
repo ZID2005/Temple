@@ -1,0 +1,307 @@
+{
+  "drillTitle": "STEP 33.65 — Isolated Backup and Restore Recovery Drill",
+  "timestamp": "2026-10-14T09:14:27.523Z",
+  "runId": 1791969263553,
+  "applicationHash": "8722AB2D9160E869A3EC1198A9B9AE482CB7E31136106C6188A7F4576718337A",
+  "expectedApplicationHash": "8722AB2D9160E869A3EC1198A9B9AE482CB7E31136106C6188A7F4576718337A",
+  "hashMatch": true,
+  "environment": {
+    "firestoreEndpoint": "http://127.0.0.1:8080",
+    "authEndpoint": "http://127.0.0.1:9099",
+    "sourceProject": "demo-step3365-src-1791969263553",
+    "targetProject": "demo-step3365-tgt-1791969263553",
+    "largeSourceProject": "demo-step3365-lsrc-1791969263553",
+    "largeTargetProject": "demo-step3365-ltgt-1791969263553",
+    "faultTargetProject": "demo-step3365-fault-1791969263553",
+    "prohibitedProductionProject": "temple-f4f7d",
+    "productionAccess": "ZERO_CALLS_ZERO_ACCESS"
+  },
+  "datasetMetrics": {
+    "representativeRoundTripDocs": 9,
+    "largeDatasetDocs": 950,
+    "largeDatasetBatches": 3,
+    "faultInjectionBatchFailureIndex": 1,
+    "faultInjectionCommittedDocs": 450,
+    "faultInjectionRecoveredDocs": 950
+  },
+  "totalChecks": 34,
+  "passed": 34,
+  "failed": 0,
+  "blocked": 0,
+  "notTested": 0,
+  "verdict": "PASS",
+  "results": [
+    {
+      "testId": "PREFLIGHT-APP-HASH-01",
+      "description": "Primary application Temple_Accounts-1.html matches expected SHA-256 hash bit-for-bit",
+      "status": "PASS",
+      "evidence": "Hash: 8722AB2D9160E869A3EC1198A9B9AE482CB7E31136106C6188A7F4576718337A",
+      "environment": "local_fixture",
+      "timestamp": "2026-10-14T09:14:23.557Z"
+    },
+    {
+      "testId": "PREFLIGHT-EMULATOR-AUTH-02",
+      "description": "Local Firebase Auth emulator connection verified on 127.0.0.1:9099",
+      "status": "PASS",
+      "evidence": "User UID: JiFoLe0EWlG4AEFD2wJ1O8nWxCaZ",
+      "environment": "isolated_emulator",
+      "timestamp": "2026-10-14T09:14:23.569Z"
+    },
+    {
+      "testId": "PREFLIGHT-ISOLATION-NAMESPACES-03",
+      "description": "Strict demo-* project prefixes confirmed; production project temple-f4f7d is untouched",
+      "status": "PASS",
+      "evidence": "Source: demo-step3365-src-1791969263553, Target: demo-step3365-tgt-1791969263553",
+      "environment": "isolated_emulator",
+      "timestamp": "2026-10-14T09:14:23.569Z"
+    },
+    {
+      "testId": "PREFLIGHT-PROTECTED-ARTIFACTS-04",
+      "description": "All protected staging packages and configuration files remain strictly untouched",
+      "status": "PASS",
+      "evidence": "Staging packages v33.43 and v33.58 hashes verified",
+      "environment": "local_fixture",
+      "timestamp": "2026-10-14T09:14:23.572Z"
+    },
+    {
+      "testId": "ROUNDTRIP-BACKUP-INTEGRITY-01",
+      "description": "Representative backup payload valid and RFC 8785 SHA-256 integrity verified",
+      "status": "PASS",
+      "evidence": "Hash: 6AAF7BB2F81295901DD5CBD2E1ECF025BAFB998A4F0ECD6FE61137179891C2CB",
+      "environment": "isolated_emulator",
+      "timestamp": "2026-10-14T09:14:23.975Z"
+    },
+    {
+      "testId": "ROUNDTRIP-MULTI-DEVOTEES-02",
+      "description": "Multiple Devotees array, Malayalam Unicode characters, and free-text/blank stars restored verbatim",
+      "status": "PASS",
+      "evidence": "Devotees count: 3, Devotee 1: ദേവകി അമ്മ",
+      "environment": "isolated_emulator",
+      "timestamp": "2026-10-14T09:14:24.155Z"
+    },
+    {
+      "testId": "ROUNDTRIP-CUSTOM-VAZHIPADU-03",
+      "description": "Custom Vazhipadu item rates, Malayalam descriptions, quantity and totals restored with exact fidelity",
+      "status": "PASS",
+      "evidence": "Item 1: പ്രത്യേക പുഷ്പാഞ്ജലി (Special Archana), Total: 500",
+      "environment": "isolated_emulator",
+      "timestamp": "2026-10-14T09:14:24.155Z"
+    },
+    {
+      "testId": "ROUNDTRIP-LINKED-RECORDS-04",
+      "description": "Bidirectional relationship between billing record and accounting receipt preserved intact",
+      "status": "PASS",
+      "evidence": "Billing -> Receipt: rcpt_synth_001, Receipt -> Billing: bill_synth_001",
+      "environment": "isolated_emulator",
+      "timestamp": "2026-10-14T09:14:24.163Z"
+    },
+    {
+      "testId": "ROUNDTRIP-VOID-AUDIT-05",
+      "description": "Voided record status, void reason, void date, and audit timestamp preserved faithfully",
+      "status": "PASS",
+      "evidence": "VoidReason: Operator entry error - duplicate transaction",
+      "environment": "isolated_emulator",
+      "timestamp": "2026-10-14T09:14:24.170Z"
+    },
+    {
+      "testId": "ROUNDTRIP-COUNTERS-06",
+      "description": "GlobalSequenceCounter, billingReceiptCounter, receiptCounter, voucherCounter restored without regression",
+      "status": "PASS",
+      "evidence": "GSC: 1050, BRC: 1001",
+      "environment": "isolated_emulator",
+      "timestamp": "2026-10-14T09:14:24.180Z"
+    },
+    {
+      "testId": "ROUNDTRIP-SYSTEM-RECORDS-07",
+      "description": "System reservations (res_*) and idempotency records (op_*) restored with full structural integrity",
+      "status": "PASS",
+      "evidence": "Res 1049 status: completed, Op 1001: op_bill_1001",
+      "environment": "isolated_emulator",
+      "timestamp": "2026-10-14T09:14:24.208Z"
+    },
+    {
+      "testId": "ROUNDTRIP-STRUCTURAL-DIFF-08",
+      "description": "Zero omissions, zero duplicates, and zero unexpected records across pre-export and post-restore data",
+      "status": "PASS",
+      "evidence": "Omissions: 0, Mismatches: 0",
+      "environment": "isolated_emulator",
+      "timestamp": "2026-10-14T09:14:24.419Z"
+    },
+    {
+      "testId": "LARGE-BATCH-BOUNDARIES-01",
+      "description": "Restoration sliced into exactly 3 batches respecting BATCH_LIMIT = 450 [450, 450, 50]",
+      "status": "PASS",
+      "evidence": "Batches: 3, Sizes: [450, 450, 50]",
+      "environment": "isolated_emulator",
+      "timestamp": "2026-10-14T09:14:25.889Z"
+    },
+    {
+      "testId": "LARGE-DOCUMENT-COUNT-02",
+      "description": "Target Firestore collection contains exact expected count of 950 restored documents",
+      "status": "PASS",
+      "evidence": "Target count: 950",
+      "environment": "isolated_emulator",
+      "timestamp": "2026-10-14T09:14:26.274Z"
+    },
+    {
+      "testId": "LARGE-UNIQUE-IDS-03",
+      "description": "All 950 restored documents maintain unique document IDs with zero collisions or loss",
+      "status": "PASS",
+      "evidence": "Unique IDs: 950",
+      "environment": "isolated_emulator",
+      "timestamp": "2026-10-14T09:14:26.274Z"
+    },
+    {
+      "testId": "LARGE-BOUNDARY-DOCS-04",
+      "description": "Batch boundary documents (450, 451, 900, 901, 950) verified for exact values and sequence integrity",
+      "status": "PASS",
+      "evidence": "All sampled boundary documents verified",
+      "environment": "isolated_emulator",
+      "timestamp": "2026-10-14T09:14:26.323Z"
+    },
+    {
+      "testId": "LARGE-ZERO-PROD-WRITES-05",
+      "description": "Zero large-dataset network calls or writes touched production project temple-f4f7d",
+      "status": "PASS",
+      "evidence": "Isolated Target: demo-step3365-ltgt-1791969263553",
+      "environment": "isolated_emulator",
+      "timestamp": "2026-10-14T09:14:26.323Z"
+    },
+    {
+      "testId": "FAULT-INJECTION-CAUGHT-01",
+      "description": "Failure during Batch 2 was caught, halted further writes, and reported a clear error message",
+      "status": "PASS",
+      "evidence": "Error: INJECTED_FAULT: Simulated Firestore network timeout during Batch 2 commit",
+      "environment": "isolated_emulator",
+      "timestamp": "2026-10-14T09:14:26.694Z"
+    },
+    {
+      "testId": "FAULT-EARLIER-BATCH-COMMITTED-02",
+      "description": "Earlier batch (Batch 1, 450 documents) remains committed in Firestore (Non-atomic multi-batch reality)",
+      "status": "PASS",
+      "evidence": "Committed docs in Firestore: 450",
+      "environment": "isolated_emulator",
+      "timestamp": "2026-10-14T09:14:26.791Z"
+    },
+    {
+      "testId": "FAULT-LATER-BATCHES-REJECTED-03",
+      "description": "Later batches (Batch 2 and Batch 3) were NOT written; target database contains zero uncommitted records",
+      "status": "PASS",
+      "evidence": "Doc 451 exists: false, Doc 901 exists: false",
+      "environment": "isolated_emulator",
+      "timestamp": "2026-10-14T09:14:26.804Z"
+    },
+    {
+      "testId": "FAULT-PARTIAL-COMPLETION-DETECTED-04",
+      "description": "Application detects partial completion in system/_restoreProgress with status \"interrupted\" and safety snapshot reference",
+      "status": "PASS",
+      "evidence": "Status: interrupted, Snapshot: Temple_Accounts_PreRestore_SafetyBackup_FaultTest.json",
+      "environment": "isolated_emulator",
+      "timestamp": "2026-10-14T09:14:26.810Z"
+    },
+    {
+      "testId": "FAULT-COUNTER-INCONSISTENCY-RISK-05",
+      "description": "Demonstrated critical risk: Phase 6 partial write committed 450 bills before Phase 7 counters updated; counters remain unadvanced",
+      "status": "PASS",
+      "evidence": "Counters document was not updated due to mid-restore crash",
+      "environment": "isolated_emulator",
+      "timestamp": "2026-10-14T09:14:26.817Z"
+    },
+    {
+      "testId": "FAULT-IDEMPOTENT-RECOVERY-06",
+      "description": "Subsequent recovery attempt completed safely without duplicates, reaching 950 documents and status \"completed\"",
+      "status": "PASS",
+      "evidence": "Final doc count: 950, Status: completed",
+      "environment": "isolated_emulator",
+      "timestamp": "2026-10-14T09:14:27.499Z"
+    },
+    {
+      "testId": "INTEGRITY-VALID-CHECKSUM-01",
+      "description": "Backup with valid RFC 8785 SHA-256 checksum is accepted with zero errors",
+      "status": "PASS",
+      "evidence": "Hash: 6AAF7BB2F81295901DD5CBD2E1ECF025BAFB998A4F0ECD6FE61137179891C2CB",
+      "environment": "isolated_emulator",
+      "timestamp": "2026-10-14T09:14:27.500Z"
+    },
+    {
+      "testId": "INTEGRITY-ALTERED-PAYLOAD-02",
+      "description": "Deliberately altered payload with original checksum is rejected before confirmation, snapshot, or database write",
+      "status": "PASS",
+      "evidence": "INTEGRITY_CHECK_FAILED exception caught",
+      "environment": "isolated_emulator",
+      "timestamp": "2026-10-14T09:14:27.500Z"
+    },
+    {
+      "testId": "INTEGRITY-MALFORMED-JSON-03",
+      "description": "Malformed or truncated JSON payload rejected immediately at parse stage with zero database access",
+      "status": "PASS",
+      "evidence": "JSON.parse SyntaxError confirmed",
+      "environment": "isolated_emulator",
+      "timestamp": "2026-10-14T09:14:27.501Z"
+    },
+    {
+      "testId": "INTEGRITY-MISSING-COLLECTION-04",
+      "description": "Backup missing a required core collection (billing) rejected in Phase 3 validation before writes",
+      "status": "PASS",
+      "evidence": "Validation error: Missing collection: 'billing'",
+      "environment": "isolated_emulator",
+      "timestamp": "2026-10-14T09:14:27.501Z"
+    },
+    {
+      "testId": "INTEGRITY-MISSING-COUNTERS-05",
+      "description": "Backup missing counters section rejected in Phase 3 validation before writes",
+      "status": "PASS",
+      "evidence": "Validation error: counters section is missing or invalid",
+      "environment": "isolated_emulator",
+      "timestamp": "2026-10-14T09:14:27.502Z"
+    },
+    {
+      "testId": "INTEGRITY-UNSUPPORTED-SCHEMA-06",
+      "description": "Backup with unsupported legacy schema version (1.0) rejected before restore writes",
+      "status": "PASS",
+      "evidence": "Validation error: Unsupported schema version: '1.0'",
+      "environment": "isolated_emulator",
+      "timestamp": "2026-10-14T09:14:27.503Z"
+    },
+    {
+      "testId": "INTEGRITY-DUPLICATE-DOC-ID-07",
+      "description": "Backup containing internal duplicate document identifier rejected in Phase 3 before writes",
+      "status": "PASS",
+      "evidence": "Validation error: billing: duplicate _firestoreId 'bill_synth_001'",
+      "environment": "isolated_emulator",
+      "timestamp": "2026-10-14T09:14:27.504Z"
+    },
+    {
+      "testId": "INTEGRITY-ZERO-WRITES-VERIFIED-08",
+      "description": "Verification confirms zero writes were dispatched to target collections during validation failures",
+      "status": "PASS",
+      "evidence": "Target collection untouched",
+      "environment": "isolated_emulator",
+      "timestamp": "2026-10-14T09:14:27.512Z"
+    },
+    {
+      "testId": "SNAPSHOT-MECHANISM-INSPECTION-01",
+      "description": "Pre-restore safety snapshot relies entirely on synthetic browser anchor click (a.click())",
+      "status": "PASS",
+      "evidence": "Confirmed in Temple_Accounts-1.html:15367 & 16027",
+      "environment": "isolated_emulator",
+      "timestamp": "2026-10-14T09:14:27.516Z"
+    },
+    {
+      "testId": "SNAPSHOT-NO-PERSISTENCE-CONFIRMATION-02",
+      "description": "Application CANNOT confirm snapshot was persisted to local disk or reopenable before proceeding to destructive writes",
+      "status": "PASS",
+      "evidence": "Zero disk confirmation or operator verification callback implemented",
+      "environment": "isolated_emulator",
+      "timestamp": "2026-10-14T09:14:27.520Z"
+    },
+    {
+      "testId": "SNAPSHOT-POPUP-BLOCKER-VULNERABILITY-03",
+      "description": "If browser popup/download blocker suppresses download, error is merely logged as warn and restore proceeds unconditionally",
+      "status": "PASS",
+      "evidence": "Catch block in _downloadJson logs console.warn and allows restore execution to continue",
+      "environment": "isolated_emulator",
+      "timestamp": "2026-10-14T09:14:27.523Z"
+    }
+  ]
+}

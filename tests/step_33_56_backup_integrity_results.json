@@ -1,20 +1,20 @@
 {
   "step": "STEP 33.56",
   "title": "Backup Integrity, Test-Count Reconciliation & Cleanup Authorization Readiness Audit",
-  "runId": 1791832062867,
-  "timestamp": "2026-10-12T19:07:43.578Z",
+  "runId": 1791959019116,
+  "timestamp": "2026-10-14T06:23:39.551Z",
   "emulator": {
     "host": "127.0.0.1",
     "firestorePort": 8080,
     "authPort": 9099,
-    "srcProject": "demo-step3356-src-1791832062867",
-    "tgtProject": "demo-step3356-tgt-1791832062867"
+    "srcProject": "demo-step3356-src-1791959019116",
+    "tgtProject": "demo-step3356-tgt-1791959019116"
   },
   "summary": {
-    "total": 78,
-    "passed": 73,
-    "failed": 0,
-    "blocked": 5
+    "total": 62,
+    "passed": 55,
+    "failed": 1,
+    "blocked": 6
   },
   "categories": {
     "BASELINE_HASHES": {
@@ -42,15 +42,15 @@
       "blocked": 0
     },
     "EMULATOR_RECOVERY": {
-      "total": 10,
-      "passed": 10,
+      "total": 1,
+      "passed": 0,
       "failed": 0,
-      "blocked": 0
+      "blocked": 1
     },
     "RULES_COMPATIBILITY": {
-      "total": 8,
-      "passed": 8,
-      "failed": 0,
+      "total": 1,
+      "passed": 0,
+      "failed": 1,
       "blocked": 0
     },
     "PRODUCTION_BACKUP_STATUS": {
@@ -73,7 +73,7 @@
     }
   },
   "baselineHashes": {
-    "Temple_Accounts-1.html": "0BC9B28B094D83CE85880E62821897834FE1DCBF14A48BB98A061EDCCAC20BBC",
+    "Temple_Accounts-1.html": "657A4C1C116DADAAFD02FE3DB5F2799EC5B9F9FA105F260132EB1D20EEAD1F58",
     "firestore.rules": "7BFEF0B0F4C31A5DAFC6FB29C8C4BBD55CBAD3A8A590EFC34BD87F4600CF90BD",
     "firestore.rules.candidate": "E0D2F9D11DE6E92644339A3332566B16CD0A58360598EF70E60279B890DA902D",
     "deploy_staging_step_33_43/Temple_Accounts-1.html": "AEB01303F22F69E284D680A55E182FC78312C48E4266C02809179DF789E87CBC",
@@ -82,7 +82,7 @@
     "tests/test_step_33_53_cleanup_orchestrator.js": "D9B656AB72BEABB2690EDBCE4893D0CA38344FB46C34838B103E049804949075",
     "tests/test_step_33_54_cleanup_audit.js": "80835EB5A0D7F341F1FD7B6B10EEDAE6DCEE599F754EEDA7548CCEA4CD481928",
     "tests/test_step_33_55_cleanup_boundary_audit.js": "EA2C28B292AB388644A2856E2E8C4A3BA6BA03AD6CAD9DF36FB526A1E986ED40",
-    "tests/step_33_55_boundary_audit_results.json": "0CB2D757680F4A8E1A123D95B27E5FF1397A03A578C456373953FE4FEACD260F"
+    "tests/step_33_55_boundary_audit_results.json": "5BCB92A681DE5EA3CD81FE47684F5933B9FA8373A137DB782C7894A8068383C2"
   },
   "testCountReconciliation": {
     "reportedGrandTotalIn33_55": 519,
@@ -99,7 +99,7 @@
       "category": "BASELINE_HASHES",
       "description": "Cryptographic hash check for Temple_Accounts-1.html",
       "status": "PASS",
-      "evidence": "Actual: 0BC9B28B094D83CE... Expected: 0BC9B28B094D83CE...",
+      "evidence": "Actual: 657A4C1C116DADAA... Expected: 657A4C1C116DADAA...",
       "details": "100% byte-for-byte identical"
     },
     {
@@ -171,7 +171,7 @@
       "category": "BASELINE_HASHES",
       "description": "Computed authoritative hash for tests/step_33_55_boundary_audit_results.json",
       "status": "PASS",
-      "evidence": "Hash: 0CB2D757680F4A8E1A123D95B27E5FF1397A03A578C456373953FE4FEACD260F",
+      "evidence": "Hash: 5BCB92A681DE5EA3CD81FE47684F5933B9FA8373A137DB782C7894A8068383C2",
       "details": "Baseline recorded"
     },
     {
@@ -487,147 +487,19 @@
       "details": ""
     },
     {
-      "testId": "REC-EXP-INTEG-01",
+      "testId": "REC-EMULATOR-UNAVAILABLE",
       "category": "EMULATOR_RECOVERY",
-      "description": "Synthetic export generates valid 64-character SHA-256 canonical integrity hash",
-      "status": "PASS",
-      "evidence": "Hash: DE9B24184DC90A73A19D9269BFD0FC590B1230EAC4F1E282472B8D6BB336D04E",
-      "details": ""
-    },
-    {
-      "testId": "REC-RESTORE-PREVAL-02",
-      "category": "EMULATOR_RECOVERY",
-      "description": "Pre-write validation passes on exported backup payload",
-      "status": "PASS",
-      "evidence": "Errors: 0, IntegrityVerified: true",
-      "details": ""
-    },
-    {
-      "testId": "REC-VERIFY-BILL-03",
-      "category": "EMULATOR_RECOVERY",
-      "description": "Restored billing record has matching ID, amount, and devoteeName",
-      "status": "PASS",
-      "evidence": "bill_1001 totalAmount: 500",
-      "details": ""
-    },
-    {
-      "testId": "REC-VERIFY-LINK-04",
-      "category": "EMULATOR_RECOVERY",
-      "description": "Restored cross-record linkage between billing and receipt preserved",
-      "status": "PASS",
-      "evidence": "Reciprocal billing <-> receipt link verified",
-      "details": ""
-    },
-    {
-      "testId": "REC-VERIFY-VOID-05",
-      "category": "EMULATOR_RECOVERY",
-      "description": "Restored voided record preserves voided status and voidReason",
-      "status": "PASS",
-      "evidence": "voided: true, reason: Mistyped voucher",
-      "details": ""
-    },
-    {
-      "testId": "REC-VERIFY-PRESERVE-LIVE-06",
-      "category": "EMULATOR_RECOVERY",
-      "description": "Safe merge preserves pre-existing live documents absent from backup",
-      "status": "PASS",
-      "evidence": "Pre-existing target receipt rcpt_tgt_live was not deleted or corrupted",
-      "details": ""
-    },
-    {
-      "testId": "REC-VERIFY-CTR-MONOTONIC-07",
-      "category": "EMULATOR_RECOVERY",
-      "description": "Counter document merges monotonically without regression",
-      "status": "PASS",
-      "evidence": "GSC: 1010 (higher live counter 1010 preserved over backup 1005)",
-      "details": ""
-    },
-    {
-      "testId": "REC-VERIFY-RES-08",
-      "category": "EMULATOR_RECOVERY",
-      "description": "Global number reservations res_1001 and res_1002 restored intact",
-      "status": "PASS",
-      "evidence": "res_1001 and res_1002 HTTP 200 present",
-      "details": ""
-    },
-    {
-      "testId": "REC-VERIFY-IDEMP-09",
-      "category": "EMULATOR_RECOVERY",
-      "description": "Idempotency tokens op_bill_1001 and op_rcpt_1002 restored intact",
-      "status": "PASS",
-      "evidence": "op_bill_1001 and op_rcpt_1002 HTTP 200 present",
-      "details": ""
-    },
-    {
-      "testId": "REC-VERIFY-PROGRESS-10",
-      "category": "EMULATOR_RECOVERY",
-      "description": "Restore progress tracking completes with status \"completed\"",
-      "status": "PASS",
-      "evidence": "Restore progress status: completed",
+      "description": "Disposable emulator tests blocked due to emulator connection issue",
+      "status": "BLOCKED",
+      "evidence": "Emulator connection refused",
       "details": ""
     },
     {
       "testId": "RULES-CAND-LOAD-01",
       "category": "RULES_COMPATIBILITY",
       "description": "Candidate security rules load cleanly into isolated emulator namespace",
-      "status": "PASS",
-      "evidence": "HTTP 200 Security Rules compiled",
-      "details": ""
-    },
-    {
-      "testId": "RULES-ALLOW-CREATE-BILL-02",
-      "category": "RULES_COMPATIBILITY",
-      "description": "Candidate rules permit ordinary billing record creation by authenticated operator",
-      "status": "PASS",
-      "evidence": "HTTP status: 200",
-      "details": ""
-    },
-    {
-      "testId": "RULES-DENY-DELETE-BILL-03",
-      "category": "RULES_COMPATIBILITY",
-      "description": "Candidate rules strictly DENY physical deletion of billing records (allow delete: if false;)",
-      "status": "PASS",
-      "evidence": "HTTP status: 403 (Permission Denied enforced)",
-      "details": ""
-    },
-    {
-      "testId": "RULES-DENY-DELETE-RCPT-04",
-      "category": "RULES_COMPATIBILITY",
-      "description": "Candidate rules strictly DENY physical deletion of receipts (allow delete: if false;)",
-      "status": "PASS",
-      "evidence": "HTTP status: 403 (Permission Denied enforced)",
-      "details": ""
-    },
-    {
-      "testId": "RULES-DENY-DELETE-SETTINGS-05",
-      "category": "RULES_COMPATIBILITY",
-      "description": "Candidate rules strictly DENY physical deletion of settings (allow delete: if false;)",
-      "status": "PASS",
-      "evidence": "HTTP status: 403 (Permission Denied enforced)",
-      "details": ""
-    },
-    {
-      "testId": "RULES-ALLOW-CREATE-RES-06",
-      "category": "RULES_COMPATIBILITY",
-      "description": "Candidate rules permit ordinary sequence reservation creation matching caller UID",
-      "status": "PASS",
-      "evidence": "HTTP status: 200",
-      "details": ""
-    },
-    {
-      "testId": "RULES-DENY-DELETE-RES-07",
-      "category": "RULES_COMPATIBILITY",
-      "description": "Candidate rules strictly DENY physical deletion of sequence reservations",
-      "status": "PASS",
-      "evidence": "HTTP status: 403 (Permission Denied enforced)",
-      "details": ""
-    },
-    {
-      "testId": "RULES-DENY-UNAUTHORIZED-COL-08",
-      "category": "RULES_COMPATIBILITY",
-      "description": "Candidate rules implicitly DENY unlisted / unknown collections by default",
-      "status": "PASS",
-      "evidence": "HTTP status: 403 (Permission Denied on unlisted collection)",
+      "status": "FAIL",
+      "evidence": "Rules compilation failed",
       "details": ""
     },
     {

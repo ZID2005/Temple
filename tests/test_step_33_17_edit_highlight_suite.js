@@ -69,9 +69,10 @@ assert(html.includes("getEditingRowClass('receipts', r.id)"), 'Receipts table ro
 assert(html.includes("GlobalEditState.setEditing('receipts', editRec.id)"), 'VIEW_RENDERERS.receipts sets editing state for editRec');
 assert(html.includes("GlobalEditState.clearEditing('receipts')"), 'Receipts lifecycle clears editing state on save/cancel');
 
-// 2. Vazhipadu
-assert(html.includes("VIEW_RENDERERS.vazhipadu = async function(filterCategory, editId)"), 'VIEW_RENDERERS.vazhipadu passes editId to receipts');
-assert(html.includes("CURRENT_VIEW === 'vazhipadu' ? 'vazhipadu' : 'receipts'"), 'Receipts Cancel & Edit buttons preserve Vazhipadu view context');
+// 2. Vazhipadu (Retired in Step 33.78: dedicated renderer and sidebar entry removed, receipts workflow returns directly to receipts)
+assert(!html.includes("VIEW_RENDERERS.vazhipadu"), 'Dedicated VIEW_RENDERERS.vazhipadu is retired and absent');
+assert(!html.includes('data-view="vazhipadu"'), 'Dedicated Vazhipadu sidebar navigation entry is absent');
+assert(!html.includes("CURRENT_VIEW === 'vazhipadu' ? 'vazhipadu' : 'receipts'"), 'Receipts Cancel & Edit buttons return directly to receipts');
 
 // 3. Payments
 assert(html.includes('data-edit-scope="payments"'), 'Payments table rows have data-edit-scope="payments"');

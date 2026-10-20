@@ -1,0 +1,650 @@
+{
+  "timestamp": "2026-10-17T18:17:52.696Z",
+  "targetFile": "Temple_Accounts-1.html",
+  "targetFileSha256": "3F6DAA24BC8CDC80034FD2C18B713EFE1685FB0B4D86CD3F749FB14769EB189D",
+  "fileSizeBytes": 834921,
+  "totalTests": 71,
+  "passedTests": 71,
+  "failedTests": 0,
+  "tests": [
+    {
+      "id": "TC-33.71-01",
+      "name": "Target file is Temple_Accounts-1.html",
+      "group": "BASELINE",
+      "passed": true,
+      "expected": "Temple_Accounts-1.html",
+      "actual": "Temple_Accounts-1.html",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.71-02",
+      "name": "File size exceeds baseline after Step 33.71 implementation",
+      "group": "BASELINE",
+      "passed": true,
+      "expected": ">= 827,070 bytes",
+      "actual": "834921 bytes",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.71-03",
+      "name": "Pre-step 33.71 backup file exists in backups directory",
+      "group": "BASELINE",
+      "passed": true,
+      "expected": "Backup exists",
+      "actual": "Confirmed",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.71-04",
+      "name": "fsVoidRecordSafe contains atomic transaction logic for receipts and reservations",
+      "group": "BASELINE",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.71-05",
+      "name": "fsVoidRecordSafe determines res_phys_ reservation document for physical receipts",
+      "group": "BASELINE",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.71-06",
+      "name": "fsCreatePhysicalReceipt persists reservationDocId bidirectional pointer",
+      "group": "BASELINE",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.71-07",
+      "name": "fsCreatePhysicalReceipt idempotency check inspects reservation void status",
+      "group": "BASELINE",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.71-08",
+      "name": "P600 initial authoritative receipt is active (voided: false)",
+      "group": "TEST_1_P_SERIES",
+      "passed": true,
+      "expected": false,
+      "actual": false,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.71-09",
+      "name": "P600 initial reservation tracking record is active (status: \"active\", voided: false)",
+      "group": "TEST_1_P_SERIES",
+      "passed": true,
+      "expected": "status: active, voided: false",
+      "actual": "status: active, voided: false",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.71-10",
+      "name": "P600 authoritative receipt contains reservationDocId pointer",
+      "group": "TEST_1_P_SERIES",
+      "passed": true,
+      "expected": "res_phys_P600",
+      "actual": "res_phys_P600",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.71-11",
+      "name": "P600 authoritative receipt is marked voided: true",
+      "group": "TEST_1_P_SERIES",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.71-12",
+      "name": "P600 authoritative receipt records correct voidReason and voidDate",
+      "group": "TEST_1_P_SERIES",
+      "passed": true,
+      "expected": "Recorded voidReason and voidDate",
+      "actual": "reason: Devotee cancellation request for P600, date: 2026-10-17",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.71-13",
+      "name": "P600 secondary reservation is updated to voided: true",
+      "group": "TEST_1_P_SERIES",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.71-14",
+      "name": "P600 secondary reservation status is set to \"voided\"",
+      "group": "TEST_1_P_SERIES",
+      "passed": true,
+      "expected": "voided",
+      "actual": "voided",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.71-15",
+      "name": "P600 secondary reservation mirrors receipt voidReason",
+      "group": "TEST_1_P_SERIES",
+      "passed": true,
+      "expected": "Devotee cancellation request for P600",
+      "actual": "Devotee cancellation request for P600",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.71-16",
+      "name": "P600 secondary reservation preserves identifier P600 and receiptDocId pointer",
+      "group": "TEST_1_P_SERIES",
+      "passed": true,
+      "expected": "P600 & rcpt_phys_P600",
+      "actual": "P600 & rcpt_phys_P600",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.71-17",
+      "name": "P600 secondary reservation records updatedBy and timestamps",
+      "group": "TEST_1_P_SERIES",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.71-18",
+      "name": "PU1 initial authoritative receipt is active (voided: false)",
+      "group": "TEST_2_PU_SERIES",
+      "passed": true,
+      "expected": false,
+      "actual": false,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.71-19",
+      "name": "PU1 initial reservation tracking record is active (status: \"active\", voided: false)",
+      "group": "TEST_2_PU_SERIES",
+      "passed": true,
+      "expected": "status: active, voided: false",
+      "actual": "status: active, voided: false",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.71-20",
+      "name": "PU1 authoritative receipt is marked voided: true",
+      "group": "TEST_2_PU_SERIES",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.71-21",
+      "name": "PU1 authoritative receipt records correct voidReason and voidDate",
+      "group": "TEST_2_PU_SERIES",
+      "passed": true,
+      "expected": "Recorded voidReason and voidDate",
+      "actual": "reason: Duplicate manual slip error for PU1, date: 2026-10-17",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.71-22",
+      "name": "PU1 secondary reservation is updated to voided: true",
+      "group": "TEST_2_PU_SERIES",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.71-23",
+      "name": "PU1 secondary reservation status is set to \"voided\"",
+      "group": "TEST_2_PU_SERIES",
+      "passed": true,
+      "expected": "voided",
+      "actual": "voided",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.71-24",
+      "name": "PU1 secondary reservation mirrors receipt voidReason",
+      "group": "TEST_2_PU_SERIES",
+      "passed": true,
+      "expected": "Duplicate manual slip error for PU1",
+      "actual": "Duplicate manual slip error for PU1",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.71-25",
+      "name": "PU1 secondary reservation preserves identifier PU1 and physicalType PU",
+      "group": "TEST_2_PU_SERIES",
+      "passed": true,
+      "expected": "PU1 & PU",
+      "actual": "PU1 & PU",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.71-26",
+      "name": "PU1 secondary reservation records updatedBy and timestamps",
+      "group": "TEST_2_PU_SERIES",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.71-27",
+      "name": "activeReceipts() excludes voided P600",
+      "group": "TEST_3_ACCOUNTING",
+      "passed": true,
+      "expected": false,
+      "actual": false,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.71-28",
+      "name": "activeReceipts() excludes voided PU1",
+      "group": "TEST_3_ACCOUNTING",
+      "passed": true,
+      "expected": false,
+      "actual": false,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.71-29",
+      "name": "Cash balance excludes voided physical receipt P600 (remains baseline ₹10,000)",
+      "group": "TEST_3_ACCOUNTING",
+      "passed": true,
+      "expected": 10000,
+      "actual": 10000,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.71-30",
+      "name": "Bank balance excludes voided physical receipt PU1 (remains baseline ₹50,000)",
+      "group": "TEST_3_ACCOUNTING",
+      "passed": true,
+      "expected": 50000,
+      "actual": 50000,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.71-31",
+      "name": "General Temple Fund excludes voided P600 (remains baseline ₹30,000)",
+      "group": "TEST_3_ACCOUNTING",
+      "passed": true,
+      "expected": 30000,
+      "actual": 30000,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.71-32",
+      "name": "Punarudharanam Fund excludes voided PU1 (remains baseline ₹20,000)",
+      "group": "TEST_3_ACCOUNTING",
+      "passed": true,
+      "expected": 20000,
+      "actual": 20000,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.71-33",
+      "name": "allReceipts() retains P600 with voided: true for audit trail",
+      "group": "TEST_3_ACCOUNTING",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.71-34",
+      "name": "allReceipts() retains PU1 with voided: true for audit trail",
+      "group": "TEST_3_ACCOUNTING",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.71-35",
+      "name": "Re-creating voided P600 is strictly rejected with duplicate error",
+      "group": "TEST_4_NON_REUSE",
+      "passed": true,
+      "expected": "Duplicate physical receipt rejection",
+      "actual": "Physical receipt \"P600\" has already been entered or issued. Duplicate physical receipt numbers are strictly prohibited.",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.71-36",
+      "name": "Re-creating voided PU1 is strictly rejected with duplicate error",
+      "group": "TEST_4_NON_REUSE",
+      "passed": true,
+      "expected": "Duplicate physical receipt rejection",
+      "actual": "Physical receipt \"PU1\" has already been entered or issued. Duplicate physical receipt numbers are strictly prohibited.",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.71-37",
+      "name": "Case variation p600 is normalized and rejected as duplicate after voiding",
+      "group": "TEST_4_NON_REUSE",
+      "passed": true,
+      "expected": "Duplicate physical receipt rejection",
+      "actual": "Physical receipt \"P600\" has already been entered or issued. Duplicate physical receipt numbers are strictly prohibited.",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.71-38",
+      "name": "Whitespace variation \" PU1 \" is trimmed and rejected as duplicate after voiding",
+      "group": "TEST_4_NON_REUSE",
+      "passed": true,
+      "expected": "Duplicate physical receipt rejection",
+      "actual": "Physical receipt \"PU1\" has already been entered or issued. Duplicate physical receipt numbers are strictly prohibited.",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.71-39",
+      "name": "Idempotent replay on voided physical receipt throws voided error",
+      "group": "TEST_4_NON_REUSE",
+      "passed": true,
+      "expected": "Physical receipt \"P600\" has been voided",
+      "actual": "Idempotency error: Physical receipt \"P600\" has been voided. Voided financial transactions cannot be replayed or reactivated.",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.71-40",
+      "name": "Repeated UI voidRecord() alerts that receipt is already voided and aborts",
+      "group": "TEST_5_REPEAT_VOID",
+      "passed": true,
+      "expected": "Receipt is already voided alert",
+      "actual": "Receipt P600 is already voided.",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.71-41",
+      "name": "Repeated UI voidRecord() does not mutate receipt record or voidReason",
+      "group": "TEST_5_REPEAT_VOID",
+      "passed": true,
+      "expected": "Devotee cancellation request for P600",
+      "actual": "Devotee cancellation request for P600",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.71-42",
+      "name": "Repeated UI voidRecord() does not mutate reservation record",
+      "group": "TEST_5_REPEAT_VOID",
+      "passed": true,
+      "expected": "Devotee cancellation request for P600",
+      "actual": "Devotee cancellation request for P600",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.71-43",
+      "name": "Direct fsVoidRecordSafe repeat preserves original receipt voidReason",
+      "group": "TEST_5_REPEAT_VOID",
+      "passed": true,
+      "expected": "Devotee cancellation request for P600",
+      "actual": "Devotee cancellation request for P600",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.71-44",
+      "name": "Direct fsVoidRecordSafe repeat preserves original receipt voidDate",
+      "group": "TEST_5_REPEAT_VOID",
+      "passed": true,
+      "expected": "2026-10-17",
+      "actual": "2026-10-17",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.71-45",
+      "name": "Direct fsVoidRecordSafe repeat preserves original reservation voidReason",
+      "group": "TEST_5_REPEAT_VOID",
+      "passed": true,
+      "expected": "Devotee cancellation request for P600",
+      "actual": "Devotee cancellation request for P600",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.71-46",
+      "name": "Direct fsVoidRecordSafe repeat preserves original reservation voidDate",
+      "group": "TEST_5_REPEAT_VOID",
+      "passed": true,
+      "expected": "2026-10-17",
+      "actual": "2026-10-17",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.71-47",
+      "name": "PU2 initial state: receipt is active (voided: false)",
+      "group": "TEST_6_ATOMICITY",
+      "passed": true,
+      "expected": false,
+      "actual": false,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.71-48",
+      "name": "PU2 initial state: reservation is active (status: \"active\", voided: false)",
+      "group": "TEST_6_ATOMICITY",
+      "passed": true,
+      "expected": "status: active, voided: false",
+      "actual": "status: active, voided: false",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.71-49",
+      "name": "fsVoidRecordSafe propagates transactional failure cleanly",
+      "group": "TEST_6_ATOMICITY",
+      "passed": true,
+      "expected": "Simulated atomic transaction failure",
+      "actual": "Simulated atomic transaction failure during void.",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.71-50",
+      "name": "Failed void leaves receipt record strictly intact (voided: false)",
+      "group": "TEST_6_ATOMICITY",
+      "passed": true,
+      "expected": false,
+      "actual": false,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.71-51",
+      "name": "Failed void leaves reservation strictly intact (status: \"active\", voided: false)",
+      "group": "TEST_6_ATOMICITY",
+      "passed": true,
+      "expected": "status: active, voided: false",
+      "actual": "status: active, voided: false",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.71-52",
+      "name": "Zero partial update state left after transactional failure",
+      "group": "TEST_6_ATOMICITY",
+      "passed": true,
+      "expected": "Both remain active",
+      "actual": "Both active",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.71-53",
+      "name": "PU2 successfully voids upon clean retry: receipt voided: true",
+      "group": "TEST_6_ATOMICITY",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.71-54",
+      "name": "PU2 successfully voids upon clean retry: reservation status: \"voided\", voided: true",
+      "group": "TEST_6_ATOMICITY",
+      "passed": true,
+      "expected": "status: voided, voided: true",
+      "actual": "status: voided, voided: true",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.71-55",
+      "name": "Software receipt R-043 allocated sequence 43",
+      "group": "TEST_7_SOFTWARE_SEQ",
+      "passed": true,
+      "expected": 43,
+      "actual": 43,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.71-56",
+      "name": "globalSequenceCounter cleanly advanced to 43",
+      "group": "TEST_7_SOFTWARE_SEQ",
+      "passed": true,
+      "expected": 43,
+      "actual": 43,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.71-57",
+      "name": "Software reservation res_43 created with status: \"active\"",
+      "group": "TEST_7_SOFTWARE_SEQ",
+      "passed": true,
+      "expected": "status: active",
+      "actual": "active",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.71-58",
+      "name": "Software receipt rcpt_43 is marked voided: true",
+      "group": "TEST_7_SOFTWARE_SEQ",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.71-59",
+      "name": "Software reservation res_43 is updated to status: \"voided\", voided: true",
+      "group": "TEST_7_SOFTWARE_SEQ",
+      "passed": true,
+      "expected": "status: voided, voided: true",
+      "actual": "status: voided, voided: true",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.71-60",
+      "name": "Voiding software receipt NEVER decrements or resets globalSequenceCounter (remains 43)",
+      "group": "TEST_7_SOFTWARE_SEQ",
+      "passed": true,
+      "expected": 43,
+      "actual": 43,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.71-61",
+      "name": "Subsequent software receipt cleanly allocates sequence 44 (R-044)",
+      "group": "TEST_7_SOFTWARE_SEQ",
+      "passed": true,
+      "expected": 44,
+      "actual": 44,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.71-62",
+      "name": "globalSequenceCounter cleanly advances to 44",
+      "group": "TEST_7_SOFTWARE_SEQ",
+      "passed": true,
+      "expected": 44,
+      "actual": 44,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.71-63",
+      "name": "fsGetOneSafe(\"receipts\", \"P601\") resolves to rcpt_phys_P601",
+      "group": "TEST_8_ROBUSTNESS",
+      "passed": true,
+      "expected": "rcpt_phys_P601",
+      "actual": "rcpt_phys_P601",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.71-64",
+      "name": "fsVoidRecordSafe(\"receipts\", \"P601\") marks rcpt_phys_P601 voided: true",
+      "group": "TEST_8_ROBUSTNESS",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.71-65",
+      "name": "fsVoidRecordSafe(\"receipts\", \"P601\") marks res_phys_P601 status: \"voided\"",
+      "group": "TEST_8_ROBUSTNESS",
+      "passed": true,
+      "expected": "status: voided, voided: true",
+      "actual": "status: voided, voided: true",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.71-66",
+      "name": "fsGetOneSafe(\"receipts\", \"PU3\") resolves to rcpt_phys_PU3",
+      "group": "TEST_8_ROBUSTNESS",
+      "passed": true,
+      "expected": "rcpt_phys_PU3",
+      "actual": "rcpt_phys_PU3",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.71-67",
+      "name": "fsVoidRecordSafe(\"receipts\", \"PU3\") marks rcpt_phys_PU3 voided: true",
+      "group": "TEST_8_ROBUSTNESS",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.71-68",
+      "name": "fsVoidRecordSafe(\"receipts\", \"PU3\") marks res_phys_PU3 status: \"voided\"",
+      "group": "TEST_8_ROBUSTNESS",
+      "passed": true,
+      "expected": "status: voided, voided: true",
+      "actual": "status: voided, voided: true",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.71-69",
+      "name": "Master catalogue preserved with 15 predefined items",
+      "group": "REGRESSION",
+      "passed": true,
+      "expected": 15,
+      "actual": 15,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.71-70",
+      "name": "Billing submission handler billingSubmitForm() preserved",
+      "group": "REGRESSION",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.71-71",
+      "name": "Linked billing/receipt voiding fsVoidLinkedBillingAndReceipt() preserved",
+      "group": "REGRESSION",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    }
+  ]
+}

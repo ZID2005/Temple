@@ -1,0 +1,460 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // =========================================================================
+    // STEP 33.161 — HARDENED LEAST-PRIVILEGE FIRESTORE SECURITY RULES CANDIDATE
+    // Project: Temple Accounts & Fund Management (temple-f4f7d)
+    // Temple: Marutha Chamundi Devi Temple / മറുതാ ചാമുണ്ഡി ദേവി ക്ഷേത്രം
+    // =========================================================================
+
+    // -------------------------------------------------------------------------
+    // AUTHENTICATION & AUTHORIZATION HELPERS
+    // -------------------------------------------------------------------------
+
+    // 1. Verify user authentication (Strict default-deny for all unauthenticated callers)
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // 2. Verify administrator authorization
+    // Checks (a) custom claim token.admin, (b) token.role, (c) primary administrator UID,
+    // or (d) registration in locked /system_admins directory.
+    function isAdmin() {
+      return isAuthenticated() && (
+        request.auth.token.admin == true ||
+        request.auth.token.role == 'admin' ||
+        request.auth.uid == 'rFvStQNfiINnPor66OzXuE1O9Lm1' ||
+        exists(/databases/$(database)/documents/system_admins/$(request.auth.uid))
+      );
+    }
+
+    // 3. Verify active disaster recovery restore session
+    function isRestoreSessionActive() {
+      return isAuthenticated() &&
+        exists(/databases/$(database)/documents/system/_restoreProgress) &&
+        get(/databases/$(database)/documents/system/_restoreProgress).data.status == 'in_progress' &&
+        get(/databases/$(database)/documents/system/_restoreProgress).data.restoredBy == request.auth.uid;
+    }
+
+    // 4. Verify valid voiding transition for financial audit documents
+    function isValidFinancialVoidTransition() {
+      return (!('voided' in resource.data) || resource.data.voided == false) &&
+        request.resource.data.voided == true &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'voided', 'voidReason', 'voidDate', 'voidedAt', 'updatedBy', 'updatedAt', 'status'
+        ]);
+    }
+
+    // 5. Check if fund is a protected core system fund (must never be deleted)
+    function isProtectedCoreFund(fundData) {
+      return fundData != null && ('name' in fundData) && (fundData.name in [
+        'General Temple Fund',
+        'Punarudharanam Fund',
+        'Chitty Fund'
+      ]);
+    }
+
+    // -------------------------------------------------------------------------
+    // SYSTEM & CONFIGURATION PROTECTION
+    // -------------------------------------------------------------------------
+
+    // 1. System Singleton Counters (/system/counters):
+    // Authenticated users can read and monotonically advance sequence counters.
+    // Sequence rollbacks and arbitrary field injections are strictly denied for normal callers.
+    // Administrators or active restore sessions can reset/restore counters with full audit trace.
+    // Physical deletion is strictly prohibited.
+    match /system/counters {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && (
+        !exists(/databases/$(database)/documents/system/counters) || isAdmin() || isRestoreSessionActive()
+      );
+      allow update: if isAuthenticated() && (
+        // Path A: Administrator or active restore session (commissioning, reset, disaster recovery)
+        isAdmin() || isRestoreSessionActive() ||
+        // Path B: Standard monotonic sequence advance by authenticated operator
+        (
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+            'globalSequenceCounter', 'billingReceiptCounter', 'receiptCounter', 'voucherCounter',
+            'receiptPrefix', 'voucherPrefix', 'billingPrefix', 'billingReceiptPrefix',
+            'updatedAt', 'initializedAt', '_restoredAt', '_restoredBy', '_firestoreId', '_firestoreCollection',
+            'commissionedAt', 'commissionedBy', 'previousGlobalSequenceCounter', 'previousBillingReceiptCounter'
+          ]) &&
+          request.resource.data.globalSequenceCounter is int &&
+          (!('globalSequenceCounter' in resource.data) || (request.resource.data.globalSequenceCounter >= resource.data.globalSequenceCounter)) &&
+          (!('billingReceiptCounter' in request.resource.data) || (request.resource.data.billingReceiptCounter is int && (!('billingReceiptCounter' in resource.data) || request.resource.data.billingReceiptCounter >= resource.data.billingReceiptCounter))) &&
+          (!('receiptCounter' in request.resource.data) || (request.resource.data.receiptCounter is int && (!('receiptCounter' in resource.data) || request.resource.data.receiptCounter >= resource.data.receiptCounter))) &&
+          (!('voucherCounter' in request.resource.data) || (request.resource.data.voucherCounter is int && (!('voucherCounter' in resource.data) || request.resource.data.voucherCounter >= resource.data.voucherCounter)))
+        )
+      );
+      allow delete: if false;
+    }
+
+    // 2. System Restore Progress Tracker (/system/_restoreProgress):
+    // Dedicated system document tracking disaster recovery restoration phases.
+    // Progress writes are strictly authorized for initiating operator.
+    // Physical deletion is strictly prohibited to preserve audit history.
+    match /system/_restoreProgress {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() &&
+        request.resource.data.sessionId is string &&
+        request.resource.data.sessionId.matches('^rst_[0-9]+$') &&
+        request.resource.data.status == 'in_progress' &&
+        request.resource.data.restoredBy == request.auth.uid &&
+        request.resource.data.keys().hasAll(['sessionId', 'status', 'startedAt', 'currentPhase', 'completedPhases', 'restoredBy']);
+      allow update: if isAuthenticated() &&
+        request.resource.data.sessionId is string &&
+        request.resource.data.sessionId.matches('^rst_[0-9]+$') &&
+        request.resource.data.status in ['in_progress', 'completed', 'interrupted'] &&
+        request.resource.data.restoredBy == request.auth.uid &&
+        request.resource.data.keys().hasAll(['sessionId', 'status', 'startedAt', 'currentPhase', 'completedPhases', 'restoredBy']) &&
+        (
+          resource.data.restoredBy == request.auth.uid ||
+          resource.data.status in ['completed', 'interrupted']
+        );
+      allow delete: if false;
+    }
+
+    // 3. Sequence Number & Physical Receipt Reservations (/system/{resId}):
+    // Supports sequential billing reservations (res_{N}) AND physical receipt reservations (res_phys_{ID}).
+    // Must match sequence/physical format, valid structural schema, and authenticated caller UID.
+    // Existing reservations are immutable except for atomic voiding transitions.
+    // Physical deletion is strictly prohibited.
+    match /system/{resId} {
+      allow read: if isAuthenticated() && (
+        resId.matches('^res_[0-9]+$') || resId.matches('^res_phys_[A-Za-z0-9]+$')
+      );
+      
+      allow create: if isAuthenticated() && (
+        // Branch 1: Sequential Number Reservations (res_{N})
+        (
+          resId.matches('^res_[0-9]+$') &&
+          request.resource.data.seqNumber is int &&
+          request.resource.data.seqNumber > 0 &&
+          resId == ('res_' + string(request.resource.data.seqNumber)) &&
+          ((request.resource.data.type == 'billing_linked' && request.resource.data.source == 'billing') ||
+           (request.resource.data.type == 'independent_receipt' && request.resource.data.source == 'receipts')) &&
+          (!('operationId' in request.resource.data) || (request.resource.data.operationId is string && request.resource.data.operationId.matches('^op_[A-Za-z0-9_-]+$'))) &&
+          request.resource.data.keys().hasAll(['seqNumber', 'formattedNo', 'type', 'status', 'voided', 'createdBy', 'source']) &&
+          (
+            (
+              request.resource.data.createdBy == request.auth.uid &&
+              request.resource.data.status == 'active' &&
+              request.resource.data.voided == false
+            ) ||
+            (
+              isRestoreSessionActive() &&
+              request.resource.data._restoredBy == request.auth.uid &&
+              request.resource.data._restoredAt is string &&
+              request.resource.data.createdBy is string &&
+              request.resource.data.createdBy.size() > 0 &&
+              (
+                (request.resource.data.status == 'active' && request.resource.data.voided == false) ||
+                (request.resource.data.status == 'voided' && request.resource.data.voided == true)
+              )
+            )
+          )
+        ) ||
+        // Branch 2: Physical Receipt Reservations (res_phys_{formattedId})
+        (
+          resId.matches('^res_phys_[A-Za-z0-9]+$') &&
+          request.resource.data.type == 'physical_receipt' &&
+          request.resource.data.formattedNo is string &&
+          request.resource.data.formattedNo.size() > 0 &&
+          resId == ('res_phys_' + request.resource.data.formattedNo) &&
+          (!('operationId' in request.resource.data) || (request.resource.data.operationId is string && request.resource.data.operationId.matches('^op_[A-Za-z0-9_-]+$'))) &&
+          request.resource.data.keys().hasAll(['formattedNo', 'type', 'status', 'voided', 'createdBy']) &&
+          (
+            (
+              request.resource.data.createdBy == request.auth.uid &&
+              request.resource.data.status == 'active' &&
+              request.resource.data.voided == false
+            ) ||
+            (
+              isRestoreSessionActive() &&
+              request.resource.data._restoredBy == request.auth.uid &&
+              request.resource.data._restoredAt is string &&
+              request.resource.data.createdBy is string &&
+              request.resource.data.createdBy.size() > 0 &&
+              (
+                (request.resource.data.status == 'active' && request.resource.data.voided == false) ||
+                (request.resource.data.status == 'voided' && request.resource.data.voided == true)
+              )
+            )
+          )
+        )
+      );
+        
+      allow update: if isAuthenticated() && (
+        (resId.matches('^res_[0-9]+$') || resId.matches('^res_phys_[A-Za-z0-9]+$')) &&
+        (!('voided' in resource.data) || resource.data.voided == false) &&
+        request.resource.data.voided == true &&
+        request.resource.data.status == 'voided' &&
+        (!('seqNumber' in request.resource.data) || request.resource.data.seqNumber == resource.data.seqNumber) &&
+        (!('type' in request.resource.data) || request.resource.data.type == resource.data.type) &&
+        (!('createdBy' in request.resource.data) || request.resource.data.createdBy == resource.data.createdBy) &&
+        (!('formattedNo' in request.resource.data) || !('formattedNo' in resource.data) || request.resource.data.formattedNo == resource.data.formattedNo) &&
+        (!('operationId' in request.resource.data) || !('operationId' in resource.data) || request.resource.data.operationId == resource.data.operationId)
+      );
+        
+      allow delete: if false;
+    }
+
+    // 4. Idempotency Operation Audit Records (/system/{opId}):
+    // Created atomically during billing, independent receipt, and physical receipt transactions.
+    // 100% write-once and immutable: modification and deletion are strictly denied.
+    match /system/{opId} {
+      allow read: if isAuthenticated() && opId.matches('^op_[A-Za-z0-9_-]+$');
+      
+      allow create: if isAuthenticated() &&
+        opId.matches('^op_[A-Za-z0-9_-]+$') &&
+        request.resource.data.operationId is string &&
+        request.resource.data.operationId == opId &&
+        request.resource.data.status == 'committed' &&
+        request.resource.data.fingerprint is string &&
+        (
+          // Sequential billing or independent receipt
+          (
+            (request.resource.data.type == 'billing_linked' || request.resource.data.type == 'independent_receipt') &&
+            request.resource.data.seqNumber is int &&
+            request.resource.data.seqNumber > 0 &&
+            request.resource.data.keys().hasAll(['operationId', 'type', 'status', 'seqNumber', 'formattedNo', 'fingerprint', 'createdBy'])
+          ) ||
+          // Physical receipt
+          (
+            request.resource.data.type == 'physical_receipt' &&
+            request.resource.data.physicalId is string &&
+            request.resource.data.physicalId.size() > 0 &&
+            request.resource.data.keys().hasAll(['operationId', 'type', 'status', 'physicalId', 'fingerprint', 'createdBy'])
+          )
+        ) &&
+        (
+          // Path 1: Normal Application Creation (bound to current caller UID)
+          (request.resource.data.createdBy == request.auth.uid) ||
+          // Path 2: Disaster Recovery Restore (preserves historical author UID)
+          (
+            isRestoreSessionActive() &&
+            request.resource.data._restoredBy == request.auth.uid &&
+            request.resource.data._restoredAt is string &&
+            request.resource.data.createdBy is string &&
+            request.resource.data.createdBy.size() > 0
+          )
+        );
+        
+      allow update: if false;
+      allow delete: if false;
+    }
+
+    // 5. Locked System Administrators Directory (/system_admins/{adminUid}):
+    // Client write is strictly denied. Seeded only via controlled backend/CLI or direct console.
+    match /system_admins/{adminUid} {
+      allow read: if isAuthenticated();
+      allow write: if false;
+    }
+
+    // 6. Settings collection (/settings/{docId}):
+    // Read: All authenticated users.
+    // Create & Update: Administrators or active restore session only.
+    // Delete: Strictly prohibited.
+    match /settings/{docId} {
+      allow read: if isAuthenticated();
+      allow create, update: if isAdmin() || isRestoreSessionActive();
+      allow delete: if false;
+    }
+
+    // -------------------------------------------------------------------------
+    // PROTECTED FINANCIAL AUDIT RECORDS (NON-DESTRUCTIVE / VOID-ONLY)
+    // -------------------------------------------------------------------------
+
+    // 7. Billing records (/billing/{docId}):
+    // Create: Authenticated callers (bound to caller UID) or disaster recovery.
+    // Update: Non-destructive voiding transition ONLY. Financial amounts, items, devotee name,
+    //         and numbers CANNOT be tampered with once committed.
+    // Delete: Strictly prohibited.
+    match /billing/{docId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && (
+        // Path 1: Normal creation (caller bound, active, non-voided)
+        (
+          request.resource.data.createdBy == request.auth.uid &&
+          (!('voided' in request.resource.data) || request.resource.data.voided == false) &&
+          request.resource.data.totalAmount is number &&
+          request.resource.data.totalAmount >= 0
+        ) ||
+        // Path 2: Disaster Recovery Restore
+        (isRestoreSessionActive() && request.resource.data._restoredBy == request.auth.uid)
+      );
+      allow update: if isAuthenticated() && (
+        // Only permit voiding transitions: cannot alter financial amounts, items, or devotee name
+        isValidFinancialVoidTransition() ||
+        (isRestoreSessionActive() && request.resource.data._restoredBy == request.auth.uid)
+      );
+      allow delete: if false;
+    }
+
+    // 8. Receipts records (/receipts/{docId}):
+    // Supports sequential accounting receipts and physical receipts (rcpt_phys_*).
+    // Create: Authenticated callers or disaster recovery.
+    // Update: Non-destructive voiding transition ONLY. Financial details cannot be edited.
+    // Delete: Strictly prohibited.
+    match /receipts/{docId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && (
+        // Path 1: Normal creation (caller bound, active, non-voided)
+        (
+          request.resource.data.createdBy == request.auth.uid &&
+          (!('voided' in request.resource.data) || request.resource.data.voided == false) &&
+          request.resource.data.amount is number &&
+          request.resource.data.amount >= 0
+        ) ||
+        // Path 2: Disaster Recovery Restore
+        (isRestoreSessionActive() && request.resource.data._restoredBy == request.auth.uid)
+      );
+      allow update: if isAuthenticated() && (
+        // Only permit voiding transitions: cannot alter amount, fund, category, or receipt numbers
+        isValidFinancialVoidTransition() ||
+        (isRestoreSessionActive() && request.resource.data._restoredBy == request.auth.uid)
+      );
+      allow delete: if false;
+    }
+
+    // 9. Payment Vouchers (/payments/{docId}):
+    // Create: Authenticated callers.
+    // Update: Permitted on active unvoided payments (for details) or transition to voided.
+    //         Re-activating or tampering with an already voided voucher is strictly prohibited.
+    // Delete: Strictly prohibited.
+    match /payments/{docId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && (
+        (request.resource.data.amount is number && request.resource.data.amount > 0) ||
+        isRestoreSessionActive()
+      );
+      allow update: if isAuthenticated() && (
+        isRestoreSessionActive() ||
+        // Unvoided payment being updated, or payment transitioning to voided
+        (!('voided' in resource.data) || resource.data.voided == false)
+      );
+      allow delete: if false;
+    }
+
+    // 10. Fund Transfers (/transfers/{docId}):
+    // Create: Authenticated callers.
+    // Update: Permitted on active unvoided transfers or transition to voided.
+    // Delete: Strictly prohibited.
+    match /transfers/{docId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && (
+        (request.resource.data.amount is number && request.resource.data.amount > 0) ||
+        isRestoreSessionActive()
+      );
+      allow update: if isAuthenticated() && (
+        isRestoreSessionActive() ||
+        (!('voided' in resource.data) || resource.data.voided == false)
+      );
+      allow delete: if false;
+    }
+
+    // 11. Loans & Advances (/loans/{docId}):
+    // Create & Update: Authenticated callers.
+    // Delete: Strictly prohibited to preserve loan accounting history.
+    match /loans/{docId} {
+      allow read: if isAuthenticated();
+      allow create, update: if isAuthenticated();
+      allow delete: if false;
+    }
+
+    // 12. Chitty Collections & Payouts:
+    // Create: Authenticated callers.
+    // Update: Permitted on unvoided records or transition to voided.
+    // Delete: Strictly prohibited to protect chitty scheme audit trail.
+    match /chittyCollections/{docId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated() && (
+        isRestoreSessionActive() ||
+        (!('voided' in resource.data) || resource.data.voided == false)
+      );
+      allow delete: if false;
+    }
+
+    // 13. Chitty Payouts (/chittyPayouts/{docId}):
+    match /chittyPayouts/{docId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated() && (
+        isRestoreSessionActive() ||
+        (!('voided' in resource.data) || resource.data.voided == false)
+      );
+      allow delete: if false;
+    }
+
+    // 14. Chitty Members Roster (/chittyMembers/{docId}):
+    // Read: Authenticated callers.
+    // Create & Update: Authenticated callers.
+    // Delete: Permitted for authenticated callers (application enforces zero collections/payouts check).
+    match /chittyMembers/{docId} {
+      allow read: if isAuthenticated();
+      allow create, update: if isAuthenticated();
+      allow delete: if isAuthenticated();
+    }
+
+    // -------------------------------------------------------------------------
+    // MASTER DATA COLLECTIONS (ROLE-RESTRICTED / LEAST-PRIVILEGE)
+    // -------------------------------------------------------------------------
+
+    // 15. Funds collection (/funds/{docId}):
+    // Read: Authenticated callers (needed for dropdowns, reports, billing).
+    // Write (Create/Update): Administrators or active restore session only.
+    // Delete: Administrators only, provided fund is NOT a protected core system fund.
+    match /funds/{docId} {
+      allow read: if isAuthenticated();
+      allow create, update: if isAdmin() || isRestoreSessionActive();
+      allow delete: if isAdmin() && (resource == null || !isProtectedCoreFund(resource.data));
+    }
+
+    // 16. Bank Accounts collection (/bankAccounts/{docId}):
+    // Read: Authenticated callers.
+    // Write & Delete: Administrators or active restore session only.
+    match /bankAccounts/{docId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin() || isRestoreSessionActive();
+    }
+
+    // 17. Income Categories collection (/incomeCategories/{docId}):
+    // Read: Authenticated callers.
+    // Write & Delete: Administrators or active restore session only.
+    match /incomeCategories/{docId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin() || isRestoreSessionActive();
+    }
+
+    // 18. Expense Categories collection (/expenseCategories/{docId}):
+    // Read: Authenticated callers.
+    // Write & Delete: Administrators or active restore session only.
+    match /expenseCategories/{docId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin() || isRestoreSessionActive();
+    }
+
+    // -------------------------------------------------------------------------
+    // DIAGNOSTICS & MIGRATION STAGING
+    // -------------------------------------------------------------------------
+
+    // 19. Diagnostics collection: authenticated callers
+    match /__system_diagnostics__/{docId} {
+      allow read, write, delete: if isAuthenticated();
+    }
+
+    // 20. Migration staging namespace: restricted to administrators or active restore
+    match /migration_staging/{migrationId} {
+      allow read, write: if isAdmin() || isRestoreSessionActive();
+      
+      match /{subCollection}/{docId} {
+        allow read, write: if isAdmin() || isRestoreSessionActive();
+      }
+    }
+
+    // NOTE: All unknown / unlisted collections are implicitly denied by default.
+  }
+}

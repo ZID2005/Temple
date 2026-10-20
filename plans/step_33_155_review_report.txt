@@ -1,0 +1,96 @@
+========================================================================
+  TEMPLE ACCOUNTS CANDIDATE CLEANUP REVIEW REPORT (STEP 33.155)
+========================================================================
+  Script Version : 33.155.0
+  Report Date    : 2026-10-20T07:22:50.453Z
+  Mode           : CANDIDATE DRY-RUN ONLY (execution permanently locked)
+  Eligible       : YES - Candidate plan is internally consistent
+========================================================================
+
+SECTION 1 - SOURCE IDENTITY
+----------------------------------------
+  Backup File SHA-256    : 2EDC31B88FFC799350F6CA22B3F9531336F616D7F7EA8BB7790E9E5C31F15738
+  Backup Payload SHA-256 : 7AC91CB36A108BB4B15E431E84816902DA6D3EB3A7C2510D4FF1513292E5B520
+  Manifest File SHA-256  : 6ED0F2BF4EE33E8F4986700A4F88E19B62B4B95D4068C789DBB3D5B5B8C0004E
+  Manifest Generated At  : 2026-10-20T07:22:50.386Z
+
+SECTION 2 - SCOPE COMPOSITION
+----------------------------------------
+  Retained STEP 33.153 Accepted Targets : 392 records
+  Reconciled STEP 33.154 Candidates      :  16 records
+    - Legacy 2-Way Pairs (Bill/Rcpt)     :   6 records (3 pairs: bill_12/1018, bill_13/1019, bill_14/14)
+    - Standalone Independent Receipts    :   5 records (rcpt_1010, 1011, 1014, 1015, 1020)
+    - Voided Tombstone Stubs             :   5 records (rcpt_1006, 1007, 1008, 1012, 1013)
+  Authorized Test Data (Group D)         :   4 records (rcpt_1001, rcpt_1002, rcpt_1003, rcpt_1017)
+  TOTAL PROPOSED CANDIDATES              : 412 records
+
+SECTION 3 - KNOWN RELATIONSHIP EXCEPTIONS
+----------------------------------------
+  Receipt ID        : receipts/rcpt_1001
+  Exception Type    : CONFLICTING_RECIPROCAL_LINK
+  Referenced Doc    : billing/bill_1 (In scope: true)
+  Relationship Edge : INVALID / NOT VERIFIED (Documented Exception)
+  Details           : Pre-unified smoke test receipt (2026-09-27) references bill_1 (BILL-0001). However, bill_1 in the database is a modern test record (2026-10-10, Rs. 250) that reciprocally links to rcpt_1. Reservation doc res_1001 is absent.
+  Authorization     : User explicitly authorized as known test data. Superseded legacy link recorded as known exception.
+
+  Receipt ID        : receipts/rcpt_1002
+  Exception Type    : MISSING_REFERENCED_BILL
+  Referenced Doc    : billing/bill_2 (In scope: false)
+  Relationship Edge : INVALID / NOT VERIFIED (Documented Exception)
+  Details           : Pre-unified smoke test receipt (2026-09-28) references bill_2 (BILL-0002). bill_2 is ABSENT from the local backup export. Reservation doc res_1002 is absent.
+  Authorization     : User explicitly authorized as known test data. Missing bill_2 recorded as known exception (not assumed absent from live Firestore).
+
+  Receipt ID        : receipts/rcpt_1003
+  Exception Type    : MISSING_REFERENCED_BILL
+  Referenced Doc    : billing/bill_3 (In scope: false)
+  Relationship Edge : INVALID / NOT VERIFIED (Documented Exception)
+  Details           : Pre-unified smoke test receipt (2026-09-30) references bill_3 (BILL-0003). bill_3 is ABSENT from the local backup export. Reservation doc res_1003 is absent.
+  Authorization     : User explicitly authorized as known test data. Missing bill_3 recorded as known exception (not assumed absent from live Firestore).
+
+  Receipt ID        : receipts/rcpt_1017
+  Exception Type    : CONFLICTING_RECIPROCAL_LINK
+  Referenced Doc    : billing/bill_11 (In scope: true)
+  Relationship Edge : INVALID / NOT VERIFIED (Documented Exception)
+  Details           : Pre-unified smoke test receipt (2026-10-03) references bill_11 (BILL-0011). However, bill_11 in the database is a modern test record (2026-10-11, Rs. 750) that reciprocally links to rcpt_11. Reservation doc res_1017 is absent.
+  Authorization     : User explicitly authorized as known test data. Superseded legacy link recorded as known exception.
+
+SECTION 4 - PRESERVED DATA STRUCTURES
+----------------------------------------
+  Application Master Data (84 docs) : STRICTLY PRESERVED (0 targets in candidate scope)
+    - settings (1), funds (3), incomeCategories (4), expenseCategories (71), bankAccounts (2), chittyMembers (3)
+  System Counters (1 doc)           : STRICTLY PRESERVED (rcpt: 1020, vchr: 502, bill: 100, global: 100)
+  Physical Receipt History          : STRICTLY PRESERVED (0 physical records in backup; all protected)
+  Application Code & Rules          : STRICTLY PRESERVED (Temple_Accounts-1.html, firestore.rules)
+
+SECTION 5 - TARGET SUMMARY
+----------------------------------------
+  Total manifest targets : 412
+  Accepted               : 412
+  Rejected               : 0
+  Fingerprint errors     : 0
+  Linkage errors         : 0
+  Known exceptions       : 4
+  Verified edges         : 569
+
+SECTION 6 - TOPOLOGICAL STAGES
+----------------------------------------
+  Stage 1: Historical & Diagnostics (0 records)
+  Stage 2: Sub-Ledger Financial (10 records)
+  Stage 3: Accounting Receipts (114 records)
+  Stage 4: Vazhipadu Billing Records (94 records)
+  Stage 5: Software Sequences & Idempotency (194 records)
+
+SECTION 7 - BACKUP OMISSIONS & GAPS
+----------------------------------------
+  NOTICE: Application backup does NOT include: _restoreProgress, _resetJournal, _maintenanceLock, _cleanupProgress.
+  NOTICE: Firebase Auth users/passwords NOT included in document exports.
+  NOTICE: firestore.rules NOT included in document exports.
+  NOTICE: Application restore is additive safe-merge - NOT exact rollback.
+  NOTICE: File SHA-256 proves raw byte integrity only; not complete Firestore coverage.
+  NOTICE: Absence from backup does not prove absence from live Firestore (e.g. bill_2, bill_3).
+  NOTICE: Authoritative Google Cloud Firestore managed export (gcloud firestore export gs://<bucket>) is a mandatory prerequisite prior to any live deletion.
+
+========================================================================
+  EXECUTION STATUS: UNCONDITIONALLY LOCKED
+  All deletion methods throw EXECUTE_MODE_DISABLED.
+========================================================================

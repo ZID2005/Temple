@@ -1,0 +1,508 @@
+{
+  "step": "33.60",
+  "feature": "Multiple Devotees & 80 mm Thermal Receipt Implementation",
+  "timestamp": "2026-10-17T16:46:42.508Z",
+  "environment": {
+    "nodeVersion": "v24.14.0",
+    "os": "win32",
+    "htmlPath": "D:\\Temple\\Temple_Accounts-1.html",
+    "htmlSizeBytes": 832515,
+    "htmlSha256": "C3C7E60A0D4DA1C7A1F225C28EDCCE125529388FAF92F9F4AEF8F7E26B7BE5D2",
+    "physicalPrinterStatus": "NOT TESTED"
+  },
+  "scenarios": [
+    {
+      "id": "SCEN-01",
+      "tests": [
+        {
+          "testId": "T1",
+          "title": "Receipt renders 80mm container markup with devotee roster section",
+          "passed": true,
+          "expected": true,
+          "actual": true,
+          "details": ""
+        },
+        {
+          "testId": "T2",
+          "title": "Devotee roster renders 1 devotee row with index 1, name, and star",
+          "passed": true,
+          "expected": true,
+          "actual": true,
+          "details": ""
+        },
+        {
+          "testId": "T3",
+          "title": "Single devotee calculation rate ₹20 × 1 = ₹20",
+          "passed": true,
+          "expected": 20,
+          "actual": 20,
+          "details": ""
+        },
+        {
+          "testId": "T4",
+          "title": "Vazhipadu maps to General Temple Fund for single devotee",
+          "passed": true,
+          "expected": "General Temple Fund",
+          "actual": "General Temple Fund",
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": "SCEN-02",
+      "tests": [
+        {
+          "testId": "T1",
+          "title": "Two devotees produce total ₹40 (2 × ₹20)",
+          "passed": true,
+          "expected": 40,
+          "actual": 40,
+          "details": ""
+        },
+        {
+          "testId": "T2",
+          "title": "Both devotee rows appear with their individual stars in receipt roster",
+          "passed": true,
+          "expected": true,
+          "actual": true,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": "SCEN-03",
+      "tests": [
+        {
+          "testId": "T1",
+          "title": "6 Archana devotees produce exact total ₹120 (6 × ₹20)",
+          "passed": true,
+          "expected": 120,
+          "actual": 120,
+          "details": ""
+        },
+        {
+          "testId": "T2",
+          "title": "Receipt renders exactly 6 roster rows vertically",
+          "passed": true,
+          "expected": 6,
+          "actual": 6,
+          "details": ""
+        },
+        {
+          "testId": "T3",
+          "title": "All 6 devotee names and stars are present in thermal receipt",
+          "passed": true,
+          "expected": true,
+          "actual": true,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": "SCEN-04",
+      "tests": [
+        {
+          "testId": "T1",
+          "title": "12 devotees calculate total ₹600 (12 × ₹50)",
+          "passed": true,
+          "expected": 600,
+          "actual": 600,
+          "details": ""
+        },
+        {
+          "testId": "T2",
+          "title": "Receipt renders all 12 devotees vertically without truncation",
+          "passed": true,
+          "expected": 12,
+          "actual": 12,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": "SCEN-05",
+      "tests": [
+        {
+          "testId": "T1",
+          "title": "Long Malayalam devotee name renders intact in receipt HTML",
+          "passed": true,
+          "expected": true,
+          "actual": true,
+          "details": ""
+        },
+        {
+          "testId": "T2",
+          "title": "Roster name element has word-break and line-height style for clean multiline wrapping",
+          "passed": true,
+          "expected": true,
+          "actual": true,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": "SCEN-06",
+      "tests": [
+        {
+          "testId": "T1",
+          "title": "Every devotee maintains their distinct nakshatram without crosstalk",
+          "passed": true,
+          "expected": true,
+          "actual": true,
+          "details": ""
+        },
+        {
+          "testId": "T2",
+          "title": "Deterministic fingerprint canonicalizes full roster with individual stars",
+          "passed": true,
+          "expected": true,
+          "actual": true,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": "SCEN-07",
+      "tests": [
+        {
+          "testId": "T1",
+          "title": "Validation detects empty name in row 2 and halts submission",
+          "passed": true,
+          "expected": 1,
+          "actual": 1,
+          "details": ""
+        },
+        {
+          "testId": "T2",
+          "title": "Devotee with empty star is accepted without error",
+          "passed": true,
+          "expected": true,
+          "actual": true,
+          "details": ""
+        },
+        {
+          "testId": "T3",
+          "title": "Receipt renders dash \"---\" for empty star gracefully",
+          "passed": true,
+          "expected": true,
+          "actual": true,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": "SCEN-08",
+      "tests": [
+        {
+          "testId": "T1",
+          "title": "Adding devotees dynamically updates roster length to 3",
+          "passed": true,
+          "expected": 3,
+          "actual": 3,
+          "details": ""
+        },
+        {
+          "testId": "T2",
+          "title": "Removing Devotee 2 preserves remaining rows with exact values",
+          "passed": true,
+          "expected": true,
+          "actual": true,
+          "details": ""
+        },
+        {
+          "testId": "T3",
+          "title": "Enforces at least 1 devotee row at all times; cannot remove last row",
+          "passed": true,
+          "expected": false,
+          "actual": false,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": "SCEN-09",
+      "tests": [
+        {
+          "testId": "T1",
+          "title": "isStrictPerPersonPuja correctly classifies Archana as per-person",
+          "passed": true,
+          "expected": true,
+          "actual": true,
+          "details": ""
+        },
+        {
+          "testId": "T2",
+          "title": "supportsSharedFamilyPuja correctly classifies Ganapathi Homam as shared",
+          "passed": true,
+          "expected": true,
+          "actual": true,
+          "details": ""
+        },
+        {
+          "testId": "T3",
+          "title": "syncQtyWithDevotees synchronizes qty to 4 for per-person puja",
+          "passed": true,
+          "expected": 4,
+          "actual": 4,
+          "details": ""
+        },
+        {
+          "testId": "T4",
+          "title": "syncQtyWithDevotees preserves qty 1 for shared puja with multiple devotees",
+          "passed": true,
+          "expected": 1,
+          "actual": 1,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": "SCEN-10",
+      "tests": [
+        {
+          "testId": "T1",
+          "title": "Custom Vazhipadu with 2 devotees calculates ₹150 × 2 = ₹300",
+          "passed": true,
+          "expected": 300,
+          "actual": 300,
+          "details": ""
+        },
+        {
+          "testId": "T2",
+          "title": "Thermal receipt displays actual custom puja name and full devotee roster",
+          "passed": true,
+          "expected": true,
+          "actual": true,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": "SCEN-11",
+      "tests": [
+        {
+          "testId": "T1",
+          "title": "Application enforces one selected puja per bill invariant",
+          "passed": true,
+          "expected": false,
+          "actual": false,
+          "details": ""
+        },
+        {
+          "testId": "T2",
+          "title": "Different pujas yield completely different operation fingerprints",
+          "passed": true,
+          "expected": "DIFFERENT",
+          "actual": "DIFFERENT",
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": "SCEN-12",
+      "tests": [
+        {
+          "testId": "T1",
+          "title": "Cash payment leaves bankAccount empty string",
+          "passed": true,
+          "expected": true,
+          "actual": true,
+          "details": ""
+        },
+        {
+          "testId": "T2",
+          "title": "Thermal receipt renders payment mode as Cash",
+          "passed": true,
+          "expected": true,
+          "actual": true,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": "SCEN-13",
+      "tests": [
+        {
+          "testId": "T1",
+          "title": "UPI payment associates default temple bank account",
+          "passed": true,
+          "expected": true,
+          "actual": true,
+          "details": ""
+        },
+        {
+          "testId": "T2",
+          "title": "Thermal receipt renders payment mode as UPI",
+          "passed": true,
+          "expected": true,
+          "actual": true,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": "SCEN-14",
+      "tests": [
+        {
+          "testId": "T1",
+          "title": "Application strictly enforces single payment mode (Cash OR UPI) per bill",
+          "passed": true,
+          "expected": false,
+          "actual": false,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": "SCEN-15",
+      "tests": [
+        {
+          "testId": "T1",
+          "title": "Search haystack finds bill by non-primary devotee name \"വാസന്തി\"",
+          "passed": true,
+          "expected": true,
+          "actual": true,
+          "details": ""
+        },
+        {
+          "testId": "T2",
+          "title": "Search haystack finds bill by non-primary devotee star \"ചിത്തിര\"",
+          "passed": true,
+          "expected": true,
+          "actual": true,
+          "details": ""
+        },
+        {
+          "testId": "T3",
+          "title": "Reprint renders both devotees in thermal ticket",
+          "passed": true,
+          "expected": true,
+          "actual": true,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": "SCEN-16",
+      "tests": [
+        {
+          "testId": "T1",
+          "title": "Receipt paper box styled with max-width: 380px for 80 mm realism",
+          "passed": true,
+          "expected": true,
+          "actual": true,
+          "details": ""
+        },
+        {
+          "testId": "T2",
+          "title": "@media print contains 80mm container (.billing-80mm / width: 80mm !important)",
+          "passed": true,
+          "expected": true,
+          "actual": true,
+          "details": ""
+        },
+        {
+          "testId": "T3",
+          "title": "Dynamic print injection enforces @page { size: 80mm auto; margin: 0; }",
+          "passed": false,
+          "expected": true,
+          "actual": true,
+          "details": ""
+        },
+        {
+          "testId": "T4",
+          "title": "Chassis brand emblem displays TEMPLE POS-80",
+          "passed": true,
+          "expected": true,
+          "actual": true,
+          "details": ""
+        },
+        {
+          "testId": "T5",
+          "title": "Physical printer status explicitly reported as NOT TESTED",
+          "passed": true,
+          "expected": "NOT TESTED",
+          "actual": "NOT TESTED",
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": "SCEN-17",
+      "tests": [
+        {
+          "testId": "T1",
+          "title": "Historical record without devotees array renders without exceptions",
+          "passed": true,
+          "expected": true,
+          "actual": true,
+          "details": ""
+        },
+        {
+          "testId": "T2",
+          "title": "Legacy devotee name and star rendered via automatic fallback",
+          "passed": true,
+          "expected": true,
+          "actual": true,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": "SCEN-18",
+      "tests": [
+        {
+          "testId": "T1",
+          "title": "JSON serialization preserves devotees array and objects with 100% fidelity",
+          "passed": true,
+          "expected": true,
+          "actual": true,
+          "details": ""
+        },
+        {
+          "testId": "T2",
+          "title": "Restored devotee names and stars match original inputs identically",
+          "passed": true,
+          "expected": true,
+          "actual": true,
+          "details": ""
+        }
+      ]
+    },
+    {
+      "id": "SCEN-19",
+      "tests": [
+        {
+          "testId": "T1",
+          "title": "Voided multi-devotee receipt displays prominent VOID banner",
+          "passed": true,
+          "expected": true,
+          "actual": true,
+          "details": ""
+        },
+        {
+          "testId": "T2",
+          "title": "Void reason is explicitly printed on thermal receipt",
+          "passed": true,
+          "expected": true,
+          "actual": true,
+          "details": ""
+        },
+        {
+          "testId": "T3",
+          "title": "Voided multi-devotee receipt retains full devotee roster for audit inspection",
+          "passed": true,
+          "expected": true,
+          "actual": true,
+          "details": ""
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "total": 49,
+    "passed": 48,
+    "failed": 1,
+    "physicalPrinterTested": false
+  }
+}

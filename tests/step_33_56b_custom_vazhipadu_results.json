@@ -1,0 +1,555 @@
+{
+  "step": "33.56B",
+  "feature": "Custom Vazhipadu Implementation & Full-System Integration",
+  "timestamp": "2026-10-14T09:29:24.699Z",
+  "projectId": "demo-step3356b-1791970164459",
+  "summary": {
+    "total": 60,
+    "passed": 60,
+    "failed": 0,
+    "blocked": 0,
+    "verdict": "PASS"
+  },
+  "tests": [
+    {
+      "testId": "TC-03-A",
+      "name": "BILLING_DEFAULT_ITEMS exists in source",
+      "category": "CATALOGUE",
+      "status": "PASS",
+      "expected": true,
+      "actual": true,
+      "notes": ""
+    },
+    {
+      "testId": "TC-03-B",
+      "name": "13-Item predefined Vazhipadu invariant preserved in BILLING_DEFAULT_ITEMS",
+      "category": "CATALOGUE",
+      "status": "PASS",
+      "expected": 13,
+      "actual": 13,
+      "notes": ""
+    },
+    {
+      "testId": "TC-24-A",
+      "name": "Combined item നൂൽജപം/അർച്ചന exists with ₹20 price",
+      "category": "CATALOGUE",
+      "status": "PASS",
+      "expected": "₹20 fixed",
+      "actual": "₹20",
+      "notes": ""
+    },
+    {
+      "testId": "TC-24-B",
+      "name": "Correct spelling മറുതക് ചെറിയ പടുക്ക preserved with ₹100 price",
+      "category": "CATALOGUE",
+      "status": "PASS",
+      "expected": "₹100 fixed",
+      "actual": "₹100",
+      "notes": ""
+    },
+    {
+      "testId": "TC-25-A",
+      "name": "Punarudharanam category in master catalogue unchanged",
+      "category": "CATALOGUE",
+      "status": "PASS",
+      "expected": 1,
+      "actual": 1,
+      "notes": ""
+    },
+    {
+      "testId": "TC-01",
+      "name": "Custom Vazhipadu option appended in Vazhipadu category",
+      "category": "UI",
+      "status": "PASS",
+      "expected": "Option 13 is കസ്റ്റം വഴിപാട്",
+      "actual": "കസ്റ്റം വഴിപാട്",
+      "notes": ""
+    },
+    {
+      "testId": "TC-01-CHIP",
+      "name": "Custom Vazhipadu chip button rendered in chips container",
+      "category": "UI",
+      "status": "PASS",
+      "expected": "Bilingual chip exists",
+      "actual": "Chip rendered with Custom",
+      "notes": ""
+    },
+    {
+      "testId": "TC-02",
+      "name": "Custom Vazhipadu does NOT appear in Punarudharanam",
+      "category": "UI",
+      "status": "PASS",
+      "expected": "Zero Custom options in Punarudharanam",
+      "actual": "Found 1 options",
+      "notes": ""
+    },
+    {
+      "testId": "TC-02-CHIP",
+      "name": "Custom chip does NOT appear in Punarudharanam chips",
+      "category": "UI",
+      "status": "PASS",
+      "expected": "Zero Custom chips in Punarudharanam",
+      "actual": "Found 1 chips",
+      "notes": ""
+    },
+    {
+      "testId": "TC-04",
+      "name": "Selecting Custom Vazhipadu reveals custom input row (#billingCustomItemRow)",
+      "category": "UI",
+      "status": "PASS",
+      "expected": "display: flex",
+      "actual": "flex",
+      "notes": ""
+    },
+    {
+      "testId": "TC-04-QTY",
+      "name": "Quantity stepper remains active (opacity: 1) for Custom Vazhipadu",
+      "category": "UI",
+      "status": "PASS",
+      "expected": "1",
+      "actual": "1",
+      "notes": ""
+    },
+    {
+      "testId": "TC-07",
+      "name": "Valid custom name and rate produce correct total (Qty 1: ₹150)",
+      "category": "CALCULATION",
+      "status": "PASS",
+      "expected": "₹150.00",
+      "actual": "₹150.00",
+      "notes": ""
+    },
+    {
+      "testId": "TC-08",
+      "name": "Quantity changes update line total correctly (Qty 3: ₹150 × 3 = ₹450)",
+      "category": "CALCULATION",
+      "status": "PASS",
+      "expected": "₹450.00 (₹150 × 3 = ₹450)",
+      "actual": "₹450.00 (₹150 × 3 = ₹450)",
+      "notes": ""
+    },
+    {
+      "testId": "TC-05",
+      "name": "Switching to predefined item hides custom fields and restores fixed price",
+      "category": "UI",
+      "status": "PASS",
+      "expected": "custom row hidden, ₹20 × 3 = ₹60",
+      "actual": "row: none, total: 60",
+      "notes": ""
+    },
+    {
+      "testId": "TC-05-CLEARED",
+      "name": "Custom inputs cleared when switching away from Custom Vazhipadu",
+      "category": "UI",
+      "status": "PASS",
+      "expected": "Cleared",
+      "actual": "name: \"\", rate: \"\"",
+      "notes": ""
+    },
+    {
+      "testId": "TC-06",
+      "name": "Switching categories clears custom fields and does not leak stale values",
+      "category": "UI",
+      "status": "PASS",
+      "expected": "Stale values cleared",
+      "actual": "row: none, name: \"\"",
+      "notes": ""
+    },
+    {
+      "testId": "TC-09-A",
+      "name": "Blank custom name rejected",
+      "category": "VALIDATION",
+      "status": "PASS",
+      "expected": "EMPTY_NAME",
+      "actual": "EMPTY_NAME",
+      "notes": ""
+    },
+    {
+      "testId": "TC-09-B",
+      "name": "Generic placeholder \"Custom\" rejected",
+      "category": "VALIDATION",
+      "status": "PASS",
+      "expected": "GENERIC_NAME",
+      "actual": "GENERIC_NAME",
+      "notes": ""
+    },
+    {
+      "testId": "TC-09-C",
+      "name": "Generic placeholder \"കസ്റ്റം വഴിപാട്\" rejected",
+      "category": "VALIDATION",
+      "status": "PASS",
+      "expected": "GENERIC_NAME",
+      "actual": "GENERIC_NAME",
+      "notes": ""
+    },
+    {
+      "testId": "TC-09-D",
+      "name": "Negative rate rejected (-50)",
+      "category": "VALIDATION",
+      "status": "PASS",
+      "expected": "INVALID_RATE",
+      "actual": "INVALID_RATE",
+      "notes": ""
+    },
+    {
+      "testId": "TC-09-E",
+      "name": "Malformed / NaN rate rejected (\"abc\")",
+      "category": "VALIDATION",
+      "status": "PASS",
+      "expected": "INVALID_RATE",
+      "actual": "INVALID_RATE",
+      "notes": ""
+    },
+    {
+      "testId": "TC-09-F",
+      "name": "Excessive rate (> ₹1,00,000) rejected",
+      "category": "VALIDATION",
+      "status": "PASS",
+      "expected": "RATE_EXCEEDS_LIMIT",
+      "actual": "RATE_EXCEEDS_LIMIT",
+      "notes": ""
+    },
+    {
+      "testId": "TC-10-A",
+      "name": "Zero quantity rejected",
+      "category": "VALIDATION",
+      "status": "PASS",
+      "expected": "INVALID_QTY",
+      "actual": "INVALID_QTY",
+      "notes": ""
+    },
+    {
+      "testId": "TC-10-B",
+      "name": "Negative quantity rejected",
+      "category": "VALIDATION",
+      "status": "PASS",
+      "expected": "INVALID_QTY",
+      "actual": "INVALID_QTY",
+      "notes": ""
+    },
+    {
+      "testId": "TC-10-C",
+      "name": "Fractional quantity rejected (1.5)",
+      "category": "VALIDATION",
+      "status": "PASS",
+      "expected": "INVALID_QTY",
+      "actual": "INVALID_QTY",
+      "notes": ""
+    },
+    {
+      "testId": "TC-11",
+      "name": "Zero-rate rejected as per application financial policy (total > 0 required)",
+      "category": "VALIDATION",
+      "status": "PASS",
+      "expected": "INVALID_RATE",
+      "actual": "INVALID_RATE",
+      "notes": ""
+    },
+    {
+      "testId": "AUTH-EMU",
+      "name": "Synthetic administrator authenticated on emulator",
+      "category": "EMULATOR",
+      "status": "PASS",
+      "expected": "Authenticated",
+      "actual": "Token acquired",
+      "notes": ""
+    },
+    {
+      "testId": "TC-12",
+      "name": "Actual custom puja name and rate persisted in billing record",
+      "category": "PERSISTENCE",
+      "status": "PASS",
+      "expected": "item: \"പ്രത്യേക ദേവി പൂജ\", unitPrice: 175.5, total: 351",
+      "actual": "item: \"പ്രത്യേക ദേവി പൂജ\", unitPrice: 175.5, total: 351",
+      "notes": ""
+    },
+    {
+      "testId": "TC-13",
+      "name": "Linked accounting receipt amount strictly matches billing total",
+      "category": "ACCOUNTING",
+      "status": "PASS",
+      "expected": "₹351",
+      "actual": "₹351",
+      "notes": ""
+    },
+    {
+      "testId": "TC-13-CLASS",
+      "name": "Linked accounting receipt mapped to General Temple Fund & Vazhipadu Income",
+      "category": "ACCOUNTING",
+      "status": "PASS",
+      "expected": "General Temple Fund / Vazhipadu Income",
+      "actual": "General Temple Fund / Vazhipadu Income",
+      "notes": ""
+    },
+    {
+      "testId": "TC-13-DESC",
+      "name": "Accounting receipt description includes actual custom puja name and quantity",
+      "category": "ACCOUNTING",
+      "status": "PASS",
+      "expected": "Contains \"പ്രത്യേക ദേവി പൂജ\" and \"Qty: 2\"",
+      "actual": "പ്രത്യേക ദേവി പൂജ (Qty: 2) | Star: രോഹിണി",
+      "notes": ""
+    },
+    {
+      "testId": "TC-14-A",
+      "name": "Actual custom puja name rendered on 58mm thermal receipt",
+      "category": "THERMAL_PRINT",
+      "status": "PASS",
+      "expected": "<b>പ്രത്യേക ദേവി പൂജ</b>",
+      "actual": "Custom name present",
+      "notes": ""
+    },
+    {
+      "testId": "TC-14-B",
+      "name": "Unit price and quantity rendered on thermal receipt",
+      "category": "THERMAL_PRINT",
+      "status": "PASS",
+      "expected": "Qty: <b>2</b> &times; ₹175.50",
+      "actual": "Formatted unit rate present",
+      "notes": ""
+    },
+    {
+      "testId": "TC-14-C",
+      "name": "Grand total rendered accurately on thermal receipt",
+      "category": "THERMAL_PRINT",
+      "status": "PASS",
+      "expected": "₹351.00",
+      "actual": "Total present",
+      "notes": ""
+    },
+    {
+      "testId": "TC-15",
+      "name": "Billing history search finds bill by custom puja name",
+      "category": "HISTORY",
+      "status": "PASS",
+      "expected": "Found Bill 101",
+      "actual": "Found 1 matching bills",
+      "notes": ""
+    },
+    {
+      "testId": "TC-16",
+      "name": "Reprint / view details preserves original custom item name, rate, and total",
+      "category": "REPRINT",
+      "status": "PASS",
+      "expected": "All custom fields intact",
+      "actual": "All custom fields intact",
+      "notes": ""
+    },
+    {
+      "testId": "TC-17-A",
+      "name": "Custom Vazhipadu recognized in liquid position exactly once",
+      "category": "ACCOUNTING",
+      "status": "PASS",
+      "expected": "₹351",
+      "actual": "₹351",
+      "notes": ""
+    },
+    {
+      "testId": "TC-17-B",
+      "name": "Custom Vazhipadu recognized in Cash balance exactly once",
+      "category": "ACCOUNTING",
+      "status": "PASS",
+      "expected": "₹351",
+      "actual": "₹351",
+      "notes": ""
+    },
+    {
+      "testId": "TC-17-C",
+      "name": "Custom Vazhipadu recognized in General Temple Fund exactly once",
+      "category": "ACCOUNTING",
+      "status": "PASS",
+      "expected": "₹351",
+      "actual": "₹351",
+      "notes": ""
+    },
+    {
+      "testId": "TC-17-D",
+      "name": "Zero double-counting: billing POS collection produces zero financial additions",
+      "category": "ACCOUNTING",
+      "status": "PASS",
+      "expected": "Counted exactly once via receipts",
+      "actual": "Counted exactly once via receipts",
+      "notes": ""
+    },
+    {
+      "testId": "TC-18-A",
+      "name": "Custom Vazhipadu Cash bill generates row in Cash Book",
+      "category": "CASH_BOOK",
+      "status": "PASS",
+      "expected": "Row with receipt ₹351",
+      "actual": "Row found with receipt ₹351",
+      "notes": ""
+    },
+    {
+      "testId": "TC-18-B",
+      "name": "Cash Book row category is \"Vazhipadu Income\"",
+      "category": "CASH_BOOK",
+      "status": "PASS",
+      "expected": "Vazhipadu Income",
+      "actual": "Vazhipadu Income",
+      "notes": ""
+    },
+    {
+      "testId": "TC-18-C",
+      "name": "Custom Vazhipadu UPI bill generates deposit row in Bank Book",
+      "category": "BANK_BOOK",
+      "status": "PASS",
+      "expected": "Row with deposit ₹351",
+      "actual": "Row found with deposit ₹351",
+      "notes": ""
+    },
+    {
+      "testId": "TC-19-A",
+      "name": "Billing Report CSV export contains actual custom puja name in Item column",
+      "category": "REPORTS",
+      "status": "PASS",
+      "expected": "പ്രത്യേക ദേവി പൂജ",
+      "actual": "പ്രത്യേക ദേവി പൂജ",
+      "notes": ""
+    },
+    {
+      "testId": "TC-19-B",
+      "name": "Billing Report CSV export contains validated custom rate in Unit Price column",
+      "category": "REPORTS",
+      "status": "PASS",
+      "expected": 175.5,
+      "actual": 175.5,
+      "notes": ""
+    },
+    {
+      "testId": "TC-19-C",
+      "name": "Billing Report CSV export contains validated line total in Total Amount column",
+      "category": "REPORTS",
+      "status": "PASS",
+      "expected": 351,
+      "actual": 351,
+      "notes": ""
+    },
+    {
+      "testId": "TC-19-D",
+      "name": "Item Summary Table groups bills by actual custom puja name",
+      "category": "REPORTS",
+      "status": "PASS",
+      "expected": "Grouped under \"പ്രത്യേക ദേവി പൂജ\" with total ₹351",
+      "actual": "Grouped with total ₹351",
+      "notes": ""
+    },
+    {
+      "testId": "TC-20-A",
+      "name": "Backup serializer preserves all custom fields without dropping data",
+      "category": "BACKUP_RESTORE",
+      "status": "PASS",
+      "expected": "All custom fields preserved",
+      "actual": "All custom fields preserved",
+      "notes": ""
+    },
+    {
+      "testId": "TC-20-B",
+      "name": "isValidMonetary accepts custom rate and line total",
+      "category": "BACKUP_RESTORE",
+      "status": "PASS",
+      "expected": true,
+      "actual": true,
+      "notes": ""
+    },
+    {
+      "testId": "TC-21-A",
+      "name": "Financial fingerprint incorporates actual custom puja name and rate",
+      "category": "IDEMPOTENCY",
+      "status": "PASS",
+      "expected": "Contains \"പ്രത്യേക ദേവി പൂജ\" and \"175.50\"",
+      "actual": "Fingerprint includes custom item & rate",
+      "notes": ""
+    },
+    {
+      "testId": "TC-21-B",
+      "name": "Idempotency operation record committed in emulator",
+      "category": "IDEMPOTENCY",
+      "status": "PASS",
+      "expected": "Committed",
+      "actual": "committed",
+      "notes": ""
+    },
+    {
+      "testId": "TC-22",
+      "name": "Monotonic sequence allocated for successive transactions (102, 103)",
+      "category": "NUMBERING",
+      "status": "PASS",
+      "expected": "102, 103",
+      "actual": "102, 103",
+      "notes": ""
+    },
+    {
+      "testId": "TC-23-A",
+      "name": "Atomic linked voiding marks bill, receipt, and reservation as voided",
+      "category": "VOIDING",
+      "status": "PASS",
+      "expected": "bill, receipt, res voided: true",
+      "actual": "bill: true, rcpt: true, res: true",
+      "notes": ""
+    },
+    {
+      "testId": "TC-23-B",
+      "name": "Audit trail preserved: void reason and historical documents retained",
+      "category": "VOIDING",
+      "status": "PASS",
+      "expected": "Reason and original custom data preserved",
+      "actual": "Reason: \"Mistyped devotee name by operator\", Item: \"പ്രത്യേക ദേവി പൂജ\"",
+      "notes": ""
+    },
+    {
+      "testId": "TC-23-C",
+      "name": "Voided Custom Vazhipadu thermal receipt renders VOIDED banner and strikethrough",
+      "category": "VOIDING",
+      "status": "PASS",
+      "expected": "VOIDED banner present",
+      "actual": "Watermark & strikethrough present",
+      "notes": ""
+    },
+    {
+      "testId": "TC-23-D",
+      "name": "Voided Custom Vazhipadu excluded from core active accounting balances",
+      "category": "VOIDING",
+      "status": "PASS",
+      "expected": "₹0.00",
+      "actual": "₹0",
+      "notes": ""
+    },
+    {
+      "testId": "SAFE-NO-PROD",
+      "name": "Zero production Firebase (temple-f4f7d) writes or network requests",
+      "category": "SAFETY",
+      "status": "PASS",
+      "expected": "Air-gapped local execution",
+      "actual": "Air-gapped local execution",
+      "notes": ""
+    },
+    {
+      "testId": "SAFE-NO-VERCEL",
+      "name": "Zero production Vercel deployment interactions",
+      "category": "SAFETY",
+      "status": "PASS",
+      "expected": "Local testing only",
+      "actual": "Local testing only",
+      "notes": ""
+    },
+    {
+      "testId": "SAFE-STAGING-UNTOUCHED",
+      "name": "Frozen release package in deploy_staging_step_33_43/ untouched",
+      "category": "SAFETY",
+      "status": "PASS",
+      "expected": "Intact",
+      "actual": "Intact",
+      "notes": ""
+    },
+    {
+      "testId": "SAFE-RULES-UNTOUCHED",
+      "name": "Production firestore.rules untouched",
+      "category": "SAFETY",
+      "status": "PASS",
+      "expected": "Intact",
+      "actual": "Intact",
+      "notes": ""
+    }
+  ]
+}

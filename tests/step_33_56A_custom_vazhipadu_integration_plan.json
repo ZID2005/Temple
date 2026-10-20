@@ -1,0 +1,506 @@
+{
+  "step": "33.56A",
+  "feature": "Custom Vazhipadu with Admin-Defined Name and Rate",
+  "temple": "Marutha Chamundi Devi Temple / മറുതാ ചാമുണ്ഡി ദേവി ക്ഷേത്രം",
+  "phase": "Audit and planning only — NO implementation yet",
+  "timestamp": "2026-10-13T21:15:00+05:30",
+  "safetyBoundaries": {
+    "productionFirebaseConnected": false,
+    "productionVercelConnected": false,
+    "productionRecordsAccessedOrModified": false,
+    "deploymentsPerformed": false,
+    "securityRulesModified": false,
+    "cleanupOrchestratorExecuted": false,
+    "countersOrReservationsReset": false,
+    "frozenReleaseModified": false,
+    "applicationSourceModified": false
+  },
+  "affectedModules": [
+    {
+      "module": "Billing Interface (UI & Form)",
+      "file": "Temple_Accounts-1.html",
+      "lines": "8028-8259, 10961-11125",
+      "functions": [
+        "loadCategoryItems",
+        "updatePrice",
+        "syncItemChipsUI",
+        "billingAdjustQty",
+        "billingResetForm",
+        "billingSubmitForm"
+      ],
+      "role": "Presents Custom Vazhipadu selector chip and reveals administrator input fields (custom puja name, custom rate ₹). Calculates line total as rate * qty. Manages UI validation and reset."
+    },
+    {
+      "module": "Atomic Transaction Engine & Idempotency",
+      "file": "Temple_Accounts-1.html",
+      "lines": "18019-18071, 18226-18613",
+      "functions": [
+        "computeBillingFingerprint",
+        "computeBillingFingerprintV1",
+        "fsCreateBillingWithAccounting"
+      ],
+      "role": "Generates cryptographic financial fingerprint including custom puja name, custom unit rate, qty, and total. Executes atomic Firestore transaction creating billing record, linked receipt, reservation, and idempotency doc."
+    },
+    {
+      "module": "Numbering and Reservation System",
+      "file": "Temple_Accounts-1.html",
+      "lines": "8050-8060, 18420-18472",
+      "functions": [
+        "getNextBillingReceiptNo",
+        "getNextGlobalSequenceNo",
+        "parseGlobalNumber",
+        "formatGlobalNumber"
+      ],
+      "role": "Monotonically allocates unified sequential numbering for bill (BILL-xxx) and accounting receipt (R-xxx) sharing single sequence counter and reservation doc."
+    },
+    {
+      "module": "Receipt Preview & Native 58mm Thermal Printer",
+      "file": "Temple_Accounts-1.html",
+      "lines": "8261-8324, 8327-8450, 8747-8866",
+      "functions": [
+        "renderThermalReceiptHTML",
+        "renderBillingReceiptPreview",
+        "printBillingReceipt",
+        "ReceiptPrinter.startProcessing",
+        "ReceiptPrinter.startPrinting"
+      ],
+      "role": "Renders and prints thermal receipt with actual custom puja name, quantity, unit rate, and total. Generic 'Custom Vazhipadu' label is never printed on the bill."
+    },
+    {
+      "module": "Billing History & History Filters",
+      "file": "Temple_Accounts-1.html",
+      "lines": "9552-9850, 10741-10892",
+      "functions": [
+        "refreshBillingHistory",
+        "applyBillingFilters",
+        "onBillingSearchInput",
+        "viewBillingDetails",
+        "reprintBillingRecord"
+      ],
+      "role": "Displays billing records in Active and Voided tables. Search haystack includes custom puja name. Details modal and reprint show actual custom name and unit rate."
+    },
+    {
+      "module": "Billing Reports & Item Breakdown",
+      "file": "Temple_Accounts-1.html",
+      "lines": "10180-10370",
+      "functions": [
+        "applyBillingReportFilters",
+        "exportBillingReportCSV"
+      ],
+      "role": "Aggregates billing records by item description. Custom Vazhipadu items appear with their actual name in the Item Summary Table and export to CSV with item name and unit price."
+    },
+    {
+      "module": "Accounting Core & Ledger Double-Counting Protection",
+      "file": "Temple_Accounts-1.html",
+      "lines": "6403-6506, 7150-7210, 11710-11814, 11970-12050",
+      "functions": [
+        "allReceipts",
+        "activeReceipts",
+        "getCashBalance",
+        "getBankBalance",
+        "getFundBalance",
+        "getAllFundBalances",
+        "monthIncomeExpense",
+        "buildCashBookRows",
+        "buildBankBookRows",
+        "VIEW_RENDERERS.dashboard"
+      ],
+      "role": "Accounting engines calculate balances and income exclusively from receipts collection. Billing collection is never queried for balances, guaranteeing exactly-once financial accounting."
+    },
+    {
+      "module": "Receipts View & Receipt Actions",
+      "file": "Temple_Accounts-1.html",
+      "lines": "7631-7720",
+      "functions": [
+        "VIEW_RENDERERS.receipts",
+        "filterReceiptTable",
+        "saveReceipt"
+      ],
+      "role": "Displays linked accounting receipt with General Temple Fund, Vazhipadu Income, and custom description. Direct editing is blocked to maintain billing-accounting consistency."
+    },
+    {
+      "module": "Atomic Voiding & Audit Trail",
+      "file": "Temple_Accounts-1.html",
+      "lines": "10895-10954, 17847-17920",
+      "functions": [
+        "voidBillingRecord",
+        "fsVoidLinkedBillingAndReceipt"
+      ],
+      "role": "Atomically voids billing document, linked accounting receipt, and reservation document across Firestore and IndexedDB while retaining cancellation audit reason."
+    },
+    {
+      "module": "Pooja & Devotee Analytics",
+      "file": "Temple_Accounts-1.html",
+      "lines": "13675-14020",
+      "functions": [
+        "renderAnalyticsDashboardContent"
+      ],
+      "role": "Aggregates active bills by item name in Pooja Analytics and active receipts by devotee name in Devotee Analytics."
+    },
+    {
+      "module": "Authoritative Backup & Restore Engine",
+      "file": "Temple_Accounts-1.html",
+      "lines": "14437-14720, 14814-15260",
+      "functions": [
+        "_serializeDoc",
+        "_deserializeDoc",
+        "restoreBackup"
+      ],
+      "role": "Serializes and deserializes all billing and receipt fields without filtering. Validates monetary values and preserves custom fields and cross-references across backup cycles."
+    }
+  ],
+  "sourceReferences": {
+    "applicationFile": "Temple_Accounts-1.html",
+    "totalLines": 19934,
+    "fileSize": 784014,
+    "masterListConstant": "BILLING_DEFAULT_ITEMS (line 8029)",
+    "masterItemsArray": "masterItems (line 8046)",
+    "uiRenderer": "VIEW_RENDERERS.billing (line 10961)",
+    "formSubmitHandler": "billingSubmitForm (line 9035)",
+    "firestoreTransaction": "fsCreateBillingWithAccounting (line 18226)",
+    "fingerprintFunction": "computeBillingFingerprint (line 18033)",
+    "thermalReceiptFormatter": "renderThermalReceiptHTML (line 8261)",
+    "printerController": "window.ReceiptPrinter (line 8327)",
+    "historyFilter": "applyBillingFilters (line 9666)",
+    "reportsFilter": "applyBillingReportFilters (line 10180)",
+    "reportCsvExport": "exportBillingReportCSV (line 10319)",
+    "cashBookRowsBuilder": "buildCashBookRows (line 11710)",
+    "bankBookRowsBuilder": "buildBankBookRows (line 11792)",
+    "linkedVoidFunction": "fsVoidLinkedBillingAndReceipt (line 17847)",
+    "backupCollections": "BACKUP_COLLECTIONS (line 14551)"
+  },
+  "proposedFieldRequirements": {
+    "uiFields": [
+      {
+        "id": "billingCustomItemName",
+        "label": "വഴിപാടിന്റെ പേര് (Vazhipadu Name) *",
+        "type": "text",
+        "required": true,
+        "placeholder": "വഴിപാടിന്റെ പേര് നൽകുക (Enter Vazhipadu Name)",
+        "revealedOn": "Custom Vazhipadu selected"
+      },
+      {
+        "id": "billingCustomRate",
+        "label": "നിരക്ക് (Rate ₹) *",
+        "type": "number",
+        "required": true,
+        "min": 0.01,
+        "step": "any",
+        "placeholder": "നിരക്ക് / Rate ₹",
+        "revealedOn": "Custom Vazhipadu selected"
+      },
+      {
+        "id": "qty",
+        "label": "എണ്ണം (Quantity) *",
+        "type": "number",
+        "required": true,
+        "min": 1,
+        "step": 1,
+        "behavior": "Active and enabled. Stepper buttons adjust quantity.",
+        "revealedOn": "Always visible"
+      },
+      {
+        "id": "name",
+        "label": "ഭക്തന്റെ പേര് (Devotee Name) *",
+        "type": "text",
+        "required": true,
+        "revealedOn": "Always visible"
+      },
+      {
+        "id": "star",
+        "label": "നാൾ / നക്ഷത്രം (Star)",
+        "type": "text",
+        "required": false,
+        "revealedOn": "Always visible"
+      },
+      {
+        "id": "paymentMode",
+        "label": "പേയ്‌മെന്റ് മോഡ് (Payment Mode) *",
+        "type": "segmented/select",
+        "options": ["Cash", "UPI"],
+        "required": true,
+        "revealedOn": "Always visible"
+      }
+    ],
+    "persistenceFields": {
+      "billingDocument": {
+        "collection": "billing",
+        "docId": "bill_${N}",
+        "fields": {
+          "item": "Actual administrator-entered Vazhipadu name (string)",
+          "unitPrice": "Validated custom rate in rupees (number, 2 decimals)",
+          "quantity": "Validated integer quantity >= 1 (number)",
+          "totalAmount": "Calculated rate * quantity (number, 2 decimals)",
+          "category": "വഴിപാട്",
+          "devoteeName": "Devotee name (string)",
+          "star": "Devotee star (string)",
+          "paymentMode": "Cash | UPI",
+          "isCustomItem": "true (optional backward-compatible audit flag)"
+        }
+      },
+      "receiptDocument": {
+        "collection": "receipts",
+        "docId": "rcpt_${N}",
+        "fields": {
+          "fund": "General Temple Fund",
+          "category": "Vazhipadu Income",
+          "description": "<customName> (Qty: <qty>) | Star: <star>",
+          "amount": "Calculated rate * quantity (matches bill totalAmount)",
+          "paymentMode": "Cash | UPI",
+          "source": "billing"
+        }
+      }
+    }
+  },
+  "validationRules": {
+    "customItemName": {
+      "required": true,
+      "rejectBlank": true,
+      "rejectGenericLabel": true,
+      "minLength": 2,
+      "maxLength": 100,
+      "sanitization": "esc() against XSS"
+    },
+    "customRate": {
+      "required": true,
+      "rejectNaN": true,
+      "rejectZero": true,
+      "rejectNegative": true,
+      "min": 0.01,
+      "maxRecommended": 1000000,
+      "decimalPrecision": 2
+    },
+    "quantity": {
+      "required": true,
+      "integerOnly": true,
+      "min": 1,
+      "maxRecommended": 1000
+    },
+    "totalCalculation": {
+      "formula": "round(customRate * quantity, 2)",
+      "invariant": "bill.totalAmount === receipt.amount"
+    }
+  },
+  "accountingInvariants": [
+    "Custom Vazhipadu maps exclusively to General Temple Fund and Vazhipadu Income.",
+    "Zero new funds or accounting categories created.",
+    "Unified sequential numbering: 1 bill and 1 linked receipt share identical sequence integer N.",
+    "Double-counting protection: Accounting core aggregates exclusively from receipts collection; billing collection is never queried for balances.",
+    "Idempotency: Re-submitting identical transaction replays committed documents without counter increment or reservation duplication.",
+    "Bidirectional atomic voiding: Voiding bill voids linked receipt and reservation simultaneously."
+  ],
+  "existingTestReferences": [
+    {
+      "testFile": "tests/test_step_33_34a_vazhipadu_button.js",
+      "status": "PASS (51/51)",
+      "relevance": "Tests Vazhipadu master list items count, quick select chips, thermal receipt layout, and combined item നൂൽജപം/അർച്ചന. Important architectural note: Asserts vazhipaduItems.length === 13. UI injection architecture must preserve or coordinate with this assertion.",
+      "actionRequired": "Re-run after implementation; verify combined button remains intact."
+    },
+    {
+      "testFile": "tests/test_step_33_24_expanded_billing_printer.js",
+      "relevance": "Tests billing form expanded grid, receipt preview area, and printer modal.",
+      "actionRequired": "Re-run after implementation."
+    },
+    {
+      "testFile": "tests/test_step_33_25_printer_animation.js",
+      "relevance": "Tests native thermal printer feed animation and ESC key handlers.",
+      "actionRequired": "Re-run after implementation."
+    },
+    {
+      "testFile": "tests/test_step_33_26_reference_printer_suite.js",
+      "relevance": "Tests reference printer states: idle, processing, printing, ready, error.",
+      "actionRequired": "Re-run after implementation."
+    },
+    {
+      "testFile": "tests/test_step_33_12_unified_numbering_suite.js",
+      "relevance": "Tests global numbering and reservation sequence consistency.",
+      "actionRequired": "Re-run after implementation."
+    },
+    {
+      "testFile": "tests/test_step_33_15_idempotency_suite.js",
+      "relevance": "Tests retry idempotency and fingerprint verification.",
+      "actionRequired": "Re-run after implementation."
+    },
+    {
+      "testFile": "tests/test_step_33_28_cashbook_date_sort_guard.js",
+      "relevance": "Tests cashbook running balance and category sorting.",
+      "actionRequired": "Re-run after implementation."
+    },
+    {
+      "testFile": "tests/test_step_33_32a_ledger_totals.js",
+      "relevance": "Tests General Ledger category breakdowns and totals.",
+      "actionRequired": "Re-run after implementation."
+    },
+    {
+      "testFile": "tests/test_step_33_49_backup_restore_hardening.js",
+      "relevance": "Tests authoritative backup serialization, checksums, and restoration.",
+      "actionRequired": "Re-run after implementation."
+    }
+  ],
+  "newTestCases": [
+    {
+      "id": "TC-33.56A-01",
+      "title": "Selecting Custom Vazhipadu reveals custom name and rate input fields",
+      "type": "Unit / Static DOM Simulation",
+      "target": "loadCategoryItems, updatePrice"
+    },
+    {
+      "id": "TC-33.56A-02",
+      "title": "Switching back to predefined item hides custom fields and restores fixed calculation",
+      "type": "Unit / Static DOM Simulation",
+      "target": "loadCategoryItems, updatePrice"
+    },
+    {
+      "id": "TC-33.56A-03",
+      "title": "Valid custom name and rate produce exact line total for Qty 1",
+      "type": "Unit / Calculation",
+      "target": "updatePrice"
+    },
+    {
+      "id": "TC-33.56A-04",
+      "title": "Quantity greater than 1 multiplies custom rate accurately",
+      "type": "Unit / Calculation",
+      "target": "updatePrice, billingAdjustQty"
+    },
+    {
+      "id": "TC-33.56A-05",
+      "title": "Blank, whitespace-only, or generic 'Custom Vazhipadu' names are rejected",
+      "type": "Unit / Validation UX",
+      "target": "billingSubmitForm"
+    },
+    {
+      "id": "TC-33.56A-06",
+      "title": "Negative, zero, NaN, or non-numeric rates are rejected",
+      "type": "Unit / Validation UX",
+      "target": "billingSubmitForm"
+    },
+    {
+      "id": "TC-33.56A-07",
+      "title": "Invalid quantities (0, negative, fractional, NaN) are rejected",
+      "type": "Unit / Validation UX",
+      "target": "billingSubmitForm"
+    },
+    {
+      "id": "TC-33.56A-08",
+      "title": "Actual custom puja name and rate survive persistence and reload in IndexedDB/Firestore",
+      "type": "Emulator / Mock Transaction",
+      "target": "fsCreateBillingWithAccounting, allBillingRecords"
+    },
+    {
+      "id": "TC-33.56A-09",
+      "title": "Thermal receipt preview and print layout show actual custom puja name and rate",
+      "type": "Unit / Receipt Formatter",
+      "target": "renderThermalReceiptHTML, renderBillingReceiptPreview"
+    },
+    {
+      "id": "TC-33.56A-10",
+      "title": "Billing record totalAmount strictly matches linked accounting receipt amount",
+      "type": "Emulator / Mock Transaction",
+      "target": "fsCreateBillingWithAccounting"
+    },
+    {
+      "id": "TC-33.56A-11",
+      "title": "Dashboard and fund totals reflect Custom Vazhipadu exactly once (zero double-counting)",
+      "type": "Unit / Balance Engine",
+      "target": "getCashBalance, getFundBalance, VIEW_RENDERERS.dashboard"
+    },
+    {
+      "id": "TC-33.56A-12",
+      "title": "Cash Book, Bank Book, and Day Book show correct Vazhipadu Income and payment mode",
+      "type": "Unit / Books Rows",
+      "target": "buildCashBookRows, buildBankBookRows"
+    },
+    {
+      "id": "TC-33.56A-13",
+      "title": "Billing history search, detail modal, and reprints retain actual custom name",
+      "type": "Unit / History Search",
+      "target": "applyBillingFilters, viewBillingDetails, reprintBillingRecord"
+    },
+    {
+      "id": "TC-33.56A-14",
+      "title": "Repeated submission with same operation ID replays original records idempotently",
+      "type": "Emulator / Mock Transaction",
+      "target": "fsCreateBillingWithAccounting"
+    },
+    {
+      "id": "TC-33.56A-15",
+      "title": "Concurrent submissions preserve unified monotonic sequence numbering",
+      "type": "Isolated Emulator Execution",
+      "target": "fsCreateBillingWithAccounting, system/counters"
+    },
+    {
+      "id": "TC-33.56A-16",
+      "title": "Voiding Custom Vazhipadu atomically cancels bill, linked receipt, and reservation",
+      "type": "Isolated Emulator Execution",
+      "target": "fsVoidLinkedBillingAndReceipt"
+    },
+    {
+      "id": "TC-33.56A-17",
+      "title": "Existing fixed-price Vazhipadu catalog items remain completely unchanged",
+      "type": "Unit / Regression",
+      "target": "BILLING_DEFAULT_ITEMS, updatePrice"
+    },
+    {
+      "id": "TC-33.56A-18",
+      "title": "Punarudharanam donation billing remains completely unchanged",
+      "type": "Unit / Regression",
+      "target": "loadCategoryItems, updatePrice"
+    },
+    {
+      "id": "TC-33.56A-19",
+      "title": "Backup export and restore round-trip preserves custom puja item and rate byte-for-byte",
+      "type": "Unit / Serialization",
+      "target": "_serializeDoc, restoreBackup"
+    },
+    {
+      "id": "TC-33.56A-20",
+      "title": "Full regression suite passes without failure",
+      "type": "Regression Test Harness",
+      "target": "All active test suites"
+    }
+  ],
+  "riskClassifications": [
+    {
+      "riskId": "RISK-01",
+      "component": "Quick-select master list array vs Existing Test 33.34A",
+      "severity": "MEDIUM",
+      "description": "test_step_33_34a_vazhipadu_button.js asserts vazhipaduItems.length === 13. If Custom Vazhipadu is added statically to BILLING_DEFAULT_ITEMS, that assertion fails. If added dynamically in loadCategoryItems(), the assertion passes.",
+      "mitigation": "Recommend dynamic selector injection in loadCategoryItems or planned coordination with test 33.34A."
+    },
+    {
+      "riskId": "RISK-02",
+      "component": "Receipt label placeholder regression",
+      "severity": "HIGH",
+      "description": "If user submits without typing a custom puja name, the generic string 'Custom Vazhipadu' could be persisted on the sacred devotee receipt.",
+      "mitigation": "Mandate strict validation rejecting the literal string 'Custom Vazhipadu' or blank text, requiring an authentic administrator-entered offering name."
+    },
+    {
+      "riskId": "RISK-03",
+      "component": "Financial fingerprint collision",
+      "severity": "LOW",
+      "description": "computeBillingFingerprint hashes item, unitPrice, qty, and total. If custom name or rate is not trimmed or formatted, hash might mismatch on retry.",
+      "mitigation": "Ensure custom name is trimmed and custom unitPrice is passed as a formatted number in billingInput."
+    },
+    {
+      "riskId": "RISK-04",
+      "component": "Thermal print line overflow on 58mm paper",
+      "severity": "MEDIUM",
+      "description": "Custom vazhipadu names in Malayalam can be arbitrarily long, potentially wrapping awkwardly or corrupting 58mm thermal layout.",
+      "mitigation": "Enforce maximum 60-character length limit on custom name input and ensure .th-row CSS supports proper word breaking."
+    },
+    {
+      "riskId": "RISK-05",
+      "component": "Double-counting risk in accounting ledgers",
+      "severity": "LOW",
+      "description": "Risk of billing and receipt both being counted in cash book or dashboard.",
+      "mitigation": "Verified: Existing architecture exclusively queries activeReceipts() for accounting balances. Billing collection is never queried for financial balances."
+    }
+  ],
+  "executionConfirmation": {
+    "auditComplete": true,
+    "implementationAttempted": false,
+    "sourceCodeModified": false,
+    "productionDataModified": false,
+    "nextStep": "Await independent architectural review and sign-off before STEP 33.56B implementation"
+  }
+}

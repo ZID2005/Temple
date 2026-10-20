@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+  <meta charset="UTF-8">
+  <title>Greeting Spotlight Removal Visual Test</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 40px;
+      background: #5c1a12;
+      font-family: "Noto Serif Malayalam", "Manjari", "Gayathri", serif;
+      color: #fff;
+    }
+    .container {
+      display: flex;
+      flex-direction: column;
+      gap: 40px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .panel {
+      padding: 30px;
+      position: relative;
+      background: #5c1a12;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      text-align: center;
+    }
+    .panel h2 {
+      font-size: 14px;
+      font-family: monospace;
+      color: #ffd700;
+      margin-top: 0;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    /* OLD: with heavy white spotlight */
+    .old-close {
+      display: inline-block;
+      padding: 22px 32px;
+      border-radius: 24px;
+      background: radial-gradient(ellipse at center, rgba(255, 248, 235, 0.90) 0%, rgba(255, 244, 222, 0.58) 55%, rgba(255, 244, 222, 0) 80%);
+    }
+
+    /* CANDIDATE 1: pure transparent background with delicate text halo */
+    .cand1-close {
+      display: inline-block;
+      padding: 22px 32px;
+      background: transparent;
+    }
+
+    /* CANDIDATE 2: very subtle feather (opacity 0.12 - 0.0) without visible plate */
+    .cand2-close {
+      display: inline-block;
+      padding: 22px 32px;
+      border-radius: 24px;
+      background: radial-gradient(ellipse at center, rgba(255, 248, 235, 0.14) 0%, rgba(255, 244, 222, 0.05) 50%, transparent 75%);
+    }
+
+    .blessing {
+      display: block;
+      font-size: 22px;
+      font-weight: 600;
+      letter-spacing: .08em;
+      color: #38140c;
+      margin-bottom: 6px;
+      text-shadow: 0 1px 2px rgba(255, 255, 255, 0.85), 0 0 12px rgba(255, 248, 235, 0.7);
+    }
+    .message {
+      margin: 0;
+      font-weight: 700;
+      font-size: 56px;
+      line-height: 1.1;
+      letter-spacing: .04em;
+      color: #260c06;
+      text-shadow: 0 1px 3px rgba(255, 255, 255, 0.9), 0 0 16px rgba(255, 248, 235, 0.75), 0 0 28px rgba(247, 207, 42, 0.35);
+    }
+    .subnote {
+      display: block;
+      font-family: monospace;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      color: #3d140b;
+      margin-top: 12px;
+      text-shadow: 0 1px 2px rgba(255, 255, 255, 0.85), 0 0 10px rgba(255, 248, 235, 0.6);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="panel">
+      <h2>Old STEP 33.114: Heavy White/Cream Spotlight Plate (Defective)</h2>
+      <div class="old-close">
+        <span class="blessing">മറുതാ ചാമുണ്ഡി ദേവി ക്ഷേത്രം</span>
+        <p class="message">സ്വാഗതം</p>
+        <span class="subnote">TEMPLE ACCOUNTS &amp; MANAGEMENT</span>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Candidate 1: Fully Transparent Background (Natural Red Oxide Floor)</h2>
+      <div class="cand1-close">
+        <span class="blessing">മറുതാ ചാമുണ്ഡി ദേവി ക്ഷേത്രം</span>
+        <p class="message">സ്വാഗതം</p>
+        <span class="subnote">TEMPLE ACCOUNTS &amp; MANAGEMENT</span>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Candidate 2: Feathered Ultra-Low Opacity Aura (0.14 -> 0)</h2>
+      <div class="cand2-close">
+        <span class="blessing">മറുതാ ചാമുണ്ഡി ദേവി ക്ഷേത്രം</span>
+        <p class="message">സ്വാഗതം</p>
+        <span class="subnote">TEMPLE ACCOUNTS &amp; MANAGEMENT</span>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

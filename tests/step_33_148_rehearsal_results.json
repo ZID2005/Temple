@@ -1,0 +1,477 @@
+{
+  "step": "STEP 33.148",
+  "timestamp": "2026-10-19T17:25:01.690Z",
+  "passCount": 30,
+  "failCount": 0,
+  "totalTests": 30,
+  "verdict": "PASS",
+  "airGap": {
+    "networkCallsDetected": 0,
+    "isolatedInMemory": true
+  },
+  "baselines": {
+    "preHashes": {
+      "orchestrator": "DB924F7C7189C1223C634F09009306A3314852EF6CE294B9A4D94B56E57533A7",
+      "tests": "67999A744A254258C9DB292ECDF54C876727D0D2CCF3783A247F76EB26B2A48C",
+      "applicationHtml": "45297BD26B59C69E1E9242BDA32AC0D866862268EF7B00DD437686688355BE98",
+      "firestoreRules": "7BFEF0B0F4C31A5DAFC6FB29C8C4BBD55CBAD3A8A590EFC34BD87F4600CF90BD"
+    },
+    "postHashes": {
+      "orchestrator": "DB924F7C7189C1223C634F09009306A3314852EF6CE294B9A4D94B56E57533A7",
+      "tests": "67999A744A254258C9DB292ECDF54C876727D0D2CCF3783A247F76EB26B2A48C",
+      "applicationHtml": "45297BD26B59C69E1E9242BDA32AC0D866862268EF7B00DD437686688355BE98",
+      "firestoreRules": "7BFEF0B0F4C31A5DAFC6FB29C8C4BBD55CBAD3A8A590EFC34BD87F4600CF90BD"
+    },
+    "allIntact": true
+  },
+  "recoveryEvidence": {
+    "synthesizedData": {
+      "financialModules": [
+        "billing",
+        "receipts",
+        "payments",
+        "transfers",
+        "loans",
+        "chittyCollections",
+        "chittyPayouts"
+      ],
+      "systemCollections": [
+        "reservations",
+        "idempotency",
+        "counters",
+        "_restoreProgress",
+        "_resetJournal"
+      ],
+      "masterData": [
+        "settings",
+        "funds",
+        "incomeCategories",
+        "expenseCategories",
+        "bankAccounts",
+        "chittyMembers",
+        "users"
+      ],
+      "physicalRecords": [
+        "rcpt_phys_P700",
+        "rcpt_phys_PU800",
+        "res_phys_P700",
+        "res_phys_PU800"
+      ],
+      "diagnosticAndStaging": [
+        "migration_staging",
+        "__system_diagnostics__"
+      ]
+    },
+    "executedPhases": [
+      "Phase 1: Environment Preflight & Baselines",
+      "Phase 2: Source Archive Identity & Backup Verification",
+      "Phase 3: Manifest Generation & Digest Computation",
+      "Phase 4: Classification & Reciprocal Relational Validation",
+      "Phase 5: Failure Injection (8 Negative Controls)",
+      "Phase 6: Simulated Batch Planning & Interruption Analysis",
+      "Phase 7: Protected File Integrity Comparison"
+    ],
+    "simulatedPhases": [
+      "Phase 6 Batch Deletions (executed in-memory on SyntheticFirestore; NO live Firestore deletion occurred or was attempted)"
+    ],
+    "recoveryGapAnalysis": {
+      "restoreFunctionType": "safe_merge_non_destructive",
+      "exactRollbackSupported": false,
+      "description": "The existing application restore function (restoreBackup in Temple_Accounts-1.html:17282-18510) implements an additive safe merge. It updates or inserts records but NEVER drops or deletes unmentioned surplus records. Therefore, application restore cannot provide an exact rollback if unintended deletions occur.",
+      "unrepresentedCollections": [
+        "_restoreProgress (excluded by application backup export design)",
+        "_resetJournal (recovery and crash-resilient journal)",
+        "_maintenanceLock (operational state)",
+        "migration_staging (legacy staging documents)",
+        "__system_diagnostics__ (diagnostic probes)"
+      ],
+      "unrepresentedExternalData": [
+        "Firebase Authentication users, passwords, and custom claims",
+        "Cloud Firestore security rules (firestore.rules)",
+        "Cloud Firestore composite indexes (firestore.indexes.json)"
+      ],
+      "mandatoryLivePrecondition": "Before any future live cleanup execution can be authorized, an authoritative Google Cloud Firestore managed export (gcloud firestore export) must be completed independently to provide an exact binary point-in-time recovery."
+    },
+    "destructiveExecutionLock": "PERMANENTLY AND UNCONDITIONALLY LOCKED (5 of 5 methods throw EXECUTE_MODE_DISABLED)"
+  },
+  "tests": [
+    {
+      "id": "1.orchestrator",
+      "name": "Preflight Hash Check: transactional_reset_orchestrator.js",
+      "passed": true,
+      "status": "PASS",
+      "details": {
+        "expected": "DB924F7C7189C1223C634F09009306A3314852EF6CE294B9A4D94B56E57533A7",
+        "computed": "DB924F7C7189C1223C634F09009306A3314852EF6CE294B9A4D94B56E57533A7",
+        "match": true
+      }
+    },
+    {
+      "id": "1.tests",
+      "name": "Preflight Hash Check: test_step_33_140_transactional_reset.js",
+      "passed": true,
+      "status": "PASS",
+      "details": {
+        "expected": "67999A744A254258C9DB292ECDF54C876727D0D2CCF3783A247F76EB26B2A48C",
+        "computed": "67999A744A254258C9DB292ECDF54C876727D0D2CCF3783A247F76EB26B2A48C",
+        "match": true
+      }
+    },
+    {
+      "id": "1.applicationHtml",
+      "name": "Preflight Hash Check: Temple_Accounts-1.html",
+      "passed": true,
+      "status": "PASS",
+      "details": {
+        "expected": "45297BD26B59C69E1E9242BDA32AC0D866862268EF7B00DD437686688355BE98",
+        "computed": "45297BD26B59C69E1E9242BDA32AC0D866862268EF7B00DD437686688355BE98",
+        "match": true
+      }
+    },
+    {
+      "id": "1.firestoreRules",
+      "name": "Preflight Hash Check: firestore.rules",
+      "passed": true,
+      "status": "PASS",
+      "details": {
+        "expected": "7BFEF0B0F4C31A5DAFC6FB29C8C4BBD55CBAD3A8A590EFC34BD87F4600CF90BD",
+        "computed": "7BFEF0B0F4C31A5DAFC6FB29C8C4BBD55CBAD3A8A590EFC34BD87F4600CF90BD",
+        "match": true
+      }
+    },
+    {
+      "id": "1.destructive_locks",
+      "name": "All 5 destructive entry points unconditionally locked",
+      "passed": true,
+      "status": "PASS",
+      "details": {
+        "methods": [
+          "execute",
+          "executeReset",
+          "executeCleanup",
+          "performLiveDeletion",
+          "executeBatchedDeletions"
+        ],
+        "allThrewExecuteModeDisabled": true
+      }
+    },
+    {
+      "id": "1.security_guard_refusal",
+      "name": "Orchestrator constructor rejects emulator endpoints and live URLs",
+      "passed": true,
+      "status": "PASS",
+      "details": {
+        "refusedWithSecurityViolation": true
+      }
+    },
+    {
+      "id": "2.backup_integrity",
+      "name": "Valid synthetic backup integrity preflight verification",
+      "passed": true,
+      "status": "PASS",
+      "details": {
+        "payloadHash": "F3F3107337D8260D4CB35E870AA2D628F1C48D98882D83E08C92C85DD4885D7C",
+        "verified": true
+      }
+    },
+    {
+      "id": "3.source_identity_validation",
+      "name": "Raw source-byte identity and snapshot metadata validation",
+      "passed": true,
+      "status": "PASS",
+      "details": {
+        "sourceFileSha256": "B8A21E5E2507D85E83147DE044BB770A01FAC7F32DDA71825167DCB46FDB40DF",
+        "canonicalPayloadHash": "F3F3107337D8260D4CB35E870AA2D628F1C48D98882D83E08C92C85DD4885D7C",
+        "snapshotId": "SNAPSHOT_STEP33_148_REHEARSAL"
+      }
+    },
+    {
+      "id": "4.manifest_generation",
+      "name": "Manifest generation succeeds with eligibleForReset === true",
+      "passed": true,
+      "status": "PASS",
+      "details": {
+        "eligibleForReset": true,
+        "targetCount": 18,
+        "preservedCount": 15,
+        "quarantinedCount": 0
+      }
+    },
+    {
+      "id": "5.target_classification",
+      "name": "Expected test transactions targeted; master data and physical records strictly excluded",
+      "passed": true,
+      "status": "PASS",
+      "details": {
+        "targetCollectionsFound": [
+          "__system_diagnostics__",
+          "billing",
+          "chittyCollections",
+          "chittyPayouts",
+          "loans",
+          "migration_staging",
+          "payments",
+          "receipts",
+          "system",
+          "transfers"
+        ],
+        "physicalInTargets": false,
+        "masterInTargets": false
+      }
+    },
+    {
+      "id": "6.preserved_classification",
+      "name": "Master data, user accounts, physical receipts, and counters verified preserved",
+      "passed": true,
+      "status": "PASS",
+      "details": {
+        "totalPreserved": 15,
+        "allRequiredPreservedFound": true
+      }
+    },
+    {
+      "id": "7.zero_quarantined_clean_baseline",
+      "name": "Clean synthetic baseline produces 0 quarantined records and 0 linkage errors",
+      "passed": true,
+      "status": "PASS",
+      "details": {
+        "quarantinedCount": 0,
+        "linkageErrorCount": 0
+      }
+    },
+    {
+      "id": "8.failure_tampered_bytes",
+      "name": "Failure Case 1: Tampered source bytes rejected during identity validation",
+      "passed": true,
+      "status": "PASS",
+      "details": {
+        "tamperedBlocked": true
+      }
+    },
+    {
+      "id": "9.failure_missing_collection",
+      "name": "Failure Case 2: Missing required collection halts verification",
+      "passed": true,
+      "status": "PASS",
+      "details": {
+        "missingColBlocked": true
+      }
+    },
+    {
+      "id": "10.failure_mismatched_caller_hash",
+      "name": "Failure Case 3: Caller-provided source hash mismatch rejected",
+      "passed": true,
+      "status": "PASS",
+      "details": {
+        "mismatchedCallerHashBlocked": true
+      }
+    },
+    {
+      "id": "11.failure_stale_mutated_store",
+      "name": "Failure Case 4: Mutating store after identity validation marks manifest ineligible",
+      "passed": true,
+      "status": "PASS",
+      "details": {
+        "eligibleForReset": false,
+        "status": "STALE_OR_MUTATED"
+      }
+    },
+    {
+      "id": "12.failure_broken_relationship",
+      "name": "Failure Case 5: Broken reciprocal linkage caught and blocks eligibility",
+      "passed": true,
+      "status": "PASS",
+      "details": {
+        "eligibleForReset": false,
+        "linkageErrors": [
+          "Broken Linkage: Bill 'bill_1' points to missing or non-target receipt 'rcpt_nonexistent_999'",
+          "Conflicting Reciprocal Linkage: Receipt 'rcpt_1' points to bill 'bill_1', but bill points to receipt 'rcpt_nonexistent_999'"
+        ]
+      }
+    },
+    {
+      "id": "13.failure_unresolved_nested_subcollection",
+      "name": "Failure Case 6: Nested subcollections in migration staging quarantined and blocks eligibility",
+      "passed": true,
+      "status": "PASS",
+      "details": {
+        "eligibleForReset": false,
+        "unresolvedNestedRecords": [
+          {
+            "collection": "migration_staging",
+            "id": "batch_stage_nested_1",
+            "reason": "UNRESOLVED_NESTED_SUBCOLLECTIONS",
+            "details": "Migration staging root 'batch_stage_nested_1' contains hierarchical subcollections which cannot be safely deleted by flat deletion."
+          }
+        ]
+      }
+    },
+    {
+      "id": "14.failure_unknown_collection_quarantined",
+      "name": "Failure Case 7: Unknown collection quarantined deny-by-default and blocks eligibility",
+      "passed": true,
+      "status": "PASS",
+      "details": {
+        "eligibleForReset": false,
+        "quarantinedCollections": [
+          "unrecognized_legacy_table"
+        ]
+      }
+    },
+    {
+      "id": "15.failure_malformed_record_quarantined",
+      "name": "Failure Case 8: Malformed transaction record quarantined and blocks eligibility",
+      "passed": true,
+      "status": "PASS",
+      "details": {
+        "eligibleForReset": false,
+        "quarantinedRecords": [
+          {
+            "collection": "billing",
+            "id": "bill_bad_amount",
+            "reason": "DOC_ID_MATCHER_REJECTED"
+          }
+        ]
+      }
+    },
+    {
+      "id": "16.dry_run_report_production",
+      "name": "Dry-run report produces deterministic batches and recovery gap analysis",
+      "passed": true,
+      "status": "PASS",
+      "details": {
+        "eligibleForReset": true,
+        "stageCount": 5,
+        "stages": [
+          {
+            "stage": 1,
+            "name": "Historical & Diagnostics",
+            "count": 2
+          },
+          {
+            "stage": 2,
+            "name": "Sub-ledger Financial Transactions",
+            "count": 5
+          },
+          {
+            "stage": 3,
+            "name": "Accounting Receipts",
+            "count": 3
+          },
+          {
+            "stage": 4,
+            "name": "Vazhipadu Billing Records",
+            "count": 2
+          },
+          {
+            "stage": 5,
+            "name": "Software Sequence Reservations & Idempotency Tokens",
+            "count": 6
+          }
+        ],
+        "recoveryGapDocumented": true
+      }
+    },
+    {
+      "id": "17.simulated_batch_execution",
+      "name": "Simulated batch deletion succeeds across all topological stages",
+      "passed": true,
+      "status": "PASS",
+      "details": {
+        "success": true,
+        "journalEntriesCount": 18,
+        "targetCountExpected": 18,
+        "completedJournalStatus": "COMPLETED"
+      }
+    },
+    {
+      "id": "18.preservation_verification",
+      "name": "All physical records and master data remain intact post-simulation",
+      "passed": true,
+      "status": "PASS",
+      "details": {
+        "cleanSlateVerified": true,
+        "physicalReceiptP700Intact": true,
+        "physicalReceiptPU800Intact": true,
+        "masterDataIntact": true
+      }
+    },
+    {
+      "id": "19.interruption_simulation",
+      "name": "Simulated failure at Stage 2 records INTERRUPTED journal with checkpoint",
+      "passed": true,
+      "status": "PASS",
+      "details": {
+        "interruptionCaught": true,
+        "journalStatus": "INTERRUPTED"
+      }
+    },
+    {
+      "id": "20.interrupted_journal_quarantine",
+      "name": "Subsequent manifest generation detects interrupted journal and quarantines store",
+      "passed": true,
+      "status": "PASS",
+      "details": {
+        "eligibleForReset": false,
+        "journalQuarantined": true
+      }
+    },
+    {
+      "id": "21.orchestrator",
+      "name": "Post-Rehearsal Hash Check: transactional_reset_orchestrator.js",
+      "passed": true,
+      "status": "PASS",
+      "details": {
+        "baseline": "DB924F7C7189C1223C634F09009306A3314852EF6CE294B9A4D94B56E57533A7",
+        "pre": "DB924F7C7189C1223C634F09009306A3314852EF6CE294B9A4D94B56E57533A7",
+        "post": "DB924F7C7189C1223C634F09009306A3314852EF6CE294B9A4D94B56E57533A7",
+        "intact": true
+      }
+    },
+    {
+      "id": "21.tests",
+      "name": "Post-Rehearsal Hash Check: test_step_33_140_transactional_reset.js",
+      "passed": true,
+      "status": "PASS",
+      "details": {
+        "baseline": "67999A744A254258C9DB292ECDF54C876727D0D2CCF3783A247F76EB26B2A48C",
+        "pre": "67999A744A254258C9DB292ECDF54C876727D0D2CCF3783A247F76EB26B2A48C",
+        "post": "67999A744A254258C9DB292ECDF54C876727D0D2CCF3783A247F76EB26B2A48C",
+        "intact": true
+      }
+    },
+    {
+      "id": "21.applicationHtml",
+      "name": "Post-Rehearsal Hash Check: Temple_Accounts-1.html",
+      "passed": true,
+      "status": "PASS",
+      "details": {
+        "baseline": "45297BD26B59C69E1E9242BDA32AC0D866862268EF7B00DD437686688355BE98",
+        "pre": "45297BD26B59C69E1E9242BDA32AC0D866862268EF7B00DD437686688355BE98",
+        "post": "45297BD26B59C69E1E9242BDA32AC0D866862268EF7B00DD437686688355BE98",
+        "intact": true
+      }
+    },
+    {
+      "id": "21.firestoreRules",
+      "name": "Post-Rehearsal Hash Check: firestore.rules",
+      "passed": true,
+      "status": "PASS",
+      "details": {
+        "baseline": "7BFEF0B0F4C31A5DAFC6FB29C8C4BBD55CBAD3A8A590EFC34BD87F4600CF90BD",
+        "pre": "7BFEF0B0F4C31A5DAFC6FB29C8C4BBD55CBAD3A8A590EFC34BD87F4600CF90BD",
+        "post": "7BFEF0B0F4C31A5DAFC6FB29C8C4BBD55CBAD3A8A590EFC34BD87F4600CF90BD",
+        "intact": true
+      }
+    },
+    {
+      "id": "22.network_isolation_audit",
+      "name": "Zero network calls detected across rehearsal suite",
+      "passed": true,
+      "status": "PASS",
+      "details": {
+        "networkCallsDetected": 0
+      }
+    }
+  ]
+}

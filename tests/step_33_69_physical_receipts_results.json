@@ -1,0 +1,641 @@
+{
+  "timestamp": "2026-10-18T08:14:04.021Z",
+  "targetFile": "Temple_Accounts-1.html",
+  "targetFileSha256": "C8183DE74331329AA51328F0510A342244BDC67C9B8793C3D7A536E115BE953E",
+  "fileSizeBytes": 941783,
+  "totalTests": 70,
+  "passedTests": 70,
+  "failedTests": 0,
+  "tests": [
+    {
+      "id": "TC-33.69-01",
+      "name": "Target file is Temple_Accounts-1.html",
+      "group": "BASELINE",
+      "passed": true,
+      "expected": "Temple_Accounts-1.html",
+      "actual": "Temple_Accounts-1.html",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.69-02",
+      "name": "File size exceeds baseline after Step 33.69 implementation",
+      "group": "BASELINE",
+      "passed": true,
+      "expected": "> 808,927 bytes",
+      "actual": "941783 bytes",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.69-03",
+      "name": "Pre-step 33.69 backup file exists in backups directory",
+      "group": "BASELINE",
+      "passed": true,
+      "expected": "Backup exists",
+      "actual": "Confirmed",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.69-04",
+      "name": "parsePhysicalReceiptIdentifier helper exists in source",
+      "group": "BASELINE",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.69-05",
+      "name": "fsCreatePhysicalReceipt engine exists in source",
+      "group": "BASELINE",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.69-06",
+      "name": "CSS classes .badge-physical-p and .badge-physical-pu exist",
+      "group": "BASELINE",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.69-07",
+      "name": "CSS row highlighting classes .row-physical-p and .row-physical-pu exist",
+      "group": "BASELINE",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.69-08",
+      "name": "Receipt type filter dropdown exists in receipt view toolbar",
+      "group": "BASELINE",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.69-09",
+      "name": "Devotee star input exists in receipt form",
+      "group": "BASELINE",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.69-10",
+      "name": "parsePhysicalReceiptIdentifier recognizes valid identifier P600",
+      "group": "TEST_A",
+      "passed": true,
+      "expected": "P600 (Type P)",
+      "actual": "P600 (Type P)",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.69-11",
+      "name": "parsePhysicalReceiptIdentifier maps P600 to General Temple Fund & Pooja Income",
+      "group": "TEST_A",
+      "passed": true,
+      "expected": "General Temple Fund / Pooja Income",
+      "actual": "General Temple Fund / Pooja Income",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.69-12",
+      "name": "fsCreatePhysicalReceipt successfully persists P600 without error",
+      "group": "TEST_A",
+      "passed": true,
+      "expected": "P600 saved",
+      "actual": "P600",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.69-13",
+      "name": "P600 record stores isPhysical: true and physicalType: \"P\"",
+      "group": "TEST_A",
+      "passed": true,
+      "expected": "isPhysical=true, physicalType=P",
+      "actual": "isPhysical=true, physicalType=P",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.69-14",
+      "name": "P600 record stores devotee star \"Rohini\"",
+      "group": "TEST_A",
+      "passed": true,
+      "expected": "Rohini",
+      "actual": "Rohini",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.69-15",
+      "name": "P600 is stored in receipts collection with document ID rcpt_phys_P600",
+      "group": "TEST_A",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.69-16",
+      "name": "P600 writes tracking reservation in system/res_phys_P600",
+      "group": "TEST_A",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.69-17",
+      "name": "P600 strictly creates ZERO records in billing collection",
+      "group": "TEST_A",
+      "passed": true,
+      "expected": "Zero billing records created",
+      "actual": "Billing count: 1",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.69-18",
+      "name": "P600 is returned by allReceipts() query",
+      "group": "TEST_A",
+      "passed": true,
+      "expected": "Found in allReceipts()",
+      "actual": "Found with ₹350",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.69-19",
+      "name": "Receipts page renders PHYSICAL badge for P600",
+      "group": "TEST_A",
+      "passed": true,
+      "expected": "PHYSICAL badge rendered",
+      "actual": "Confirmed in HTML",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.69-20",
+      "name": "Receipts page applies row-physical-p subtle blue row styling",
+      "group": "TEST_A",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.69-21",
+      "name": "parsePhysicalReceiptIdentifier recognizes valid identifier PU1",
+      "group": "TEST_B",
+      "passed": true,
+      "expected": "PU1 (Type PU)",
+      "actual": "PU1 (Type PU)",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.69-22",
+      "name": "parsePhysicalReceiptIdentifier maps PU1 to Punarudharanam Fund & Donation Income",
+      "group": "TEST_B",
+      "passed": true,
+      "expected": "Punarudharanam Fund / Donation Income",
+      "actual": "Punarudharanam Fund / Donation Income",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.69-23",
+      "name": "fsCreatePhysicalReceipt successfully persists PU1 without error",
+      "group": "TEST_B",
+      "passed": true,
+      "expected": "PU1 saved",
+      "actual": "PU1",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.69-24",
+      "name": "PU1 record stores isPhysical: true and physicalType: \"PU\"",
+      "group": "TEST_B",
+      "passed": true,
+      "expected": "isPhysical=true, physicalType=PU",
+      "actual": "isPhysical=true, physicalType=PU",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.69-25",
+      "name": "PU1 is stored in receipts collection with document ID rcpt_phys_PU1",
+      "group": "TEST_B",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.69-26",
+      "name": "PU1 writes tracking reservation in system/res_phys_PU1",
+      "group": "TEST_B",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.69-27",
+      "name": "PU1 strictly creates ZERO records in billing collection",
+      "group": "TEST_B",
+      "passed": true,
+      "expected": "Zero billing records created",
+      "actual": "Confirmed",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.69-28",
+      "name": "Receipts page renders PHYSICAL · PUNARUDHARANAM badge for PU1",
+      "group": "TEST_B",
+      "passed": true,
+      "expected": "PHYSICAL · PUNARUDHARANAM badge rendered",
+      "actual": "Confirmed in HTML",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.69-29",
+      "name": "Receipts page applies row-physical-pu subtle purple row styling",
+      "group": "TEST_B",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.69-30",
+      "name": "Punarudharanam dashboard includes PU1 receipt",
+      "group": "TEST_B",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.69-31",
+      "name": "Cash Book balance correctly reflects cash physical receipt P600 (₹350)",
+      "group": "TEST_C",
+      "passed": true,
+      "expected": 10370,
+      "actual": 10370,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.69-32",
+      "name": "Bank Book balance correctly reflects bank physical receipt PU1 (₹5,000)",
+      "group": "TEST_C",
+      "passed": true,
+      "expected": 55000,
+      "actual": 55000,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.69-33",
+      "name": "Bank Book balance correctly reflects UPI physical receipt PU2 (₹1,200)",
+      "group": "TEST_C",
+      "passed": true,
+      "expected": 56200,
+      "actual": 56200,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.69-34",
+      "name": "General Temple Fund reflects P600 (₹350) exactly once",
+      "group": "TEST_C",
+      "passed": true,
+      "expected": 30370,
+      "actual": 30370,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.69-35",
+      "name": "Punarudharanam Fund reflects PU1 (₹5,000) and PU2 (₹1,200) exactly once",
+      "group": "TEST_C",
+      "passed": true,
+      "expected": 26200,
+      "actual": 26200,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.69-36",
+      "name": "Cash Book row generated with correct particulars for P600",
+      "group": "TEST_C",
+      "passed": true,
+      "expected": "Receipt P600 - Anand Kumar (₹350)",
+      "actual": "Receipt P600 - Anand Kumar (₹350)",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.69-37",
+      "name": "Bank Book row generated with correct deposit for PU1 (Bank)",
+      "group": "TEST_C",
+      "passed": true,
+      "expected": "PU1 Deposit ₹5000",
+      "actual": "Deposit ₹5000",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.69-38",
+      "name": "Bank Book row generated with correct deposit for PU2 (UPI)",
+      "group": "TEST_C",
+      "passed": true,
+      "expected": "PU2 Deposit ₹1200",
+      "actual": "Deposit ₹1200",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.69-39",
+      "name": "General Ledger includes P600 with credit ₹350 and General Temple Fund",
+      "group": "TEST_C",
+      "passed": true,
+      "expected": "Credit ₹350, General Temple Fund",
+      "actual": "Credit ₹350, General Temple Fund",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.69-40",
+      "name": "General Ledger includes PU1 with credit ₹5,000 and Punarudharanam Fund",
+      "group": "TEST_C",
+      "passed": true,
+      "expected": "Credit ₹5000, Punarudharanam Fund",
+      "actual": "Credit ₹5000, Punarudharanam Fund",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.69-41",
+      "name": "voidRecord successfully sets voided: true on physical receipt P600",
+      "group": "TEST_C",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.69-42",
+      "name": "Voided physical receipt is excluded from Cash Book balance",
+      "group": "TEST_C",
+      "passed": true,
+      "expected": 10020,
+      "actual": 10020,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.69-43",
+      "name": "globalSequenceCounter in system/counters is still 42 after physical entries",
+      "group": "TEST_D",
+      "passed": true,
+      "expected": 42,
+      "actual": 42,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.69-44",
+      "name": "P600 was NOT interpreted as sequence 600",
+      "group": "TEST_D",
+      "passed": true,
+      "expected": "!= 600",
+      "actual": 42,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.69-45",
+      "name": "PU1 was NOT interpreted as sequence 1",
+      "group": "TEST_D",
+      "passed": true,
+      "expected": "!= 1",
+      "actual": 42,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.69-46",
+      "name": "Local settings globalSequenceCounter remains 42",
+      "group": "TEST_D",
+      "passed": true,
+      "expected": 42,
+      "actual": 42,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.69-47",
+      "name": "Next software receipt correctly allocates sequence 43 (R-043)",
+      "group": "TEST_D",
+      "passed": true,
+      "expected": "id: 43, receiptNo: R-043",
+      "actual": "id: 43, receiptNo: R-043",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.69-48",
+      "name": "globalSequenceCounter cleanly advances to 43 after normal transaction",
+      "group": "TEST_D",
+      "passed": true,
+      "expected": 43,
+      "actual": 43,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.69-49",
+      "name": "Duplicate P600 insertion is strictly rejected",
+      "group": "TEST_E",
+      "passed": true,
+      "expected": "Rejection error",
+      "actual": "Physical receipt \"P600\" has already been entered or issued. Duplicate physical receipt numbers are strictly prohibited.",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.69-50",
+      "name": "Duplicate PU1 insertion is strictly rejected",
+      "group": "TEST_E",
+      "passed": true,
+      "expected": "Rejection error",
+      "actual": "Physical receipt \"PU1\" has already been entered or issued. Duplicate physical receipt numbers are strictly prohibited.",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.69-51",
+      "name": "Case variation p600 is normalized and rejected as duplicate",
+      "group": "TEST_E",
+      "passed": true,
+      "expected": "Normalized rejection",
+      "actual": "Physical receipt \"P600\" has already been entered or issued. Duplicate physical receipt numbers are strictly prohibited.",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.69-52",
+      "name": "Whitespace variation \" PU1 \" is trimmed and rejected as duplicate",
+      "group": "TEST_E",
+      "passed": true,
+      "expected": "Trimmed rejection",
+      "actual": "Physical receipt \"PU1\" has already been entered or issued. Duplicate physical receipt numbers are strictly prohibited.",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.69-53",
+      "name": "P599 is rejected as out of range (< 600)",
+      "group": "TEST_E",
+      "passed": true,
+      "expected": "out of valid range error",
+      "actual": "Physical puja receipt number \"P599\" is out of valid range (P600 through P900).",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.69-54",
+      "name": "P901 is rejected as out of range (> 900)",
+      "group": "TEST_E",
+      "passed": true,
+      "expected": "out of valid range error",
+      "actual": "Physical puja receipt number \"P901\" is out of valid range (P600 through P900).",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.69-55",
+      "name": "PU0 is rejected as invalid positive integer",
+      "group": "TEST_E",
+      "passed": true,
+      "expected": "positive integer error",
+      "actual": "Invalid physical Punarudharanam receipt number \"PU0\". Must be a sequential positive integer (e.g. PU1, PU2).",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.69-56",
+      "name": "PX100 is rejected with invalid format error",
+      "group": "TEST_E",
+      "passed": true,
+      "expected": "Invalid format",
+      "actual": "Invalid physical receipt identifier format \"PX100\". Expected P600-P900 for Puja or PU1+ for Punarudharanam.",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.69-57",
+      "name": "Idempotent replay returns committed record with isIdempotentReplay: true",
+      "group": "TEST_E",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.69-58",
+      "name": "exportCSV(\"receipts\") produces header with Type column",
+      "group": "TEST_F",
+      "passed": true,
+      "expected": "Header includes Type",
+      "actual": "ReceiptNo,Date,Name,Mobile,Fund,Category,Description,PaymentMode,BankAccount,Amount,Remarks,Status,Type",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.69-59",
+      "name": "exportCSV classifies P600 as \"Physical Puja\"",
+      "group": "TEST_F",
+      "passed": true,
+      "expected": "Physical Puja",
+      "actual": "Physical Puja",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.69-60",
+      "name": "exportCSV classifies PU1 as \"Physical Punarudharanam\"",
+      "group": "TEST_F",
+      "passed": true,
+      "expected": "Physical Punarudharanam",
+      "actual": "Physical Punarudharanam",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.69-61",
+      "name": "exportCSV classifies software receipt R-043 as \"Software\"",
+      "group": "TEST_F",
+      "passed": true,
+      "expected": "Software",
+      "actual": "Software",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.69-62",
+      "name": "printReceipt renders [PHYSICAL · PUNARUDHARANAM RECEIPT] banner",
+      "group": "TEST_F",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.69-63",
+      "name": "printReceipt renders devotee star in receipt print preview",
+      "group": "TEST_F",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.69-64",
+      "name": "Master catalogue preserved with 15 predefined items",
+      "group": "REGRESSION",
+      "passed": true,
+      "expected": 15,
+      "actual": 15,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.69-65",
+      "name": "Independent \"നൂൽജപം\" item intact at ₹20",
+      "group": "REGRESSION",
+      "passed": true,
+      "expected": "₹20",
+      "actual": "₹20",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.69-66",
+      "name": "Independent \"അർച്ചന\" item intact at ₹20",
+      "group": "REGRESSION",
+      "passed": true,
+      "expected": "₹20",
+      "actual": "₹20",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.69-67",
+      "name": "Combined item \"നൂൽജപം/അർച്ചന\" remains absent",
+      "group": "REGRESSION",
+      "passed": true,
+      "expected": false,
+      "actual": false,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.69-68",
+      "name": "Billing submission handler billingSubmitForm() preserved",
+      "group": "REGRESSION",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.69-69",
+      "name": "Atomic billing transaction fsCreateBillingWithAccounting() preserved",
+      "group": "REGRESSION",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.69-70",
+      "name": "Linked voiding pipeline fsVoidLinkedBillingAndReceipt() preserved",
+      "group": "REGRESSION",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    }
+  ]
+}

@@ -1,0 +1,659 @@
+{
+  "timestamp": "2026-10-17T16:01:42.370Z",
+  "targetFile": "Temple_Accounts-1.html",
+  "targetFileSha256": "B6A6B10EF68678AC5ABFBE682EC40F77517DC08A6F07980FAE5F785F6136AAB4",
+  "fileSizeBytes": 822552,
+  "totalTests": 72,
+  "passedTests": 72,
+  "failedTests": 0,
+  "tests": [
+    {
+      "id": "TC-33.67-01",
+      "name": "BILLING_DEFAULT_ITEMS array is defined in Temple_Accounts-1.html",
+      "group": "CATALOGUE",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.67-02",
+      "name": "BILLING_DEFAULT_ITEMS parses as valid JavaScript array",
+      "group": "CATALOGUE",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.67-03",
+      "name": "Total Vazhipadu items in master array is exactly 14 (separated buttons)",
+      "group": "CATALOGUE",
+      "passed": true,
+      "expected": 14,
+      "actual": 14,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.67-04",
+      "name": "Total Punarudharanam items in master array is exactly 1",
+      "group": "CATALOGUE",
+      "passed": true,
+      "expected": 1,
+      "actual": 1,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.67-05",
+      "name": "Total predefined items count is 15",
+      "group": "CATALOGUE",
+      "passed": true,
+      "expected": 15,
+      "actual": 15,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.67-06",
+      "name": "Separate \"നൂൽജപം\" (Nooljabam) item exists in master list",
+      "group": "CATALOGUE",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.67-07",
+      "name": "\"നൂൽജപം\" has fixed unit rate of ₹20",
+      "group": "CATALOGUE",
+      "passed": true,
+      "expected": "₹20 fixed",
+      "actual": "₹20",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.67-08",
+      "name": "\"നൂൽജപം\" is positioned as the first Vazhipadu item (index 0)",
+      "group": "CATALOGUE",
+      "passed": true,
+      "expected": "നൂൽജപം",
+      "actual": "നൂൽജപം",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.67-09",
+      "name": "Separate \"അർച്ചന\" (Archana) item exists in master list",
+      "group": "CATALOGUE",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.67-10",
+      "name": "\"അർച്ചന\" has fixed unit rate of ₹20",
+      "group": "CATALOGUE",
+      "passed": true,
+      "expected": "₹20 fixed",
+      "actual": "₹20",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.67-11",
+      "name": "\"അർച്ചന\" is positioned as the second Vazhipadu item (index 1)",
+      "group": "CATALOGUE",
+      "passed": true,
+      "expected": "അർച്ചന",
+      "actual": "അർച്ചന",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.67-12",
+      "name": "Old combined item \"നൂൽജപം/അർച്ചന\" is completely absent from BILLING_DEFAULT_ITEMS",
+      "group": "CATALOGUE",
+      "passed": true,
+      "expected": false,
+      "actual": false,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.67-13",
+      "name": "Charadu Puja is NOT included in master items (strict constraint)",
+      "group": "CATALOGUE",
+      "passed": true,
+      "expected": false,
+      "actual": false,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.67-14",
+      "name": "All other 12 predefined Vazhipadu items and prices remain intact",
+      "group": "CATALOGUE",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.67-15",
+      "name": "isStrictPerPersonPuja helper function exists in source",
+      "group": "PER_PERSON_LOGIC",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.67-16",
+      "name": "isStrictPerPersonPuja(\"നൂൽജപം\") returns true (per-person unit offering)",
+      "group": "PER_PERSON_LOGIC",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.67-17",
+      "name": "isStrictPerPersonPuja(\"അർച്ചന\") returns true (per-person unit offering)",
+      "group": "PER_PERSON_LOGIC",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.67-18",
+      "name": "supportsSharedFamilyPuja(\"നൂൽജപം\") returns false",
+      "group": "PER_PERSON_LOGIC",
+      "passed": true,
+      "expected": false,
+      "actual": false,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.67-19",
+      "name": "supportsSharedFamilyPuja(\"അർച്ചന\") returns false",
+      "group": "PER_PERSON_LOGIC",
+      "passed": true,
+      "expected": false,
+      "actual": false,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.67-20",
+      "name": "Item select dropdown populated with 14 Vazhipadu items",
+      "group": "DOM_RENDERING",
+      "passed": true,
+      "expected": 14,
+      "actual": 14,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.67-21",
+      "name": "Billing chips container populated with 14 chips",
+      "group": "DOM_RENDERING",
+      "passed": true,
+      "expected": 14,
+      "actual": 14,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.67-22",
+      "name": "Dropdown Option 0 dataset.name is \"നൂൽജപം\"",
+      "group": "DOM_RENDERING",
+      "passed": true,
+      "expected": "നൂൽജപം",
+      "actual": "നൂൽജപം",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.67-23",
+      "name": "Dropdown Option 0 price is ₹20",
+      "group": "DOM_RENDERING",
+      "passed": true,
+      "expected": 20,
+      "actual": 20,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.67-24",
+      "name": "Dropdown Option 0 label is \"നൂൽജപം — ₹20\"",
+      "group": "DOM_RENDERING",
+      "passed": true,
+      "expected": "നൂൽജപം — ₹20",
+      "actual": "നൂൽജപം — ₹20",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.67-25",
+      "name": "Dropdown Option 1 dataset.name is \"അർച്ചന\"",
+      "group": "DOM_RENDERING",
+      "passed": true,
+      "expected": "അർച്ചന",
+      "actual": "അർച്ചന",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.67-26",
+      "name": "Dropdown Option 1 price is ₹20",
+      "group": "DOM_RENDERING",
+      "passed": true,
+      "expected": 20,
+      "actual": 20,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.67-27",
+      "name": "Dropdown Option 1 label is \"അർച്ചന — ₹20\"",
+      "group": "DOM_RENDERING",
+      "passed": true,
+      "expected": "അർച്ചന — ₹20",
+      "actual": "അർച്ചന — ₹20",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.67-28",
+      "name": "Chip 0 dataset.name is \"നൂൽജപം\"",
+      "group": "DOM_RENDERING",
+      "passed": true,
+      "expected": "നൂൽജപം",
+      "actual": "നൂൽജപം",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.67-29",
+      "name": "Chip 0 HTML contains \"നൂൽജപം\"",
+      "group": "DOM_RENDERING",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.67-30",
+      "name": "Chip 0 HTML contains \"₹20\"",
+      "group": "DOM_RENDERING",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.67-31",
+      "name": "Chip 0 is active by default on initial entry",
+      "group": "DOM_RENDERING",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.67-32",
+      "name": "Chip 1 dataset.name is \"അർച്ചന\"",
+      "group": "DOM_RENDERING",
+      "passed": true,
+      "expected": "അർച്ചന",
+      "actual": "അർച്ചന",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.67-33",
+      "name": "Chip 1 HTML contains \"അർച്ചന\"",
+      "group": "DOM_RENDERING",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.67-34",
+      "name": "Chip 1 HTML contains \"₹20\"",
+      "group": "DOM_RENDERING",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.67-35",
+      "name": "Combined chip button \"നൂൽജപം/അർച്ചന\" is completely absent from DOM",
+      "group": "DOM_RENDERING",
+      "passed": true,
+      "expected": false,
+      "actual": false,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.67-36",
+      "name": "Default calculated total for Nooljabam Qty 1 is ₹20",
+      "group": "CALCULATION",
+      "passed": true,
+      "expected": 20,
+      "actual": 20,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.67-37",
+      "name": "Display total for Nooljabam shows \"₹20.00\"",
+      "group": "CALCULATION",
+      "passed": true,
+      "expected": "₹20.00",
+      "actual": "₹20.00",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.67-38",
+      "name": "Help text displays \"₹20 × 1 = ₹20\"",
+      "group": "CALCULATION",
+      "passed": true,
+      "expected": "₹20 × 1 = ₹20",
+      "actual": "₹20 × 1 = ₹20",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.67-39",
+      "name": "Clicking Archana chip updates itemSelect.selectedIndex to 1",
+      "group": "INTERACTION",
+      "passed": true,
+      "expected": 1,
+      "actual": 1,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.67-40",
+      "name": "Archana calculated total is ₹20 for Qty 1",
+      "group": "INTERACTION",
+      "passed": true,
+      "expected": 20,
+      "actual": 20,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.67-41",
+      "name": "Archana display total shows \"₹20.00\"",
+      "group": "INTERACTION",
+      "passed": true,
+      "expected": "₹20.00",
+      "actual": "₹20.00",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.67-42",
+      "name": "Archana total for Qty 3 is ₹60 (₹20 × 3)",
+      "group": "CALCULATION",
+      "passed": true,
+      "expected": 60,
+      "actual": 60,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.67-43",
+      "name": "Archana display total for Qty 3 shows \"₹60.00\"",
+      "group": "CALCULATION",
+      "passed": true,
+      "expected": "₹60.00",
+      "actual": "₹60.00",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.67-44",
+      "name": "Archana help text shows \"₹20 × 3 = ₹60\"",
+      "group": "CALCULATION",
+      "passed": true,
+      "expected": "₹20 × 3 = ₹60",
+      "actual": "₹20 × 3 = ₹60",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.67-45",
+      "name": "Clicking Nooljabam chip updates itemSelect.selectedIndex back to 0",
+      "group": "INTERACTION",
+      "passed": true,
+      "expected": 0,
+      "actual": 0,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.67-46",
+      "name": "Nooljabam total for Qty 4 is ₹80 (₹20 × 4)",
+      "group": "CALCULATION",
+      "passed": true,
+      "expected": 80,
+      "actual": 80,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.67-47",
+      "name": "Nooljabam display total for Qty 4 shows \"₹80.00\"",
+      "group": "CALCULATION",
+      "passed": true,
+      "expected": "₹80.00",
+      "actual": "₹80.00",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.67-48",
+      "name": "Nooljabam help text shows \"₹20 × 4 = ₹80\"",
+      "group": "CALCULATION",
+      "passed": true,
+      "expected": "₹20 × 4 = ₹80",
+      "actual": "₹20 × 4 = ₹80",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.67-49",
+      "name": "syncQtyWithDevotees(3) synchronizes Qty to 3 for Nooljabam",
+      "group": "MULTI_DEVOTEE",
+      "passed": true,
+      "expected": 3,
+      "actual": 3,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.67-50",
+      "name": "Nooljabam total for 3 Devotees is ₹60",
+      "group": "MULTI_DEVOTEE",
+      "passed": true,
+      "expected": 60,
+      "actual": 60,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.67-51",
+      "name": "syncQtyWithDevotees(5) synchronizes Qty to 5 for Archana",
+      "group": "MULTI_DEVOTEE",
+      "passed": true,
+      "expected": 5,
+      "actual": 5,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.67-52",
+      "name": "Archana total for 5 Devotees is ₹100",
+      "group": "MULTI_DEVOTEE",
+      "passed": true,
+      "expected": 100,
+      "actual": 100,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.67-53",
+      "name": "renderThermalReceiptHTML function exists in source",
+      "group": "RECEIPT",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.67-54",
+      "name": "Nooljabam receipt renders item name \"നൂൽജപം\"",
+      "group": "RECEIPT",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.67-55",
+      "name": "Nooljabam receipt does NOT contain combined label \"നൂൽജപം/അർച്ചന\"",
+      "group": "RECEIPT",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.67-56",
+      "name": "Nooljabam receipt renders unit rate ₹20.00",
+      "group": "RECEIPT",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.67-57",
+      "name": "Nooljabam receipt renders total ₹40.00",
+      "group": "RECEIPT",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.67-58",
+      "name": "Nooljabam receipt renders all devotees in roster",
+      "group": "RECEIPT",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.67-59",
+      "name": "Archana receipt renders item name \"അർച്ചന\"",
+      "group": "RECEIPT",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.67-60",
+      "name": "Archana receipt does NOT contain combined label \"നൂൽജപം/അർച്ചന\"",
+      "group": "RECEIPT",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.67-61",
+      "name": "Archana receipt renders unit rate ₹20.00",
+      "group": "RECEIPT",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.67-62",
+      "name": "Archana receipt renders total ₹60.00",
+      "group": "RECEIPT",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.67-63",
+      "name": "Archana receipt renders all 3 devotees in roster",
+      "group": "RECEIPT",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.67-64",
+      "name": "billingCategoryToFund helper function exists in source",
+      "group": "ACCOUNTING",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.67-65",
+      "name": "Vazhipadu category (\"വഴിപാട്\") maps to \"General Temple Fund\"",
+      "group": "ACCOUNTING",
+      "passed": true,
+      "expected": "General Temple Fund",
+      "actual": "General Temple Fund",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.67-66",
+      "name": "Punarudharanam category (\"പുനരുദ്ധാരണം\") maps to \"Punarudharanam Fund\"",
+      "group": "ACCOUNTING",
+      "passed": true,
+      "expected": "Punarudharanam Fund",
+      "actual": "Punarudharanam Fund",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.67-67",
+      "name": "Historical bill with \"നൂൽജപം/അർച്ചന\" renders original text without substitution",
+      "group": "HISTORICAL_INTEGRITY",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.67-68",
+      "name": "Historical bill with \"അർച്ചന\" renders original text intact",
+      "group": "HISTORICAL_INTEGRITY",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.67-69",
+      "name": "Historical bill with \"നൂൽജപം\" renders original text intact",
+      "group": "HISTORICAL_INTEGRITY",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.67-70",
+      "name": "Historical bill with legacy spelling \"മുറുക്ക് ചെറിയ പടുക\" renders intact",
+      "group": "HISTORICAL_INTEGRITY",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.67-71",
+      "name": "firestore.rules is untouched (SHA-256 parity)",
+      "group": "SAFETY",
+      "passed": true,
+      "expected": "7BFEF0B0F4C31A5DAFC6FB29C8C4BBD55CBAD3A8A590EFC34BD87F4600CF90BD",
+      "actual": "7BFEF0B0F4C31A5DAFC6FB29C8C4BBD55CBAD3A8A590EFC34BD87F4600CF90BD",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.67-72",
+      "name": "deploy_staging_step_33_43 release package is untouched",
+      "group": "SAFETY",
+      "passed": true,
+      "expected": "AEB01303F22F69E284D680A55E182FC78312C48E4266C02809179DF789E87CBC",
+      "actual": "AEB01303F22F69E284D680A55E182FC78312C48E4266C02809179DF789E87CBC",
+      "detail": ""
+    }
+  ]
+}

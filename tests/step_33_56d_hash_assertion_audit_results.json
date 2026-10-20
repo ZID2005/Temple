@@ -1,0 +1,277 @@
+{
+  "step": "STEP 33.56D",
+  "title": "Hash-Assertion Correction Planning & Final Custom Vazhipadu Acceptance Audit",
+  "auditTimestamp": "2026-10-13T22:25:00.000Z",
+  "executiveVerdict": "PASS WITH WARNINGS",
+  "safetyCompliance": {
+    "zeroProductionFirebaseAccess": true,
+    "zeroProductionVercelAccess": true,
+    "zeroProductionMutations": true,
+    "zeroRulesDeployment": true,
+    "frozenReleaseUntouched": true,
+    "cleanupOrchestratorExecutionDisabled": true,
+    "applicationCodeUntouched": true,
+    "testCodeUntouchedInAudit": true
+  },
+  "artifactHashes": {
+    "workingApplication": {
+      "path": "Temple_Accounts-1.html",
+      "expectedSha256": "657A4C1C116DADAAFD02FE3DB5F2799EC5B9F9FA105F260132EB1D20EEAD1F58",
+      "actualSha256": "657A4C1C116DADAAFD02FE3DB5F2799EC5B9F9FA105F260132EB1D20EEAD1F58",
+      "status": "MATCH",
+      "role": "Mutable working application containing verified Custom Vazhipadu implementation"
+    },
+    "frozenReleaseApplication": {
+      "path": "deploy_staging_step_33_43/Temple_Accounts-1.html",
+      "expectedSha256": "AEB01303F22F69E284D680A55E182FC78312C48E4266C02809179DF789E87CBC",
+      "actualSha256": "AEB01303F22F69E284D680A55E182FC78312C48E4266C02809179DF789E87CBC",
+      "status": "MATCH",
+      "role": "Immutable frozen release package from STEP 33.43"
+    },
+    "activeFirestoreRules": {
+      "path": "firestore.rules",
+      "expectedSha256": "7BFEF0B0F4C31A5DAFC6FB29C8C4BBD55CBAD3A8A590EFC34BD87F4600CF90BD",
+      "actualSha256": "7BFEF0B0F4C31A5DAFC6FB29C8C4BBD55CBAD3A8A590EFC34BD87F4600CF90BD",
+      "status": "MATCH",
+      "role": "Production security rules (untouched)"
+    },
+    "candidateFirestoreRules": {
+      "path": "firestore.rules.candidate",
+      "expectedSha256": "E0D2F9D11DE6E92644339A3332566B16CD0A58360598EF70E60279B890DA902D",
+      "actualSha256": "E0D2F9D11DE6E92644339A3332566B16CD0A58360598EF70E60279B890DA902D",
+      "status": "MATCH",
+      "role": "Quarantined hardened rules with client deletion lockout"
+    },
+    "cleanupOrchestrator": {
+      "path": "scripts/cleanup_orchestrator.js",
+      "expectedSha256": "41F440C1CBB5D188D836A031C15A256357933D35AD2A780B9C824335B3CA9715",
+      "actualSha256": "41F440C1CBB5D188D836A031C15A256357933D35AD2A780B9C824335B3CA9715",
+      "status": "MATCH",
+      "role": "Dry-run only orchestrator with execution disabled"
+    },
+    "customVazhipaduTestSource": {
+      "path": "tests/test_step_33_56b_custom_vazhipadu.js",
+      "expectedSha256": "54484A175E1490ADFACC64B4E9F4815E7E621ABC614562AE9794BBDEDC023708",
+      "actualSha256": "54484A175E1490ADFACC64B4E9F4815E7E621ABC614562AE9794BBDEDC023708",
+      "status": "MATCH",
+      "role": "Full integration test suite source"
+    },
+    "customVazhipaduTestResults": {
+      "path": "tests/step_33_56b_custom_vazhipadu_results.json",
+      "expectedSha256": "E7002D112B61A5F453796B7CD0544FF0A71189BB607BD7E829368F6510D6D934",
+      "actualSha256": "E7002D112B61A5F453796B7CD0544FF0A71189BB607BD7E829368F6510D6D934",
+      "status": "MATCH",
+      "role": "Verified dynamic test results recording 60/60 PASS checks"
+    },
+    "backupIntegrityTestSource": {
+      "path": "tests/test_step_33_56_backup_integrity.js",
+      "expectedSha256": "E4F2D5D60D2ED880BE5910AA743B5035FBE99FB93A7188B665A0D99AA88E973B",
+      "actualSha256": "E4F2D5D60D2ED880BE5910AA743B5035FBE99FB93A7188B665A0D99AA88E973B",
+      "status": "MATCH",
+      "role": "Pre-cleanup backup integrity audit suite source"
+    },
+    "backupIntegrityTestResults": {
+      "path": "tests/step_33_56_backup_integrity_results.json",
+      "expectedSha256": "64A6DF5548A2A52421B7900890F4A19E9FFACE1A87FB4D1A05339B0AD15A5E5F",
+      "actualSha256": "64A6DF5548A2A52421B7900890F4A19E9FFACE1A87FB4D1A05339B0AD15A5E5F",
+      "status": "MATCH",
+      "role": "Audit results recording 72 PASS, 1 FAIL (stale hash), 5 BLOCKED (prod isolation)"
+    }
+  },
+  "hashAssertionInvestigation": {
+    "testId": "HASH-VERIFY-Temple_Accounts_1_html",
+    "testFile": "tests/test_step_33_56_backup_integrity.js",
+    "assertionLines": "467-477",
+    "expectedHashConstantLine": 33,
+    "testedFile": "Temple_Accounts-1.html",
+    "expectedHash": "0BC9B28B094D83CE85880E62821897834FE1DCBF14A48BB98A061EDCCAC20BBC",
+    "actualHash": "657A4C1C116DADAAFD02FE3DB5F2799EC5B9F9FA105F260132EB1D20EEAD1F58",
+    "findings": {
+      "whatFileIsHashed": "Temple_Accounts-1.html (working application file in workspace root)",
+      "whatFileExpectedRepresents": "Temple_Accounts-1.html as it existed from STEP 33.51 through STEP 33.56 prior to the Custom Vazhipadu feature implementation",
+      "intendedContract": "Section 1 was intended as a point-in-time drift detection check to verify that active working files had not drifted during the pre-cleanup audit window. It was not intended to freeze development permanently, nor is it the release package validator.",
+      "isAccidentalComparisonAgainstPre3356B": true,
+      "isFrozenReleaseSeparatelyChecked": true,
+      "frozenReleaseTestId": "HASH-VERIFY-deploy_staging_step_33_43_Temple_Accounts_1_html",
+      "frozenReleaseStatus": "PASS (100% byte-for-byte identical, AEB01303...)",
+      "doesChangingHashWeakenProtection": false,
+      "preservesWorkingVsReleaseDistinction": false
+    },
+    "correctionProposal": {
+      "action": "Update working copy expected hash in an authorized maintenance step (STEP 33.57)",
+      "targetFile": "tests/test_step_33_56_backup_integrity.js",
+      "targetLine": 33,
+      "newExpectedHash": "657A4C1C116DADAAFD02FE3DB5F2799EC5B9F9FA105F260132EB1D20EEAD1F58",
+      "commentAnnotation": "Explicitly document that 657A4C1C... is the post-STEP 33.56B working baseline, while deploy_staging_step_33_43/ remains the immutable release freeze baseline (AEB01303...)",
+      "risks": "Low risk of masking future edits if baseline is updated carelessly. Mitigated by strict test suite execution and version control.",
+      "regressionPrerequisites": [
+        "test_step_33_56b_custom_vazhipadu.js (60 checks)",
+        "test_step_33_34a_vazhipadu_button.js (51 checks)",
+        "test_step_33_40_production_isolation.js (105 checks)",
+        "test_step_33_56_backup_integrity.js (78 checks, expected 73 PASS, 0 FAIL, 5 BLOCKED)"
+      ]
+    }
+  },
+  "acceptanceMatrix": [
+    {
+      "section": "UI & Validation",
+      "item": "Custom Vazhipadu option appears only under വഴിപാട്",
+      "status": "PASS — directly tested",
+      "evidence": "appendCustomVazhipaduOption checks cat === 'വഴിപാട്'. Directly verified by TC-01, TC-01-CHIP, TC-02, TC-02-CHIP."
+    },
+    {
+      "section": "UI & Validation",
+      "item": "BILLING_DEFAULT_ITEMS remains unchanged at 13 items",
+      "status": "PASS — directly tested",
+      "evidence": "BILLING_DEFAULT_ITEMS array length for category വഴിപാട് is 13. Directly verified by TC-03-A, TC-03-B, and test_step_33_34a."
+    },
+    {
+      "section": "UI & Validation",
+      "item": "Custom item name accepts 2–80 characters and rejects blank or generic placeholder names",
+      "status": "PASS — directly tested",
+      "evidence": "billingSubmitForm validates trimmed length 2-80, rejects empty, 'Custom', 'Custom Vazhipadu', 'കസ്റ്റം വഴിപാട്'. Verified by TC-09-A, TC-09-B, TC-09-C."
+    },
+    {
+      "section": "UI & Validation",
+      "item": "Rate must be greater than zero and no more than ₹100,000",
+      "status": "PASS — directly tested",
+      "evidence": "billingSubmitForm validates rate > 0 and rate <= 100000. Verified by TC-09-D, TC-09-E, TC-09-F, TC-11."
+    },
+    {
+      "section": "UI & Validation",
+      "item": "Rate rounding uses two decimal places",
+      "status": "PASS — directly tested",
+      "evidence": "Math.round(rate * 100) / 100 enforced in updatePrice and billingSubmitForm. Verified by TC-07, TC-08."
+    },
+    {
+      "section": "UI & Validation",
+      "item": "Quantity must be an integer between 1 and 500",
+      "status": "PASS — directly tested",
+      "evidence": "Number.isInteger check with 1-500 bounds enforced. Verified by TC-10-A, TC-10-B, TC-10-C."
+    },
+    {
+      "section": "UI & Validation",
+      "item": "Switching category or item clears stale custom values",
+      "status": "PASS — directly tested",
+      "evidence": "loadCategoryItems and updatePrice clear custom inputs and hide row. Verified by TC-05, TC-05-CLEARED, TC-06."
+    },
+    {
+      "section": "UI & Validation",
+      "item": "Total equals the validated unit rate multiplied by quantity",
+      "status": "PASS — directly tested",
+      "evidence": "Reactive calculation lineTotal = validatedRate * qty. Verified by TC-07, TC-08."
+    },
+    {
+      "section": "Accounting Integration",
+      "item": "The actual custom puja name is stored as the item description",
+      "status": "PASS — directly tested",
+      "evidence": "billing document stores custom item string in 'item' field. Verified by TC-12."
+    },
+    {
+      "section": "Accounting Integration",
+      "item": "The bill stores custom-item marker, item name, unit price, and total",
+      "status": "PASS — directly tested",
+      "evidence": "billing document stores isCustomItem: true, item, unitPrice, totalAmount. Verified by TC-12, TC-20-A."
+    },
+    {
+      "section": "Accounting Integration",
+      "item": "The linked accounting receipt uses actual puja name and correct quantity",
+      "status": "PASS — directly tested",
+      "evidence": "receipts document description contains '${item} (Qty: ${qty}) | Star: ${star}'. Verified by TC-13, TC-13-DESC."
+    },
+    {
+      "section": "Accounting Integration",
+      "item": "Mapping remains General Temple Fund plus Vazhipadu Income",
+      "status": "PASS — directly tested",
+      "evidence": "receipt fund is 'General Temple Fund', category is 'Vazhipadu Income'. Verified by TC-13-CLASS."
+    },
+    {
+      "section": "Accounting Integration",
+      "item": "Dashboard, Receipts, Cash Book, Bank Book derive income from authoritative receipts flow",
+      "status": "PASS — directly tested",
+      "evidence": "allReceipts(), buildCashBookRows(), buildBankBookRows() query active receipts exclusively. Verified by TC-17-A..C, TC-18-A..C."
+    },
+    {
+      "section": "Accounting Integration",
+      "item": "The linked bill and receipt are not counted twice",
+      "status": "PASS — directly tested",
+      "evidence": "billing collection produces ₹0.00 financial ledger contribution; receipts contributes exact ₹750.00. Verified by TC-17-D."
+    },
+    {
+      "section": "Accounting Integration",
+      "item": "Voiding follows existing linked-record and audit-trail behavior",
+      "status": "PASS — directly tested",
+      "evidence": "Atomic transaction marks bill, receipt, res as voided: true with voidReason preserved. Verified by TC-23-A..D."
+    },
+    {
+      "section": "Downstream Functionality",
+      "item": "Thermal receipt prints actual puja name, quantity, and rate",
+      "status": "PASS — directly tested",
+      "evidence": "formatThermalReceiptHtml renders custom puja name in bold, unit price, qty, and total. Verified by TC-14-A..C."
+    },
+    {
+      "section": "Downstream Functionality",
+      "item": "Billing history, search, and reprint retain custom item description",
+      "status": "PASS — directly tested",
+      "evidence": "History table, text search filtering, and reprint modal preserve custom details. Verified by TC-15, TC-16."
+    },
+    {
+      "section": "Downstream Functionality",
+      "item": "Billing reports and CSV exports retain item, rate, quantity, and total",
+      "status": "PASS — directly tested",
+      "evidence": "CSV export row and item summary map retain custom name, rate, qty, and total. Verified by TC-19-A..D."
+    },
+    {
+      "section": "Downstream Functionality",
+      "item": "Backup/restore preserves custom-item fields",
+      "status": "PASS — directly tested",
+      "evidence": "_serializeDoc preserves custom fields; isValidMonetary validates rates. Verified by TC-20-A, TC-20-B."
+    },
+    {
+      "section": "Downstream Functionality",
+      "item": "Global numbering and idempotency behavior remain unchanged",
+      "status": "PASS — directly tested",
+      "evidence": "Monotonic sequential sequence allocation and financial fingerprint replay protection verified by TC-21-A, TC-21-B, TC-22."
+    },
+    {
+      "section": "Downstream Functionality",
+      "item": "No historical records are rewritten or renumbered",
+      "status": "PASS — source-inspected only",
+      "evidence": "fsCreateBillingWithAccounting appends new records at head of monotonic counter; no migration or renumbering logic touches existing documents."
+    }
+  ],
+  "reconciledTestInventory": {
+    "totalChecks": 672,
+    "passedChecks": 666,
+    "failedChecks": 1,
+    "blockedChecks": 5,
+    "skippedNotTestedChecks": 3,
+    "countingConvention": {
+      "explanation": "The 672 total checks represents the mathematical sum of all checks evaluated across the 15 regression test suites. The 3 skipped checks in test_step_33_12 (NT-01, NT-02, NT-03) represent external technical constraints (physical printer hardware absent, production Firestore mutation lockout, production rules CLI deployment lockout) and are explicitly excluded from the 43 executed checks of that suite (which has 43 evaluated, 43 passed). double-counting is avoided by tracking the 3 skipped checks as a separate metadata attribute.",
+      "step3354CleanupSuiteIncluded": true,
+      "historical25CheckDiscrepancyResolved": "The 25-check discrepancy in STEP 33.56B (reported 647 vs sum 672) occurred because the author inherited a manual footer formula from STEP 33.55 that inadvertently omitted the 25 passed checks of tests/test_step_33_54_cleanup_audit.js. In this reconciliation, Suite #7 (test_step_33_54) is explicitly included with 25 passed checks."
+    },
+    "suites": [
+      { "id": 1, "file": "tests/test_step_33_34a_vazhipadu_button.js", "total": 51, "passed": 51, "failed": 0, "blocked": 0, "skipped": 0, "verdict": "PASS" },
+      { "id": 2, "file": "tests/test_step_33_40_production_isolation.js", "total": 105, "passed": 105, "failed": 0, "blocked": 0, "skipped": 0, "verdict": "PASS" },
+      { "id": 3, "file": "tests/test_step_33_47_backup_coverage.js", "total": 25, "passed": 25, "failed": 0, "blocked": 0, "skipped": 0, "verdict": "PASS" },
+      { "id": 4, "file": "tests/test_step_33_49_backup_restore_hardening.js", "total": 35, "passed": 35, "failed": 0, "blocked": 0, "skipped": 0, "verdict": "PASS" },
+      { "id": 5, "file": "tests/test_step_33_51_authorization_remediation.js", "total": 15, "passed": 15, "failed": 0, "blocked": 0, "skipped": 0, "verdict": "PASS" },
+      { "id": 6, "file": "tests/test_step_33_53_cleanup_orchestrator.js", "total": 25, "passed": 25, "failed": 0, "blocked": 0, "skipped": 0, "verdict": "PASS" },
+      { "id": 7, "file": "tests/test_step_33_54_cleanup_audit.js", "total": 25, "passed": 25, "failed": 0, "blocked": 0, "skipped": 0, "verdict": "PASS" },
+      { "id": 8, "file": "tests/test_step_33_55_cleanup_boundary_audit.js", "total": 129, "passed": 129, "failed": 0, "blocked": 0, "skipped": 0, "verdict": "PASS" },
+      { "id": 9, "file": "tests/test_step_33_56_backup_integrity.js", "total": 78, "passed": 72, "failed": 1, "blocked": 5, "skipped": 0, "verdict": "PASS_WITH_WARNINGS" },
+      { "id": 10, "file": "tests/test_step_33_15_idempotency_suite.js", "total": 20, "passed": 20, "failed": 0, "blocked": 0, "skipped": 0, "verdict": "PASS" },
+      { "id": 11, "file": "tests/test_step_33_12_unified_numbering_suite.js", "total": 43, "passed": 43, "failed": 0, "blocked": 0, "skipped": 3, "verdict": "PASS" },
+      { "id": 12, "file": "tests/test_step_33_6a_cashbook.js", "total": 10, "passed": 10, "failed": 0, "blocked": 0, "skipped": 0, "verdict": "PASS" },
+      { "id": 13, "file": "tests/test_step_33_7a_bankbook.js", "total": 5, "passed": 5, "failed": 0, "blocked": 0, "skipped": 0, "verdict": "PASS" },
+      { "id": 14, "file": "tests/test_step_33_34b_ledger_pdf_export.js", "total": 46, "passed": 46, "failed": 0, "blocked": 0, "skipped": 0, "verdict": "PASS" },
+      { "id": 15, "file": "tests/test_step_33_56b_custom_vazhipadu.js", "total": 60, "passed": 60, "failed": 0, "blocked": 0, "skipped": 0, "verdict": "PASS" }
+    ]
+  },
+  "deliverables": {
+    "reportFile": "STEP_33_56D_HASH_ASSERTION_AND_CUSTOM_VAZHIPADU_FINAL_AUDIT_REPORT.md",
+    "resultFile": "tests/step_33_56d_hash_assertion_audit_results.json",
+    "modifiedFilesCount": 0
+  }
+}

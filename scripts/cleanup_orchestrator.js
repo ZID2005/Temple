@@ -1,21 +1,38 @@
 /**
- * Safe Financial Data Cleanup Orchestrator (STEP 33.53)
+ * Safe Financial Data Cleanup Orchestrator (STEP 33.120)
  *
  * Implements safe, auditable orchestration for identifying, validating,
  * and preparing dummy/test financial transactions for eventual removal.
+ *
+ * DEFECT CORRECTIONS (STEP 33.120):
+ * - D-1: Narrowly scoped system collection path policy.
+ *        Permits consideration of billing-linked sequence reservations (system/res_*)
+ *        and idempotency tokens (system/op_*) ONLY when explicitly included in an approved
+ *        manifest with verified reciprocal links to confirmed test bills.
+ *        Counters (system/counters), restore progress (system/_restoreProgress),
+ *        physical reservations (system/res_phys_*), and all unknown system/* documents
+ *        remain unconditionally protected and rejected.
+ * - D-2: Receipt linkage schema alignment.
+ *        Validates actual production receipt fields: source === 'billing', billingFirestoreId,
+ *        billingId, and reservationDocId against corresponding billing records.
+ *        Requires reciprocal confirmation. Unlinked, conflicting, independent, or physical
+ *        receipts fail closed and are protected.
+ * - D-3: Protected collection whitelist hardening.
+ *        Removed payments, transfers, loans, and chitty collections from allowed candidates.
+ *        Added explicit deny-by-default and protected collection denylist coverage.
  *
  * MODES SUPPORTED:
  * - inventory: Inspect synthetic fixtures and classify candidate records.
  * - validate:  Validate manifest structure, dependencies, and protected path safeguards.
  * - dry-run:   Perform complete simulation without performing any writes or deletions.
- * - execute:   STRICTLY DISABLED in STEP 33.53. Fails closed and performs zero mutations.
+ * - execute:   STRICTLY AND PERMANENTLY DISABLED in STEP 33.120. Fails closed with zero mutations.
  *
  * ABSOLUTE SAFETY BOUNDARIES:
  * - Zero connection to production Firebase (temple-f4f7d) or Vercel.
  * - Zero production reads, modifications, or deletions.
  * - Candidate rules (allow delete: if false;) respected; zero client-side delete bypasses.
- * - Monotonic counters (system/counters), reservations (system/res_*), and idempotency
- *   records (system/op_*) are strictly protected and never decremented or deleted.
+ * - Monotonic counters (system/counters) and recovery metadata (system/_restoreProgress)
+ *   are strictly protected and never decremented or deleted.
  */
 
 'use strict';
@@ -36,27 +53,36 @@ const RECORD_CLASSIFICATIONS = Object.freeze({
   UNVERIFIED_RECORD: 'unverified_record'
 });
 
+/**
+ * Whitelist of deletion-eligible candidate collections.
+ * Hardened per Defect D-3: payments, transfers, loans, and chitty records REMOVED.
+ * Added 'system' under strictly scoped billing reservation/idempotency policy (Defect D-1).
+ */
 const ALLOWED_CANDIDATE_COLLECTIONS = Object.freeze([
   'billing',
   'receipts',
-  'payments',
-  'transfers',
-  'loans',
-  'chittyCollections',
-  'chittyPayouts',
-  'chittyMembers',
+  'system',
   'migration_staging',
   '__system_diagnostics__'
 ]);
 
+/**
+ * Denylist of protected collections that must NEVER be targeted for cleanup.
+ * Hardened per Defect D-3: includes payments, transfers, loans, and chitty collections.
+ */
 const PROTECTED_COLLECTIONS = Object.freeze([
-  'system',
   'settings',
   'funds',
   'incomeCategories',
   'expenseCategories',
   'bankAccounts',
-  'users'
+  'users',
+  'payments',
+  'transfers',
+  'loans',
+  'chittyCollections',
+  'chittyPayouts',
+  'chittyMembers'
 ]);
 
 const PROTECTED_EXACT_DOCS = Object.freeze([
@@ -97,12 +123,17 @@ function computeSha256(data) {
 /**
  * Evaluates whether a given collection and document ID matches the protected-record denylist.
  * Normalizes alternate casing, URL decoding, path separators, and traversal attempts.
+ *
+ * Implements:
+ * - Narrowly scoped path policy for system collection (Defect D-1)
+ * - Rejection of physical and independent receipts (Defect D-2)
+ * - Explicit protection of payments, transfers, loans, and chitty (Defect D-3)
  */
 function checkProtectedPath(collection, docId) {
   const rawCol = String(collection || '').trim();
   const rawId = String(docId || '').trim();
 
-  // Attempt URL decode to catch encoded bypass attempts (e.g., %73ystem)
+  // Attempt URL decode to catch encoded bypass attempts (e.g., %73ystem, %2f)
   let decCol = rawCol;
   let decId = rawId;
   try { decCol = decodeURIComponent(rawCol); } catch (e) {}
@@ -113,6 +144,15 @@ function checkProtectedPath(collection, docId) {
     return {
       isProtected: true,
       reason: `Suspicious or malformed document ID containing path traversal or separators: ${rawId}`,
+      assetType: 'invalid_path_syntax'
+    };
+  }
+
+  // Detect path traversal, null bytes, backslashes in collection
+  if (decCol.includes('/') || decCol.includes('\\') || decCol.includes('..') || decCol.includes('\0')) {
+    return {
+      isProtected: true,
+      reason: `Suspicious or malformed collection containing path traversal or separators: ${rawCol}`,
       assetType: 'invalid_path_syntax'
     };
   }
@@ -136,18 +176,85 @@ function checkProtectedPath(collection, docId) {
     };
   }
 
-  // 2. Entire protected collections (case-insensitive & normalized)
+  // 2. Global sequence counter document guard (case-insensitive & normalized)
+  if (lowerId === 'counters' || lowerId.startsWith('counters/') || normPath.endsWith('/counters')) {
+    return {
+      isProtected: true,
+      reason: 'Global sequence counter document (monotonic invariant)',
+      assetType: 'sequence_counters'
+    };
+  }
+
+  // 3. Physical receipts and physical sequences guard (rcpt_phys_*, res_phys_*, op_phys_*)
+  if (lowerId.startsWith('rcpt_phys_')) {
+    return {
+      isProtected: true,
+      reason: 'Physical receipt document is protected from cleanup',
+      assetType: 'physical_receipt'
+    };
+  }
+  if (lowerId.startsWith('res_phys_') || lowerId.startsWith('op_phys_')) {
+    return {
+      isProtected: true,
+      reason: 'Physical sequence reservation or idempotency marker is protected',
+      assetType: 'physical_reservation'
+    };
+  }
+
+  // 4. Narrowly scoped System collection path policy (Defect D-1)
+  if (lowerCol === 'system' || normPath.startsWith('system/')) {
+    // 4a. Monotonic sequence counters
+    if (lowerId === 'counters' || normPath === 'system/counters') {
+      return { isProtected: true, reason: 'Global sequence counter document (system/counters)', assetType: 'sequence_counters' };
+    }
+    // 4b. Recovery progress and restore controls
+    if (lowerId === '_restoreprogress' || lowerId.startsWith('_') || normPath.includes('/_restoreprogress')) {
+      return { isProtected: true, reason: `System recovery and control document: system/${rawId}`, assetType: 'system_recovery_metadata' };
+    }
+    // 4c. Physical reservations / operations
+    if (lowerId.startsWith('res_phys_') || lowerId.startsWith('op_phys_')) {
+      return { isProtected: true, reason: `Physical sequence reservation/idempotency marker: system/${rawId}`, assetType: 'physical_reservation' };
+    }
+    // 4d. Permitted billing-linked reservation (system/res_*)
+    // Permitted for consideration ONLY; requires reciprocal validation against confirmed test bill in validateManifest
+    if (lowerId.startsWith('res_')) {
+      return {
+        isProtected: false,
+        conditionalCandidate: true,
+        assetType: 'sequence_reservation',
+        reason: 'Permitted billing reservation candidate subject to reciprocal bill validation'
+      };
+    }
+    // 4e. Permitted billing-linked idempotency record (system/op_*)
+    // Permitted for consideration ONLY; requires reciprocal validation against confirmed test bill in validateManifest
+    if (lowerId.startsWith('op_')) {
+      return {
+        isProtected: false,
+        conditionalCandidate: true,
+        assetType: 'idempotency_record',
+        reason: 'Permitted billing idempotency candidate subject to reciprocal bill validation'
+      };
+    }
+    // 4f. Reject all unknown / unverified system document types by default
+    return {
+      isProtected: true,
+      reason: `Unknown or non-eligible system document type: system/${rawId}`,
+      assetType: 'system_metadata'
+    };
+  }
+
+  // 5. Sequence markers or idempotency tokens outside system collection are prohibited
+  if (lowerCol !== 'system' && (lowerId.startsWith('res_') || lowerId.startsWith('op_'))) {
+    return {
+      isProtected: true,
+      reason: `Sequence marker or idempotency record cannot be targeted outside system collection: ${rawCol}/${rawId}`,
+      assetType: 'sequence_reservation'
+    };
+  }
+
+  // 6. Protected collections denylist check (Defect D-3)
   const lowerProtectedCols = PROTECTED_COLLECTIONS.map(c => c.toLowerCase());
   if (lowerProtectedCols.includes(lowerCol) || lowerProtectedCols.some(c => normPath.startsWith(c + '/'))) {
-    if (lowerCol === 'system' || normPath.startsWith('system/')) {
-      if (lowerId.startsWith('res_') || normPath.includes('/res_')) {
-        return { isProtected: true, reason: 'Sequence reservation document (system/res_*)', assetType: 'sequence_reservation' };
-      }
-      if (lowerId.startsWith('op_') || normPath.includes('/op_')) {
-        return { isProtected: true, reason: 'Immutable idempotency token (system/op_*)', assetType: 'idempotency_record' };
-      }
-      return { isProtected: true, reason: 'System metadata document (system/*)', assetType: 'system_metadata' };
-    }
     if (lowerCol === 'settings' || normPath.startsWith('settings/')) {
       return { isProtected: true, reason: 'Temple identity and account settings (settings/*)', assetType: 'master_configuration' };
     }
@@ -163,20 +270,23 @@ function checkProtectedPath(collection, docId) {
     if (lowerCol === 'users' || normPath.startsWith('users/')) {
       return { isProtected: true, reason: 'Authentication and access control record (users/*)', assetType: 'authentication_config' };
     }
+    if (lowerCol === 'payments' || normPath.startsWith('payments/')) {
+      return { isProtected: true, reason: 'Expense payment vouchers are protected financial records (payments/*)', assetType: 'protected_financial_record' };
+    }
+    if (lowerCol === 'transfers' || normPath.startsWith('transfers/')) {
+      return { isProtected: true, reason: 'Fund transfers are protected financial records (transfers/*)', assetType: 'protected_financial_record' };
+    }
+    if (lowerCol === 'loans' || normPath.startsWith('loans/')) {
+      return { isProtected: true, reason: 'Loans and repayments are protected financial records (loans/*)', assetType: 'protected_financial_record' };
+    }
+    if (lowerCol === 'chittycollections' || lowerCol === 'chittypayouts' || lowerCol === 'chittymembers' ||
+        normPath.startsWith('chittycollections/') || normPath.startsWith('chittypayouts/') || normPath.startsWith('chittymembers/')) {
+      return { isProtected: true, reason: 'Chitty member and financial records are protected (chitty*/*)', assetType: 'chitty_record' };
+    }
     return { isProtected: true, reason: `Protected collection: ${rawCol}`, assetType: 'protected_collection' };
   }
 
-  // 3. Document ID prefix protections regardless of collection specified (case-insensitive)
-  if (lowerId === 'counters' || lowerId.startsWith('counters/') || normPath.endsWith('/counters')) {
-    return { isProtected: true, reason: 'Global sequence counter document', assetType: 'sequence_counters' };
-  }
-  if (lowerId.startsWith('res_') || normPath.includes('/res_')) {
-    return { isProtected: true, reason: 'Sequence reservation marker', assetType: 'sequence_reservation' };
-  }
-  if (lowerId.startsWith('op_') || normPath.includes('/op_')) {
-    return { isProtected: true, reason: 'Idempotency operation record', assetType: 'idempotency_record' };
-  }
-
+  // Not protected by path rule alone. Candidate eligibility evaluated by whitelist and relational validation.
   return { isProtected: false };
 }
 
@@ -238,7 +348,7 @@ class CleanupOrchestrator {
           continue;
         }
 
-        // Evaluate candidate status
+        // Evaluate candidate status against whitelist
         const isCandidateCol = ALLOWED_CANDIDATE_COLLECTIONS.includes(colName);
         if (!isCandidateCol) {
           report.counts.unverified++;
@@ -251,6 +361,11 @@ class CleanupOrchestrator {
         }
 
         // Classify record
+        let defaultRecordType = `${colName}_record`;
+        if (colName === 'system') {
+          defaultRecordType = docId.startsWith('res_') ? 'billing_reservation' : (docId.startsWith('op_') ? 'billing_idempotency' : 'system_record');
+        }
+
         const classification = doc._classification || (
           (doc.devoteeName === 'twstg' || doc.person === 'maya' || doc.notes === 'test')
             ? RECORD_CLASSIFICATIONS.UNVERIFIED_RECORD
@@ -269,7 +384,7 @@ class CleanupOrchestrator {
           report.candidates.push({
             collection: colName,
             docId: docId,
-            recordType: doc._recordType || `${colName}_record`,
+            recordType: doc._recordType || defaultRecordType,
             classification: classification,
             fingerprint: computeSha256(doc),
             amount: doc.amount || doc.totalAmount || 0,
@@ -287,7 +402,7 @@ class CleanupOrchestrator {
    * Rigorously validates a manifest against schema rules, protected-record denylists,
    * dependency relationships, and authorization status.
    */
-  validateManifest(manifest, datasetFixture = null) {
+  validateManifest(manifest, datasetFixture = null, options = {}) {
     const result = {
       valid: false,
       schemaVersion: null,
@@ -316,10 +431,14 @@ class CleanupOrchestrator {
     result.schemaVersion = manifest.manifestVersion;
     result.manifestId = manifest.manifestId || 'unspecified_manifest';
 
-    // 2. Reject override attempts
-    const manifestStr = JSON.stringify(manifest);
-    if (/overrideProtected|forceDelete|ignoreDenylist|bypassSafeguards|allowProtected|skipValidation|dryRunBypass|disableSafetyChecks|adminBypass/i.test(manifestStr)) {
-      result.errors.push('SECURITY_VIOLATION: Manifest attempts to override protected-path rules or safety safeguards.');
+    // 2. Reject override or bypass attempts in manifest or options (Preserve Execution Lock)
+    const manifestStr = JSON.stringify(manifest || {});
+    const optionsStr = JSON.stringify(options || {});
+    const combinedStr = manifestStr + ' ' + optionsStr;
+    const suspiciousPattern = /overrideProtected|forceDelete|force_delete|force-delete|ignoreDenylist|ignore_protection|ignore-protection|ignoreProtection|bypassSafeguards|bypass_safeguards|bypass-safeguards|allowProtected|skipValidation|dryRunBypass|disableSafetyChecks|adminBypass|emergencyDelete|bypass_protection|force_execution|unconditionalDelete/i;
+
+    if (suspiciousPattern.test(combinedStr)) {
+      result.errors.push('SECURITY_VIOLATION: Manifest or options attempt to override protected-path rules or safety safeguards.');
       return result;
     }
 
@@ -344,6 +463,15 @@ class CleanupOrchestrator {
             fixtureMap.set(`${colName}/${id}`, d);
           }
         }
+      }
+    }
+
+    // Pre-index manifest entries for order-independent reciprocal validation
+    const manifestEntryMap = new Map();
+    for (const e of manifest.entries) {
+      if (e && typeof e === 'object' && e.collection && e.docId) {
+        const k = `${String(e.collection).trim()}/${String(e.docId).trim()}`;
+        manifestEntryMap.set(k, e);
       }
     }
 
@@ -432,13 +560,13 @@ class CleanupOrchestrator {
         continue;
       }
 
-      // Check unsupported collection path
+      // Check unsupported collection path (Defect D-3: explicit deny-by-default)
       if (!ALLOWED_CANDIDATE_COLLECTIONS.includes(col)) {
         result.rejectedEntries.push({
           index: i,
           collection: col,
           docId,
-          reason: `Unsupported collection path: ${col}`,
+          reason: `Unsupported or non-candidate collection path: ${col}. Only candidate collections are eligible.`,
           entry
         });
         result.errors.push(`${entryRef}: Unsupported collection path "${col}".`);
@@ -512,6 +640,7 @@ class CleanupOrchestrator {
 
       if (col === 'billing') {
         const linkedRcptId = entry.expectedRelationships?.linkedReceiptId ||
+          entry.expectedRelationships?.accountingReceiptId ||
           entry.linkedRecordIds?.find(id => String(id).startsWith('rcpt_')) ||
           (docFixture && docFixture.accountingReceiptId);
 
@@ -522,76 +651,216 @@ class CleanupOrchestrator {
             reason: `Billing document ${docId} has no linked receipt specified.`
           });
           result.errors.push(`${entryRef}: Bill ${docId} has missing linked receipt reference.`);
-        } else if (fixtureMap.size > 0 && !fixtureMap.has(`receipts/${linkedRcptId}`)) {
-          result.missingDependencies.push({
-            entryDocId: docId,
-            missingDocPath: `receipts/${linkedRcptId}`,
-            reason: `Bill ${docId} references nonexistent or missing receipt ${linkedRcptId}.`
-          });
-          result.errors.push(`${entryRef}: Bill ${docId} references missing linked receipt ${linkedRcptId}.`);
+        } else {
+          // Check if linked receipt is included in the manifest
+          const rcptInManifest = manifestEntryMap.has(`receipts/${linkedRcptId}`);
+          if (!rcptInManifest) {
+            result.missingDependencies.push({
+              entryDocId: docId,
+              missingDocPath: `receipts/${linkedRcptId}`,
+              reason: `Bill ${docId} references linked receipt ${linkedRcptId} which is not included in the manifest.`
+            });
+            result.errors.push(`${entryRef}: Bill ${docId} references linked receipt ${linkedRcptId} which is missing from manifest.`);
+          } else {
+            // Reciprocal link check on receipt
+            const rcptEntry = manifestEntryMap.get(`receipts/${linkedRcptId}`);
+            const rcptFixture = fixtureMap.get(`receipts/${linkedRcptId}`) || (rcptEntry && rcptEntry.documentData);
+            const rcptBillId = rcptEntry?.expectedRelationships?.billingFirestoreId ||
+              rcptEntry?.expectedRelationships?.linkedBillId ||
+              (rcptEntry?.expectedRelationships?.billingId !== undefined && rcptEntry?.expectedRelationships?.billingId !== null ? `bill_${rcptEntry.expectedRelationships.billingId}` : null) ||
+              rcptFixture?.billingFirestoreId ||
+              (rcptFixture?.billingId !== undefined && rcptFixture?.billingId !== null ? `bill_${rcptFixture.billingId}` : null) ||
+              rcptFixture?.linkedBillId;
+
+            if (rcptBillId && rcptBillId !== docId) {
+              result.dependencyConflicts.push({
+                entryDocId: docId,
+                conflictingDocPath: `receipts/${linkedRcptId}`,
+                reason: `Bill ${docId} links to receipt ${linkedRcptId}, but receipt references bill ${rcptBillId}.`
+              });
+              result.errors.push(`${entryRef}: Conflicting bill/receipt linkage: Bill ${docId} references receipt ${linkedRcptId}, but receipt claims ${rcptBillId}.`);
+            }
+          }
+
+          if (fixtureMap.size > 0 && !fixtureMap.has(`receipts/${linkedRcptId}`)) {
+            result.missingDependencies.push({
+              entryDocId: docId,
+              missingDocPath: `receipts/${linkedRcptId}`,
+              reason: `Bill ${docId} references nonexistent receipt ${linkedRcptId} in fixture.`
+            });
+            result.errors.push(`${entryRef}: Bill ${docId} references missing linked receipt ${linkedRcptId}.`);
+          }
         }
       } else if (col === 'receipts') {
-        const linkedBillId = entry.expectedRelationships?.linkedBillId ||
-          entry.linkedRecordIds?.find(id => String(id).startsWith('bill_')) ||
-          (docFixture && (docFixture.linkedBillId || docFixture.accountingBillId));
+        // Physical receipt check (Defect D-2)
+        if (docId.startsWith('rcpt_phys_') || entry.recordType === 'physical_receipt') {
+          result.protectedEntries.push({
+            index: i,
+            collection: col,
+            docId,
+            reason: 'Physical receipt is protected from cleanup.',
+            assetType: 'physical_receipt',
+            entry
+          });
+          result.errors.push(`${entryRef}: Physical receipt ${docId} cannot be targeted for cleanup.`);
+          continue;
+        }
 
-        if (linkedBillId && fixtureMap.size > 0) {
-          const billFixture = fixtureMap.get(`billing/${linkedBillId}`);
-          if (billFixture) {
-            // Check reciprocal link consistency
-            if (billFixture.accountingReceiptId && billFixture.accountingReceiptId !== docId) {
+        // Independent receipt check: must have source === 'billing' (Defect D-2)
+        const rcptSource = docFixture?.source || entry.expectedRelationships?.source || entry.source || (entry.documentData && entry.documentData.source);
+        if (rcptSource && rcptSource !== 'billing') {
+          result.protectedEntries.push({
+            index: i,
+            collection: col,
+            docId,
+            reason: `Independent receipt with source "${rcptSource}" is protected from cleanup.`,
+            assetType: 'independent_receipt',
+            entry
+          });
+          result.errors.push(`${entryRef}: Independent receipt ${docId} (source: ${rcptSource}) cannot be targeted for cleanup.`);
+          continue;
+        }
+
+        // Linked bill identification using actual schema fields: billingFirestoreId and billingId (Defect D-2)
+        const linkedBillId = entry.expectedRelationships?.billingFirestoreId ||
+          entry.expectedRelationships?.linkedBillId ||
+          (entry.expectedRelationships?.billingId !== undefined && entry.expectedRelationships?.billingId !== null ? `bill_${entry.expectedRelationships.billingId}` : null) ||
+          entry.linkedRecordIds?.find(id => String(id).startsWith('bill_')) ||
+          (docFixture && (
+            docFixture.billingFirestoreId ||
+            (docFixture.billingId !== undefined && docFixture.billingId !== null ? `bill_${docFixture.billingId}` : null) ||
+            docFixture.linkedBillId ||
+            docFixture.accountingBillId
+          ));
+
+        if (!linkedBillId) {
+          result.missingDependencies.push({
+            entryDocId: docId,
+            dependencyType: 'linked_bill',
+            reason: `Receipt ${docId} has missing linked bill reference (billingFirestoreId / billingId). Unlinked receipts fail closed.`
+          });
+          result.errors.push(`${entryRef}: Receipt ${docId} has missing linked bill reference.`);
+          continue;
+        }
+
+        // Bill must be in manifest
+        const billInManifest = manifestEntryMap.has(`billing/${linkedBillId}`);
+        if (!billInManifest) {
+          result.missingDependencies.push({
+            entryDocId: docId,
+            missingDocPath: `billing/${linkedBillId}`,
+            reason: `Receipt ${docId} references bill ${linkedBillId} which is not included in the manifest.`
+          });
+          result.errors.push(`${entryRef}: Receipt ${docId} references bill ${linkedBillId} which is missing from manifest.`);
+        }
+
+        // Reciprocal checks against bill fixture / entry
+        const billEntry = manifestEntryMap.get(`billing/${linkedBillId}`);
+        const billFixture = fixtureMap.get(`billing/${linkedBillId}`) || (billEntry && billEntry.documentData);
+
+        if (billFixture || billEntry) {
+          const billRcptId = billEntry?.expectedRelationships?.linkedReceiptId ||
+            billEntry?.expectedRelationships?.accountingReceiptId ||
+            billFixture?.accountingReceiptId;
+
+          if (billRcptId && billRcptId !== docId) {
+            result.dependencyConflicts.push({
+              entryDocId: docId,
+              conflictingDocPath: `billing/${linkedBillId}`,
+              reason: `Receipt ${docId} links to bill ${linkedBillId}, but bill references receipt ${billRcptId}.`
+            });
+            result.errors.push(`${entryRef}: Conflicting bill/receipt linkage between ${docId} and ${linkedBillId}.`);
+          }
+
+          // Check reservationDocId consistency if present on both
+          const rcptResId = entry.expectedRelationships?.reservationDocId || docFixture?.reservationDocId;
+          const billResId = billEntry?.expectedRelationships?.reservationDocId ||
+            billEntry?.expectedRelationships?.linkedReservationId ||
+            billFixture?.reservationDocId;
+
+          if (rcptResId && billResId && rcptResId !== billResId) {
+            result.dependencyConflicts.push({
+              entryDocId: docId,
+              conflictingDocPath: `billing/${linkedBillId}`,
+              reason: `Receipt ${docId} specifies reservation ${rcptResId}, but bill specifies ${billResId}.`
+            });
+            result.errors.push(`${entryRef}: Contradictory reservation linkage between receipt ${docId} and bill ${linkedBillId}.`);
+          }
+        }
+      } else if (col === 'system') {
+        // Narrowly scoped system collection validation (Defect D-1)
+        const isRes = docId.startsWith('res_') && !docId.startsWith('res_phys_');
+        const isOp = docId.startsWith('op_') && !docId.startsWith('op_phys_');
+
+        if (!isRes && !isOp) {
+          result.rejectedEntries.push({
+            index: i,
+            collection: col,
+            docId,
+            reason: `System collection entry "${docId}" is not an eligible billing reservation or idempotency document.`,
+            entry
+          });
+          result.errors.push(`${entryRef}: Non-eligible or unknown system document type "${fullPath}".`);
+          continue;
+        }
+
+        // Must link to a confirmed test bill
+        const linkedBillId = entry.expectedRelationships?.billDocId ||
+          entry.expectedRelationships?.linkedBillId ||
+          entry.linkedRecordIds?.find(id => String(id).startsWith('bill_')) ||
+          (docFixture && (docFixture.billDocId || docFixture.linkedBillId));
+
+        if (!linkedBillId) {
+          result.missingDependencies.push({
+            entryDocId: docId,
+            dependencyType: 'linked_bill',
+            reason: `System document ${docId} has no linked bill specified. Must be linked to a confirmed test bill.`
+          });
+          result.errors.push(`${entryRef}: System document ${docId} has missing linked bill reference.`);
+          continue;
+        }
+
+        // Bill must be in manifest
+        const billInManifest = manifestEntryMap.has(`billing/${linkedBillId}`);
+        if (!billInManifest) {
+          result.missingDependencies.push({
+            entryDocId: docId,
+            missingDocPath: `billing/${linkedBillId}`,
+            reason: `System document ${docId} references bill ${linkedBillId} which is not included in the manifest.`
+          });
+          result.errors.push(`${entryRef}: System document ${docId} references bill ${linkedBillId} which is missing from manifest.`);
+        }
+
+        // Reciprocal checks against bill
+        const billEntry = manifestEntryMap.get(`billing/${linkedBillId}`);
+        const billFixture = fixtureMap.get(`billing/${linkedBillId}`) || (billEntry && billEntry.documentData);
+
+        if (billFixture || billEntry) {
+          if (isRes) {
+            const expectedResId = billEntry?.expectedRelationships?.linkedReservationId ||
+              billEntry?.expectedRelationships?.reservationDocId ||
+              billFixture?.reservationDocId;
+            if (expectedResId && expectedResId !== docId) {
               result.dependencyConflicts.push({
                 entryDocId: docId,
                 conflictingDocPath: `billing/${linkedBillId}`,
-                reason: `Receipt ${docId} links to bill ${linkedBillId}, but bill references ${billFixture.accountingReceiptId}.`
+                reason: `Reservation ${docId} claims bill ${linkedBillId}, but bill specifies reservation ${expectedResId}.`
               });
-              result.errors.push(`${entryRef}: Conflicting bill/receipt linkage between ${docId} and ${linkedBillId}.`);
+              result.errors.push(`${entryRef}: Conflicting reservation linkage between ${docId} and ${linkedBillId}.`);
             }
           }
-        }
-      } else if (col === 'transfers') {
-        const fromAcc = entry.expectedRelationships?.fromAcc || (docFixture && docFixture.fromAcc);
-        const toAcc = entry.expectedRelationships?.toAcc || (docFixture && docFixture.toAcc);
-        if (!fromAcc || !toAcc || fromAcc === toAcc) {
-          result.dependencyConflicts.push({
-            entryDocId: docId,
-            reason: `Incomplete or invalid transfer pair (fromAcc: "${fromAcc}", toAcc: "${toAcc}").`
-          });
-          result.errors.push(`${entryRef}: Transfer ${docId} has incomplete transfer pair.`);
-        }
-      } else if (col === 'chittyCollections' || col === 'chittyPayouts') {
-        const memberId = entry.expectedRelationships?.memberId || (docFixture && docFixture.memberId);
-        if (!memberId) {
-          result.dependencyConflicts.push({
-            entryDocId: docId,
-            reason: `Chitty transaction ${docId} has missing memberId reference.`
-          });
-          result.errors.push(`${entryRef}: Chitty record ${docId} has missing member reference.`);
-        } else if (fixtureMap.size > 0 && !fixtureMap.has(`chittyMembers/${memberId}`) && !fixtureMap.has(`chittyMembers/cm_${memberId}`)) {
-          result.dependencyConflicts.push({
-            entryDocId: docId,
-            missingDocPath: `chittyMembers/${memberId}`,
-            reason: `Chitty transaction ${docId} references inconsistent/nonexistent member ${memberId}.`
-          });
-          result.errors.push(`${entryRef}: Chitty record ${docId} references inconsistent member ${memberId}.`);
-        }
-      } else if (col === 'loans') {
-        const isRepayment = entry.recordType === 'loan_repayment' || (docFixture && (docFixture.repayment > 0 && (!docFixture.loanReceived || docFixture.loanReceived === 0)));
-        if (isRepayment) {
-          const parentLoanId = entry.expectedRelationships?.parentLoanId || (docFixture && docFixture.parentLoanId);
-          if (!parentLoanId) {
-            result.dependencyConflicts.push({
-              entryDocId: docId,
-              reason: `Loan repayment ${docId} has missing parent loan reference.`
-            });
-            result.errors.push(`${entryRef}: Loan repayment ${docId} references missing parent loan.`);
-          } else if (fixtureMap.size > 0 && !fixtureMap.has(`loans/${parentLoanId}`)) {
-            result.dependencyConflicts.push({
-              entryDocId: docId,
-              missingDocPath: `loans/${parentLoanId}`,
-              reason: `Loan repayment ${docId} references nonexistent parent loan ${parentLoanId}.`
-            });
-            result.errors.push(`${entryRef}: Loan repayment ${docId} has inconsistent loan references.`);
+          if (isOp) {
+            const expectedOpId = billEntry?.expectedRelationships?.linkedOperationId ||
+              billEntry?.expectedRelationships?.operationId ||
+              billFixture?.operationId;
+            if (expectedOpId && expectedOpId !== docId) {
+              result.dependencyConflicts.push({
+                entryDocId: docId,
+                conflictingDocPath: `billing/${linkedBillId}`,
+                reason: `Idempotency record ${docId} claims bill ${linkedBillId}, but bill specifies operation ${expectedOpId}.`
+              });
+              result.errors.push(`${entryRef}: Conflicting idempotency linkage between ${docId} and ${linkedBillId}.`);
+            }
           }
         }
       }
@@ -629,7 +898,7 @@ class CleanupOrchestrator {
    * STRICTLY READ-ONLY: Produces zero writes and zero mutations.
    */
   dryRun(manifest, datasetFixture = null, options = {}) {
-    const valResult = this.validateManifest(manifest, datasetFixture);
+    const valResult = this.validateManifest(manifest, datasetFixture, options);
 
     const dryRunReport = {
       schemaVersion: MANIFEST_SCHEMA_VERSION,
@@ -659,21 +928,27 @@ class CleanupOrchestrator {
           status: 'UNTOUCHED'
         },
         {
-          assetType: 'sequence_reservations',
-          targetPath: 'system/res_*',
-          rule: 'MANDATORY AUDIT PRESERVATION. Historical sequence reservations remain intact.',
+          assetType: 'recovery_metadata',
+          targetPath: 'system/_restoreProgress',
+          rule: 'MANDATORY AUDIT PRESERVATION. System restore progress and recovery audit documents remain permanently intact.',
           status: 'UNTOUCHED'
         },
         {
-          assetType: 'idempotency_tokens',
-          targetPath: 'system/op_*',
-          rule: 'IMMUTABLE AUDIT MARKERS. Write-once operation records remain permanently intact.',
+          assetType: 'protected_financial_records',
+          targetPath: 'payments/*, transfers/*, loans/*, chitty*/*',
+          rule: 'MANDATORY FINANCIAL PRESERVATION. Payments, transfers, loans, and chitty records are strictly excluded from candidate collections and protected by denylist.',
           status: 'UNTOUCHED'
         },
         {
           assetType: 'master_configuration',
-          targetPath: 'settings/set_1, funds/*, incomeCategories/*, expenseCategories/*, bankAccounts/*',
-          rule: '100% PRESERVED. Temple settings, 6 accounting funds, category master records, and bank accounts are never modified by cleanup.',
+          targetPath: 'settings/set_1, funds/*, incomeCategories/*, expenseCategories/*, bankAccounts/*, users/*',
+          rule: '100% PRESERVED. Temple settings, 6 accounting funds, category master records, bank accounts, and auth configuration are never modified by cleanup.',
+          status: 'UNTOUCHED'
+        },
+        {
+          assetType: 'physical_receipts_and_reservations',
+          targetPath: 'receipts/rcpt_phys_*, system/res_phys_*, system/op_phys_*',
+          rule: 'UNTOUCHED. Physical receipt documents, physical reservations, and independent receipts are protected from cleanup.',
           status: 'UNTOUCHED'
         }
       ],
@@ -687,7 +962,7 @@ class CleanupOrchestrator {
       validationWarnings: valResult.warnings,
       localCacheEvictionPlan: {
         strategy: 'SELECTIVE_EVICTION_BY_DOC_ID',
-        mechanism: 'Evict only verified candidate document IDs from local IndexedDB object stores (billing, receipts, payments, transfers, loans, chitty) after verified cloud cleanup.',
+        mechanism: 'Evict only verified candidate document IDs from local IndexedDB object stores (billing, receipts) after verified cloud cleanup.',
         prohibitedActions: [
           'DO NOT call indexedDB.deleteDatabase()',
           'DO NOT call clearStore("settings")',
@@ -699,7 +974,7 @@ class CleanupOrchestrator {
       executionStatus: {
         isExecutionEnabled: false,
         reasonsExecutionBlocked: [
-          'STEP 33.53 GOVERNANCE: Execute mode is strictly disabled in STEP 33.53.',
+          'STEP 33.120 GOVERNANCE: Execute mode is strictly disabled in STEP 33.120.',
           'FIRESTORE_SECURITY_RULES: Candidate rules enforce "allow delete: if false;" across financial collections.',
           'AUTHORIZATION_GATE: Requires independent written sign-off from Temple Trustees prior to any mutation.',
           'BACKUP_PREREQUISITE: Requires verified production backup under schema v23.2 with SHA-256 integrity verification immediately prior to execution.'
@@ -733,17 +1008,18 @@ class CleanupOrchestrator {
 
   /**
    * Mode: EXECUTE
-   * Must remain STRICTLY DISABLED in STEP 33.53.
-   * Always throws an error and performs zero deletions.
+   * STRICTLY AND PERMANENTLY DISABLED in STEP 33.120.
+   * Physical deletion of records is prohibited. Always throws an error and performs zero deletions.
    */
   execute(manifest, options = {}) {
-    const error = new Error('EXECUTE_MODE_DISABLED: Execution mode is strictly disabled in STEP 33.53. Physical deletion of records is prohibited.');
+    const error = new Error('EXECUTE_MODE_DISABLED: Execution mode is strictly disabled in STEP 33.120. Physical deletion of records is permanently prohibited.');
     error.code = 'EXECUTE_MODE_DISABLED';
     error.details = {
       attemptedMode: 'execute',
       mutationsPerformed: 0,
       deletionsPerformed: 0,
-      reason: 'Safety boundary violation. STEP 33.53 permits only inventory, validation, and dry-run operations.'
+      trusteeApprovalBypassed: false,
+      reason: 'Safety boundary enforcement. STEP 33.120 permits only offline validation and dry-run reporting. Deletion execution is unconditionally locked.'
     };
     throw error;
   }

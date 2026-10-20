@@ -1,0 +1,526 @@
+{
+  "timestamp": "2026-10-17T15:56:39.182Z",
+  "targetFile": "Temple_Accounts-1.html",
+  "targetFileSha256": "F4D4059E57D62C146BD29FD7AA40D795DE2B9696A5E0840CBE89896E02E4AD66",
+  "expectedSha256": "E507680CA498983FB57AD31D7BDC6C17BFA0E8A64630A6606753DE8B20269367",
+  "hashMatches": false,
+  "fileSizeBytes": 823711,
+  "totalTests": 57,
+  "passedTests": 54,
+  "failedTests": 3,
+  "tests": [
+    {
+      "id": "TC-33.68-01",
+      "name": "Target file is Temple_Accounts-1.html",
+      "group": "BASELINE",
+      "passed": true,
+      "expected": "Temple_Accounts-1.html",
+      "actual": "Temple_Accounts-1.html",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.68-02",
+      "name": "SHA-256 hash exactly matches STEP 33.67 reported hash",
+      "group": "BASELINE",
+      "passed": false,
+      "expected": "E507680CA498983FB57AD31D7BDC6C17BFA0E8A64630A6606753DE8B20269367",
+      "actual": "F4D4059E57D62C146BD29FD7AA40D795DE2B9696A5E0840CBE89896E02E4AD66",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.68-03",
+      "name": "File size matches STEP 33.67 reported size (808,927 bytes)",
+      "group": "BASELINE",
+      "passed": false,
+      "expected": 808927,
+      "actual": 833834,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.68-04",
+      "name": "Total predefined items in BILLING_DEFAULT_ITEMS is 15",
+      "group": "BASELINE",
+      "passed": true,
+      "expected": 15,
+      "actual": 15,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.68-05",
+      "name": "Total predefined Vazhipadu items is 14",
+      "group": "BASELINE",
+      "passed": true,
+      "expected": 14,
+      "actual": 14,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.68-06",
+      "name": "Separate \"നൂൽജപം\" (Nooljabam) exists in catalogue at ₹20",
+      "group": "BASELINE",
+      "passed": true,
+      "expected": "₹20 fixed",
+      "actual": "₹20",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.68-07",
+      "name": "Separate \"അർച്ചന\" (Archana) exists in catalogue at ₹20",
+      "group": "BASELINE",
+      "passed": true,
+      "expected": "₹20 fixed",
+      "actual": "₹20",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.68-08",
+      "name": "Combined item \"നൂൽജപം/അർച്ചന\" is absent from master catalogue",
+      "group": "BASELINE",
+      "passed": true,
+      "expected": false,
+      "actual": false,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.68-09",
+      "name": "Charadu Puja was NOT introduced by STEP 33.67",
+      "group": "BASELINE",
+      "passed": true,
+      "expected": false,
+      "actual": false,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.68-10",
+      "name": "firestore.rules baseline hash preserved",
+      "group": "SAFETY",
+      "passed": true,
+      "expected": "7BFEF0B0F4C31A5DAFC6FB29C8C4BBD55CBAD3A8A590EFC34BD87F4600CF90BD",
+      "actual": "7BFEF0B0F4C31A5DAFC6FB29C8C4BBD55CBAD3A8A590EFC34BD87F4600CF90BD",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.68-11",
+      "name": "deploy_staging_step_33_43 release package hash preserved",
+      "group": "SAFETY",
+      "passed": true,
+      "expected": "AEB01303F22F69E284D680A55E182FC78312C48E4266C02809179DF789E87CBC",
+      "actual": "AEB01303F22F69E284D680A55E182FC78312C48E4266C02809179DF789E87CBC",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.68-12",
+      "name": "Test A: Nooljabam chip is rendered at index 0",
+      "group": "TEST_A_NOOLJABAM",
+      "passed": true,
+      "expected": "നൂൽജപം",
+      "actual": "നൂൽജപം",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.68-13",
+      "name": "Test A: Nooljabam selected line item is exactly \"നൂൽജപം\"",
+      "group": "TEST_A_NOOLJABAM",
+      "passed": true,
+      "expected": "നൂൽജപം",
+      "actual": "നൂൽജപം",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.68-14",
+      "name": "Test A: Nooljabam unit price is ₹20",
+      "group": "TEST_A_NOOLJABAM",
+      "passed": true,
+      "expected": 20,
+      "actual": 20,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.68-15",
+      "name": "Test A: Nooljabam quantity 1 yields total ₹20",
+      "group": "TEST_A_NOOLJABAM",
+      "passed": true,
+      "expected": "20 / ₹20.00",
+      "actual": "20 / ₹20.00",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.68-16",
+      "name": "Test A: Nooljabam help text verifies \"₹20 × 1 = ₹20\"",
+      "group": "TEST_A_NOOLJABAM",
+      "passed": true,
+      "expected": "₹20 × 1 = ₹20",
+      "actual": "₹20 × 1 = ₹20",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.68-17",
+      "name": "Test B: Archana chip is rendered at index 1 and clickable",
+      "group": "TEST_B_ARCHANA",
+      "passed": true,
+      "expected": "അർച്ചന",
+      "actual": "അർച്ചന",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.68-18",
+      "name": "Test B: Archana selected line item is exactly \"അർച്ചന\"",
+      "group": "TEST_B_ARCHANA",
+      "passed": true,
+      "expected": "അർച്ചന",
+      "actual": "അർച്ചന",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.68-19",
+      "name": "Test B: Archana unit price is ₹20",
+      "group": "TEST_B_ARCHANA",
+      "passed": true,
+      "expected": 20,
+      "actual": 20,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.68-20",
+      "name": "Test B: Archana quantity 1 yields total ₹20",
+      "group": "TEST_B_ARCHANA",
+      "passed": true,
+      "expected": "20 / ₹20.00",
+      "actual": "20 / ₹20.00",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.68-21",
+      "name": "Test B: Archana help text verifies \"₹20 × 1 = ₹20\"",
+      "group": "TEST_B_ARCHANA",
+      "passed": true,
+      "expected": "₹20 × 1 = ₹20",
+      "actual": "₹20 × 1 = ₹20",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.68-22",
+      "name": "Test C: Selecting Archana deactivates Nooljabam chip",
+      "group": "TEST_C_INDEPENDENCE",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.68-23",
+      "name": "Test C: Selecting Archana does NOT add Nooljabam automatically",
+      "group": "TEST_C_INDEPENDENCE",
+      "passed": true,
+      "expected": 1,
+      "actual": 1,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.68-24",
+      "name": "Test C: Switching back to Nooljabam deactivates Archana chip",
+      "group": "TEST_C_INDEPENDENCE",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.68-25",
+      "name": "Test C: Switching does not leave duplicate or stale selection",
+      "group": "TEST_C_INDEPENDENCE",
+      "passed": true,
+      "expected": "നൂൽജപം",
+      "actual": "നൂൽജപം",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.68-26",
+      "name": "isStrictPerPersonPuja recognizes \"നൂൽജപം\"",
+      "group": "MULTI_DEVOTEE",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.68-27",
+      "name": "isStrictPerPersonPuja recognizes \"അർച്ചന\"",
+      "group": "MULTI_DEVOTEE",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.68-28",
+      "name": "Nooljabam 1 Devotee: Qty = 1, Total = ₹20",
+      "group": "MULTI_DEVOTEE",
+      "passed": true,
+      "expected": "Qty: 1, Total: 20",
+      "actual": "Qty: 1, Total: 20",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.68-29",
+      "name": "Nooljabam 2 Devotees: Qty = 2, Total = ₹40",
+      "group": "MULTI_DEVOTEE",
+      "passed": true,
+      "expected": "Qty: 2, Total: 40",
+      "actual": "Qty: 2, Total: 40",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.68-30",
+      "name": "Nooljabam 5 Devotees: Qty = 5, Total = ₹100",
+      "group": "MULTI_DEVOTEE",
+      "passed": true,
+      "expected": "Qty: 5, Total: 100",
+      "actual": "Qty: 5, Total: 100",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.68-31",
+      "name": "Archana 1 Devotee: Qty = 1, Total = ₹20",
+      "group": "MULTI_DEVOTEE",
+      "passed": true,
+      "expected": "Qty: 1, Total: 20",
+      "actual": "Qty: 1, Total: 20",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.68-32",
+      "name": "Archana 2 Devotees: Qty = 2, Total = ₹40",
+      "group": "MULTI_DEVOTEE",
+      "passed": true,
+      "expected": "Qty: 2, Total: 40",
+      "actual": "Qty: 2, Total: 40",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.68-33",
+      "name": "Archana 5 Devotees: Qty = 5, Total = ₹100",
+      "group": "MULTI_DEVOTEE",
+      "passed": true,
+      "expected": "Qty: 5, Total: 100",
+      "actual": "Qty: 5, Total: 100",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.68-34",
+      "name": "Saved Nooljabam record stores exact item name \"നൂൽജപം\"",
+      "group": "SAVED_RECORDS",
+      "passed": true,
+      "expected": "നൂൽജപം",
+      "actual": "നൂൽജപം",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.68-35",
+      "name": "Saved Nooljabam record stores unitPrice 20, qty 1, totalAmount 20",
+      "group": "SAVED_RECORDS",
+      "passed": true,
+      "expected": "20, 1, 20",
+      "actual": "20, 1, 20",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.68-36",
+      "name": "Saved Nooljabam record links to accounting receipt R-043",
+      "group": "SAVED_RECORDS",
+      "passed": true,
+      "expected": "R-043",
+      "actual": "R-043",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.68-37",
+      "name": "Nooljabam thermal receipt renders item \"നൂൽജപം\"",
+      "group": "RECEIPT_RENDER",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.68-38",
+      "name": "Nooljabam thermal receipt renders rate ₹20.00 and total ₹20.00",
+      "group": "RECEIPT_RENDER",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.68-39",
+      "name": "Nooljabam thermal receipt renders devotee \"Anand\" and star \"Rohini\"",
+      "group": "RECEIPT_RENDER",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.68-40",
+      "name": "Saved Archana record stores exact item name \"അർച്ചന\"",
+      "group": "SAVED_RECORDS",
+      "passed": true,
+      "expected": "അർച്ചന",
+      "actual": "അർച്ചന",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.68-41",
+      "name": "Saved Archana record stores unitPrice 20, qty 5, totalAmount 100",
+      "group": "SAVED_RECORDS",
+      "passed": true,
+      "expected": "20, 5, 100",
+      "actual": "20, 5, 100",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.68-42",
+      "name": "Saved Archana record stores full roster of 5 devotees",
+      "group": "SAVED_RECORDS",
+      "passed": true,
+      "expected": 5,
+      "actual": 5,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.68-43",
+      "name": "Saved Archana record links to accounting receipt R-042",
+      "group": "SAVED_RECORDS",
+      "passed": true,
+      "expected": "R-042",
+      "actual": "R-042",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.68-44",
+      "name": "Archana thermal receipt renders item \"അർച്ചന\"",
+      "group": "RECEIPT_RENDER",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.68-45",
+      "name": "Archana thermal receipt renders Qty: 5 × ₹20.00 and Amt: ₹100.00",
+      "group": "RECEIPT_RENDER",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.68-46",
+      "name": "Archana thermal receipt renders all 5 devotees in roster section",
+      "group": "RECEIPT_RENDER",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.68-47",
+      "name": "Nooljabam billing maps category \"വഴിപാട്\" to \"General Temple Fund\"",
+      "group": "ACCOUNTING_INTEGRATION",
+      "passed": true,
+      "expected": "General Temple Fund",
+      "actual": "General Temple Fund",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.68-48",
+      "name": "Archana billing maps category \"വഴിപാട്\" to \"General Temple Fund\"",
+      "group": "ACCOUNTING_INTEGRATION",
+      "passed": true,
+      "expected": "General Temple Fund",
+      "actual": "General Temple Fund",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.68-49",
+      "name": "Single-entry aggregation: Cash Book calculates from receipts, preventing duplicate counting",
+      "group": "ACCOUNTING_INTEGRATION",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.68-50",
+      "name": "Historical combined bill BILL-041 renders original text without substitution",
+      "group": "HISTORY_PERSISTENCE",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.68-51",
+      "name": "Historical separate bill BILL-034 renders \"നൂൽജപം\" intact",
+      "group": "HISTORY_PERSISTENCE",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.68-52",
+      "name": "Historical bill BILL-035 with legacy spelling renders intact",
+      "group": "HISTORY_PERSISTENCE",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.68-53",
+      "name": "fsVoidLinkedBillingAndReceipt helper exists in source",
+      "group": "VOIDING_AUDIT",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.68-54",
+      "name": "voidBillingRecord helper exists and preserves audit history",
+      "group": "VOIDING_AUDIT",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.68-55",
+      "name": "Voided receipt renders VOIDED banner and strike-through on total",
+      "group": "VOIDING_AUDIT",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-33.68-56",
+      "name": "Application SHA-256 hash unchanged at verification conclusion",
+      "group": "SAFETY",
+      "passed": false,
+      "expected": "E507680CA498983FB57AD31D7BDC6C17BFA0E8A64630A6606753DE8B20269367",
+      "actual": "F4D4059E57D62C146BD29FD7AA40D795DE2B9696A5E0840CBE89896E02E4AD66",
+      "detail": ""
+    },
+    {
+      "id": "TC-33.68-57",
+      "name": "Strict Read-Only Guarantee: Zero application files modified during verification",
+      "group": "SAFETY",
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "detail": ""
+    }
+  ]
+}

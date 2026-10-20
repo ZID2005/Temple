@@ -1,0 +1,598 @@
+{
+  "step": "33.59",
+  "feature": "Multiple Devotees & 80 mm Thermal Receipt Integration Audit",
+  "temple": "Marutha Chamundi Devi Temple / മറുതാ ചാമുണ്ഡി ദേവി ക്ഷേത്രം",
+  "phase": "Strictly Read-Only Audit & Implementation Planning — No implementation during this step",
+  "timestamp": "2026-10-14T11:25:00+05:30",
+  "safetyBoundaries": {
+    "templeAccountsModified": false,
+    "applicationSourceModified": false,
+    "existingTestsModified": false,
+    "frozenReleaseOrStagingModified": false,
+    "productionFirebaseConnected": false,
+    "productionFinancialRecordsAccessedOrModified": false,
+    "deploymentsPerformed": false,
+    "securityRulesModified": false,
+    "countersOrReservationsReset": false,
+    "financialRecordsCreatedEditedOrMigrated": false,
+    "historicalBillsOrReceiptsModified": false,
+    "vazhipaduCatalogueAltered": false,
+    "customVazhipaduBehaviorChanged": false,
+    "dependenciesOrProjectConfigInstalled": false,
+    "existingBackupsManifestsOrAuditEvidenceModified": false
+  },
+  "auditFindingsClassification": {
+    "sourceInspected": [
+      "Existing devotee name input is single element #name at line 11218",
+      "Existing nakshatram input is single free-text input #star with placeholder 'അശ്വതി, ഭരണി... (Optional)' at line 11222; NO dropdown or predefined star select exists in Temple_Accounts-1.html",
+      "Catalogue contains exactly 13 predefined Vazhipadu items and 1 Punarudharanam item in BILLING_DEFAULT_ITEMS (lines 8029-8044), plus dynamically appended Custom Vazhipadu option (appendCustomVazhipaduOption, line 8116)",
+      "Billing quantity control is #qty input with stepper billingAdjustQty() (min 1, max 500, integer) at lines 11229-11236",
+      "Pricing calculation in updatePrice() supports fixed-rate (calculatedTotal = price * qty), Custom Vazhipadu (calculatedTotal = Math.round(rate * qty * 100) / 100), and variable donation (user entered total)",
+      "Form validation in billingSubmitForm() requires category, item, custom rate/name if custom, devotee name, integer quantity >= 1, total > 0, payment mode",
+      "Bill and receipt creation occurs atomically in fsCreateBillingWithAccounting() inside a single Firestore transaction allocating one sequential global counter and reservation doc",
+      "Cash Book and Bank Book read strictly from receipts collection; billing collection is operational POS and thermal reprint store, ensuring zero double counting",
+      "Payment modes in billing are strictly single-mode 'Cash' or 'UPI'; no split/mixed payment mode exists in the application",
+      "Thermal printing hardcoded to 58mm in 9 distinct code and style locations including @media print (#print-area.billing-58mm), inline @page injection (size: 58mm auto), receipt-paper-box (max-width: 300px), and status announcer strings",
+      "Reprinting via reprintBillingRecord() directly calls renderThermalReceiptHTML() and printBillingReceipt(), reusing persisted billing document data",
+      "Full backup and restore in downloadBackup() / restoreBackup() serializes and restores entire collections as JSON, tolerating new structured fields without schema violation"
+    ],
+    "testEvidenced": [
+      "Atomic synchronization between billing and receipts validated in test_step_33_22_idempotency_application_hardening.js",
+      "Monotonic unified sequence numbering (BILL-xxx / R-xxx) verified in test_step_33_12_unified_numbering_suite.js",
+      "Dynamic button states and double-submission protection verified in test_step_33_23_dynamic_button_suite.js",
+      "Printer paper feed animation and 50 FPS performance verified in test_step_33_25_printer_animation.js and STEP_33_30C_THERMAL_50FPS_OPTIMIZATION_REPORT.md",
+      "Custom Vazhipadu integration, rate validation, and CSV export verified in test_step_33_56b_custom_vazhipadu.js"
+    ],
+    "unresolved": [
+      "Physical printer output on actual 80 mm hardware requires live testing with physical ESC/POS or browser driver on target device",
+      "Quantity auto-synchronization policy for batch/family pujas (e.g. Ganapathi Homam with multiple family names) vs per-person offerings (Archana) requires operator preference confirmation",
+      "Nakshatram selection UX: whether to provide a standard 27-star datalist/dropdown or maintain free-text input with datalist autocomplete requires administrative alignment"
+    ]
+  },
+  "currentArchitectureLocations": {
+    "file": "Temple_Accounts-1.html",
+    "devoteeNameField": {
+      "elementId": "name",
+      "line": 11218,
+      "type": "text",
+      "required": true
+    },
+    "nakshatramField": {
+      "elementId": "star",
+      "line": 11222,
+      "type": "text",
+      "hasDropdown": false,
+      "placeholder": "അശ്വതി, ഭരണി... (Optional)"
+    },
+    "pujaSelector": {
+      "categorySegmented": "billingCategorySegmented (line 11167)",
+      "categorySelect": "categorySelect (line 11179)",
+      "itemSelect": "itemSelect (line 11188)",
+      "itemChips": "billingItemChips (line 11189)",
+      "customItemRow": "billingCustomItemRow (lines 11193-11202)"
+    },
+    "quantityControl": {
+      "elementId": "qty",
+      "line": 11233,
+      "adjustFunc": "billingAdjustQty (lines 8096-8105)",
+      "min": 1,
+      "max": 500
+    },
+    "calculationEngine": {
+      "function": "updatePrice",
+      "lines": "8213-8337"
+    },
+    "formValidationAndSubmission": {
+      "function": "billingSubmitForm",
+      "lines": "9113-9572"
+    },
+    "formReset": {
+      "function": "billingResetForm",
+      "lines": "9585-9650"
+    },
+    "atomicPersistence": {
+      "function": "fsCreateBillingWithAccounting",
+      "lines": "18403-18790"
+    },
+    "thermalReceiptRenderer": {
+      "function": "renderThermalReceiptHTML",
+      "lines": "8339-8402"
+    },
+    "thermalPrintTrigger": {
+      "function": "printBillingReceipt",
+      "lines": "8903-8944"
+    },
+    "receiptPreview": {
+      "function": "renderBillingReceiptPreview",
+      "lines": "8825-8901"
+    },
+    "billingHistory": {
+      "refresh": "refreshBillingHistory (lines 9718-9736)",
+      "filters": "applyBillingFilters (lines 9831-10093)",
+      "detailsModal": "viewBillingDetails (lines 10906-11040)",
+      "reprint": "reprintBillingRecord (lines 11048-11057)"
+    },
+    "reportsAndExport": {
+      "filter": "applyBillingReportFilters (lines 10320-10480)",
+      "csvExport": "exportBillingReportCSV (lines 10484-10565)",
+      "voidedCsvExport": "exportVoidedBillsCSV (lines 10117-10175)"
+    }
+  },
+  "proposedMultiDevoteeDataStructure": {
+    "billingRecordUpdates": {
+      "devotees": [
+        {
+          "name": "string (required, trimmed, 1-80 chars)",
+          "star": "string (optional, trimmed, 0-40 chars)"
+        }
+      ],
+      "devoteeCount": "number (integer >= 1, matches devotees.length)",
+      "devoteeName": "string (legacy backward compatibility: primary devotee or summary)",
+      "star": "string (legacy backward compatibility: primary star or summary)"
+    },
+    "accountingReceiptUpdates": {
+      "name": "string (primary devotee name, e.g. 'രാഹുൽ കൃഷ്ണൻ' or 'രാഹുൽ കൃഷ്ണൻ (+ 5 others)')",
+      "description": "string (e.g. 'അർച്ചന (Qty: 6) | Devotees: രാഹുൽ കൃഷ്ണൻ, പ്രിയാ രാഹുൽ, ...')"
+    },
+    "idempotencyFingerprintUpdates": {
+      "function": "computeBillingFingerprint (v2)",
+      "canonicalSerialization": "devotees serialized deterministically as semicolon-separated pairs (name:star;name:star) within canonical fingerprint"
+    }
+  },
+  "thermalReceipt80mmLocations": [
+    {
+      "type": "CSS @media print Container",
+      "lines": "4208-4300",
+      "current": "#print-area.billing-58mm, body.printing-billing-58mm (width: 58mm !important)",
+      "proposed": "#print-area.billing-80mm, body.printing-billing-80mm (width: 80mm !important, printable ~72mm, padding: 3mm 4mm 4mm 4mm)"
+    },
+    {
+      "type": "Dynamic @page Style Injection",
+      "lines": "8920-8927",
+      "current": "@page { size: 58mm auto; margin: 0; }",
+      "proposed": "@page { size: 80mm auto; margin: 0; }"
+    },
+    {
+      "type": "Preview Box CSS",
+      "lines": "3438-3457",
+      "current": ".receipt-paper-box { max-width: 300px; }",
+      "proposed": ".receipt-paper-box { max-width: 380px; }"
+    },
+    {
+      "type": "HTML Template",
+      "lines": "8339-8402",
+      "current": "Single devotee name and single star row",
+      "proposed": "Dedicated devotee roster section with indexed rows for each devotee and individual star, growing vertically"
+    },
+    {
+      "type": "Chassis and Announcer Labels",
+      "lines": "8563, 8564, 8610, 8835, 8838, 8853, 10028, 10082, 11134",
+      "current": "Hardcoded text references to '58mm'",
+      "proposed": "Update UI labels and screen reader announcements to '80mm'"
+    }
+  ],
+  "scenarios": [
+    {
+      "id": "SCEN-01",
+      "title": "One Devotee, One Fixed Puja",
+      "category": "Baseline Single Devotee",
+      "inputs": {
+        "category": "വഴിപാട്",
+        "item": "നൂൽജപം/അർച്ചന",
+        "unitPrice": 20,
+        "devotees": [{ "name": "രാഹുൽ കൃഷ്ണൻ", "star": "അശ്വതി" }],
+        "qty": 1,
+        "paymentMode": "Cash"
+      },
+      "expectedResults": {
+        "totalAmount": 20.00,
+        "devoteeCount": 1,
+        "legacyDevoteeName": "രാഹുൽ കൃഷ്ണൻ",
+        "legacyStar": "അശ്വതി",
+        "receiptRoster": "1. രാഹുൽ കൃഷ്ണൻ — അശ്വതി",
+        "receiptWidth": "80mm",
+        "linkedAccountingReceipt": {
+          "amount": 20.00,
+          "category": "Vazhipadu Income",
+          "fund": "General Temple Fund"
+        }
+      },
+      "verificationMethod": "Automated DOM assertion & transaction payload inspection"
+    },
+    {
+      "id": "SCEN-02",
+      "title": "Two Devotees, Same Puja",
+      "category": "Multi-Devotee Pairing",
+      "inputs": {
+        "category": "വഴിപാട്",
+        "item": "നൂൽജപം/അർച്ചന",
+        "unitPrice": 20,
+        "devotees": [
+          { "name": "രാഹുൽ കൃഷ്ണൻ", "star": "അശ്വതി" },
+          { "name": "പ്രിയാ രാഹുൽ", "star": "ഭരണി" }
+        ],
+        "qty": 2,
+        "paymentMode": "Cash"
+      },
+      "expectedResults": {
+        "totalAmount": 40.00,
+        "devoteeCount": 2,
+        "receiptRoster": "Row 1: രാഹുൽ കൃഷ്ണൻ (അശ്വതി), Row 2: പ്രിയാ രാഹുൽ (ഭരണി)",
+        "receiptWidth": "80mm",
+        "singleBillSingleReceipt": true
+      },
+      "verificationMethod": "Verify line total rate*2, devotee array length 2, and single accounting receipt with amount 40.00"
+    },
+    {
+      "id": "SCEN-03",
+      "title": "Six Devotees, Same Puja (Family Archana Canonical Case)",
+      "category": "Core Requirement Validation",
+      "inputs": {
+        "category": "വഴിപാട്",
+        "item": "നൂൽജപം/അർച്ചന",
+        "unitPrice": 20,
+        "devotees": [
+          { "name": "സുരേഷ് കുമാർ", "star": "അശ്വതി" },
+          { "name": "ലക്ഷ്മി സുരേഷ്", "star": "രോഹിണി" },
+          { "name": "വിഷ്ണു സുരേഷ്", "star": "മകയിരം" },
+          { "name": "അഞ്ജലി സുരേഷ്", "star": "തിരുവാതിര" },
+          { "name": "നാരായണൻ പിള്ള", "star": "പുണർതം" },
+          { "name": "സരസ്വതി അമ്മ", "star": "ആയില്യം" }
+        ],
+        "qty": 6,
+        "paymentMode": "Cash"
+      },
+      "expectedResults": {
+        "totalAmount": 120.00,
+        "devoteeCount": 6,
+        "receiptRosterLines": 6,
+        "verticalGrowth": true,
+        "fontLegibility": "Readable 11px-12px without horizontal compression",
+        "accountingContribution": "Single receipt for ₹120.00, zero duplicate income"
+      },
+      "verificationMethod": "Assert 6 roster items in receipt DOM, rate*6 calculation, and single bill document"
+    },
+    {
+      "id": "SCEN-04",
+      "title": "Ten or More Devotees, Same Puja",
+      "category": "Stress & Layout Scaling",
+      "inputs": {
+        "category": "വഴിപാട്",
+        "item": "രക്തപുഷ്പാഞ്ജലി",
+        "unitPrice": 50,
+        "devoteeCount": 12,
+        "paymentMode": "Cash"
+      },
+      "expectedResults": {
+        "totalAmount": 600.00,
+        "verticalPaperExpansion": "Continuous vertical growth without overflow truncation",
+        "printerModalScrolling": "Modal container scrolls cleanly, paper emerges properly in animation",
+        "printPageBoundary": "Print driver flows to continuous thermal roll height without artificial page breaks"
+      },
+      "verificationMethod": "Programmatic generation of 12 devotees, checking print-area scrollHeight and CSS continuous roll handling"
+    },
+    {
+      "id": "SCEN-05",
+      "title": "Long Malayalam Devotee Names",
+      "category": "Typography & Wrapping",
+      "inputs": {
+        "category": "വഴിപാട്",
+        "item": "നൂൽജപം/അർച്ചന",
+        "unitPrice": 20,
+        "devotees": [
+          { "name": "പത്മനാഭപുരം രാജരാജേശ്വരി തിരുമനസ്സ് ശങ്കരനാരായണൻ നമ്പൂതിരി", "star": "ഉത്രാടം" }
+        ],
+        "qty": 1,
+        "paymentMode": "Cash"
+      },
+      "expectedResults": {
+        "wordWrapping": "Wraps gracefully onto second line without overlapping the star or clipping margin",
+        "alignment": "Star remains aligned on right column or stacked cleanly",
+        "receiptWidth": "Does not cause horizontal scrollbar or blowout past 80 mm"
+      },
+      "verificationMethod": "DOM bounding rect check on devotee name row and overflow assertion"
+    },
+    {
+      "id": "SCEN-06",
+      "title": "Different Nakshatrams for Every Devotee",
+      "category": "Roster Diversity",
+      "inputs": {
+        "category": "വഴിപാട്",
+        "item": "നൂൽജപം/അർച്ചന",
+        "unitPrice": 20,
+        "devotees": [
+          { "name": "ആനന്ദ്", "star": "കാർത്തിക" },
+          { "name": "ഭാവന", "star": "മകം" },
+          { "name": "ചന്ദ്രൻ", "star": "ചോതി" },
+          { "name": "ദീപ", "star": "രേവതി" }
+        ],
+        "qty": 4,
+        "paymentMode": "Cash"
+      },
+      "expectedResults": {
+        "totalAmount": 80.00,
+        "starPreservation": "Each devotee retains their distinct nakshatram without crosstalk or overwriting"
+      },
+      "verificationMethod": "Verify each row in payload has exact matching star from input"
+    },
+    {
+      "id": "SCEN-07",
+      "title": "Missing Name or Nakshatram Validation",
+      "category": "Validation UX",
+      "inputs": {
+        "category": "വഴിപാട്",
+        "item": "നൂൽജപം/അർച്ചന",
+        "devotees": [
+          { "name": "രാഹുൽ", "star": "അശ്വതി" },
+          { "name": "", "star": "ഭരണി" },
+          { "name": "വിവേക്", "star": "" }
+        ]
+      },
+      "expectedResults": {
+        "emptyNameBehavior": "Validation halts with visual error highlighting empty name (row 2); submission rejected",
+        "emptyStarBehavior": "Optional star accepted (row 3); prints as '---' or omits star gracefully without validation rejection"
+      },
+      "verificationMethod": "Form submission test verifying error feedback display and focus set to invalid input"
+    },
+    {
+      "id": "SCEN-08",
+      "title": "Adding and Removing Devotees Dynamically",
+      "category": "Dynamic Form UX",
+      "steps": [
+        "Load form with default 1 devotee",
+        "Fill Devotee 1 name 'രാഹുൽ'",
+        "Click '+ Add Devotee'",
+        "Fill Devotee 2 name 'പ്രിയ'",
+        "Click '+ Add Devotee'",
+        "Fill Devotee 3 name 'ആദി'",
+        "Remove Devotee 2 ('പ്രിയ')",
+        "Verify Devotee 1 ('രാഹുൽ') and Devotee 3 (now row 2 'ആദി') retain their exact values",
+        "Try to remove remaining rows until 1 devotee remains; verify delete button is disabled/hidden on last remaining row"
+      ],
+      "expectedResults": {
+        "valuePreservation": "Existing input values are never cleared or shifted incorrectly during addition or removal",
+        "minimumBoundary": "At least 1 devotee entry is enforced at all times",
+        "quantityUpdate": "Quantity stepper automatically updates from 1 -> 2 -> 3 -> 2"
+      },
+      "verificationMethod": "DOM input event sequence test with state verification after each add/remove action"
+    },
+    {
+      "id": "SCEN-09",
+      "title": "Quantity and Devotee Count Mismatch Resolution",
+      "category": "Business Logic Integrity",
+      "inputs": {
+        "devoteeCount": 4,
+        "manualQtyInput": 2
+      },
+      "expectedResults": {
+        "ruleEnforcement": "System synchronizes quantity to 4 or blocks submission with clear warning that 4 devotees cannot be allocated across 2 units for individual Archana",
+        "transparency": "Operator alerted with actionable Malayalam/English explanation before transaction commit"
+      },
+      "verificationMethod": "Attempt submit with mismatched quantity and assert guard message"
+    },
+    {
+      "id": "SCEN-10",
+      "title": "Custom Vazhipadu with Multiple Devotees",
+      "category": "Custom Item Integration",
+      "inputs": {
+        "category": "വഴിപാട്",
+        "customName": "വിശേഷാൽ മൃത്യുഞ്ജയ ഹോമം",
+        "customRate": 150.00,
+        "devotees": [
+          { "name": "ഹരിദാസ്", "star": "പൂയം" },
+          { "name": "ശ്രീലത", "star": "ഉത്രം" }
+        ],
+        "qty": 2,
+        "paymentMode": "Cash"
+      },
+      "expectedResults": {
+        "totalAmount": 300.00,
+        "rateMultiplication": "150.00 * 2 = 300.00",
+        "itemName": "വിശേഷാൽ മൃത്യുഞ്ജയ ഹോമം (preserves custom name, not generic Custom Vazhipadu)",
+        "receiptOutput": "Custom name, ₹150 rate, 2 devotees, ₹300 total on 80 mm layout"
+      },
+      "verificationMethod": "Execute custom vazhipadu form flow with 2 devotees and verify calculation and thermal output"
+    },
+    {
+      "id": "SCEN-11",
+      "title": "Separate Pujas Must Use Separate Bills",
+      "category": "Core Billing Criteria Preservation",
+      "steps": [
+        "Operator books Archana for 3 devotees",
+        "Submit and print Bill 1",
+        "Operator books Kadumpayasam for 1 devotee",
+        "Submit and print Bill 2"
+      ],
+      "expectedResults": {
+        "multiPujaRejection": "UI does not combine Archana and Kadumpayasam into one bill",
+        "sequentialNumbering": "Bill 1 receives sequence N (BILL-105 / R-105), Bill 2 receives sequence N+1 (BILL-106 / R-106)",
+        "twoDistinctTransactions": "Two distinct atomic Firestore operations committed"
+      },
+      "verificationMethod": "Inspect Firestore operations log for two independent transactions"
+    },
+    {
+      "id": "SCEN-12",
+      "title": "Cash-Only Payment for Multi-Devotee Bill",
+      "category": "Payment Mode Handling",
+      "inputs": {
+        "paymentMode": "Cash",
+        "total": 120.00
+      },
+      "expectedResults": {
+        "paymentModeField": "Cash",
+        "bankAccount": "",
+        "receiptDisplay": "CASH / ₹120.00",
+        "cashBookImpact": "Cash Book registers +₹120.00 under Vazhipadu Income"
+      },
+      "verificationMethod": "Verify Cash Book balance recalculation includes ₹120.00 credit"
+    },
+    {
+      "id": "SCEN-13",
+      "title": "UPI-Only Payment for Multi-Devotee Bill",
+      "category": "Payment Mode Handling",
+      "inputs": {
+        "paymentMode": "UPI",
+        "total": 120.00
+      },
+      "expectedResults": {
+        "paymentModeField": "UPI",
+        "bankAccount": "Resolved default temple bank account",
+        "receiptDisplay": "UPI / ₹120.00 (Bank: Federal Bank)",
+        "bankBookImpact": "Bank Book registers +₹120.00 deposit"
+      },
+      "verificationMethod": "Verify Bank Book balance recalculation includes ₹120.00 deposit"
+    },
+    {
+      "id": "SCEN-14",
+      "title": "Mixed Cash/UPI Payment Compatibility Check",
+      "category": "Payment Mode Boundary",
+      "investigation": "Source inspection confirms application does NOT support split/mixed payments for a single bill. Form presents binary Cash vs UPI segmented control.",
+      "expectedResults": {
+        "currentBehaviorPreserved": "Bill must be paid entirely in Cash or entirely via UPI; mixed payments not supported without structural redesign",
+        "boundaryDocumented": "Documented as source-inspected constraint"
+      },
+      "verificationMethod": "Code inspection of #billingPaymentModes and paymentMode schema"
+    },
+    {
+      "id": "SCEN-15",
+      "title": "Billing History & Receipt Reprint with Multi-Devotees",
+      "category": "History & Reprint Fidelity",
+      "inputs": {
+        "persistedBillId": "bill_107",
+        "devotees": [
+          { "name": "മാധവൻ", "star": "അത്തം" },
+          { "name": "വാസന്തി", "star": "ചിത്തിര" }
+        ]
+      },
+      "expectedResults": {
+        "tableDisplay": "Table lists primary devotee 'മാധവൻ (+ 1 other)' or full list with star tooltips",
+        "detailsModal": "Modal displays complete Devotee Table with all names and stars",
+        "reprintOutput": "Reprint renders full 80 mm layout matching original bill exactly"
+      },
+      "verificationMethod": "Trigger viewBillingDetails() and reprintBillingRecord() on multi-devotee bill"
+    },
+    {
+      "id": "SCEN-16",
+      "title": "Thermal Print Preview & Physical 80 mm Output",
+      "category": "Printer Integration",
+      "aspects": [
+        "Screen preview in #billingReceiptPreviewArea (.receipt-paper-box, max-width: 380px)",
+        "Native animated modal in window.ReceiptPrinter",
+        "Browser @page { size: 80mm auto; margin: 0; } print rendering",
+        "Physical hardware output"
+      ],
+      "expectedResults": {
+        "previewFidelity": "Screen preview accurately mirrors 80 mm thermal ticket geometry",
+        "hardwareDisclaimer": "Physical printer output marked UNRESOLVED until physical hardware bench test"
+      },
+      "verificationMethod": "Inspect CSS computed styles and layout dimensions; note physical hardware testing requirement"
+    },
+    {
+      "id": "SCEN-17",
+      "title": "Legacy Single-Devotee Bill Rendering Backward Compatibility",
+      "category": "Backward Compatibility",
+      "inputs": {
+        "legacyRecord": {
+          "id": 50,
+          "receiptNo": "BILL-050",
+          "item": "കൂട്ടുപായസം",
+          "quantity": 1,
+          "unitPrice": 250,
+          "totalAmount": 250,
+          "devoteeName": "ശങ്കരൻ",
+          "star": "തിരുവോണം",
+          "devotees": null
+        }
+      },
+      "expectedResults": {
+        "gracefulFallback": "If r.devotees is null or undefined, renderer constructs fallback [{ name: r.devoteeName, star: r.star }]",
+        "renderingFidelity": "Reprint and history view render flawlessly without javascript runtime errors",
+        "zeroRegression": "Existing historical bills display seamlessly in new 80 mm layout"
+      },
+      "verificationMethod": "Pass legacy record without devotees array to renderThermalReceiptHTML() and assert zero errors"
+    },
+    {
+      "id": "SCEN-18",
+      "title": "Backup/Restore Field Preservation",
+      "category": "Data Portability & Recovery",
+      "steps": [
+        "Create multi-devotee bill in Firestore",
+        "Execute downloadBackup()",
+        "Verify exported JSON contains devotees array with all name/star pairs",
+        "Simulate restoreBackup()",
+        "Verify restored billing document preserves devotees array with 100% fidelity"
+      ],
+      "expectedResults": {
+        "jsonSerialization": "Array of objects serialized properly in collections.billing",
+        "schemaValidationPass": "restoreBackup() Phase 3 passes without rejecting devotees field",
+        "restorationIntegrity": "Restored record maintains identical devotees, sequence, and monetary total"
+      },
+      "verificationMethod": "JSON structure inspection and schema verification against restoreBackup() validator"
+    },
+    {
+      "id": "SCEN-19",
+      "title": "Linked Voiding and Accounting Totals Integrity",
+      "category": "Audit & Financial Integrity",
+      "steps": [
+        "Create multi-devotee bill for ₹300 (3 devotees × ₹100)",
+        "Verify Cash Book balance increases by ₹300",
+        "Execute voidBillingRecord() with cancellation reason 'Devotee requested cancellation'",
+        "Verify bill, linked accounting receipt, and reservation marked voided: true",
+        "Verify Cash Book balance reverts by exactly ₹300"
+      ],
+      "expectedResults": {
+        "atomicVoid": "Bidirectional voiding cancels bill, linked receipt, and reservation in single batch",
+        "financialReversion": "Zero orphaned income; Cash Book excludes voided receipt via activeReceipts()",
+        "reprintVoided": "Reprint Voided outputs 80 mm receipt with '*** VOIDED / റദ്ദാക്കിയത് ***' watermark and reason"
+      },
+      "verificationMethod": "Call voidBillingRecord() and verify getCashBalance() and thermal void header"
+    }
+  ],
+  "implementationRoadmapStep33_60": [
+    {
+      "phase": "1. Data Model & Fingerprinting",
+      "tasks": [
+        "Define canonical devotee object schema { name: string, star: string }",
+        "Update computeBillingFingerprint (v2) to serialize devotees array deterministically",
+        "Update fsCreateBillingWithAccounting to write devotees array, devoteeCount, and legacy devoteeName/star"
+      ]
+    },
+    {
+      "phase": "2. Form UI & Dynamic Devotee Roster",
+      "tasks": [
+        "Replace single devotee inputs in VIEW_RENDERERS.billing with repeatable #billingDevoteesContainer",
+        "Implement addDevoteeEntry() and removeDevoteeEntry() maintaining minimum 1 devotee",
+        "Implement nakshatram selector (Option A: 27-star datalist autocomplete or select)",
+        "Bind quantity auto-synchronization for per-person offerings in updatePrice()",
+        "Update billingResetForm() to reset roster to 1 clean entry"
+      ]
+    },
+    {
+      "phase": "3. 80 mm Thermal Print & CSS Engine",
+      "tasks": [
+        "Update @media print CSS from 58mm to 80mm (#print-area.billing-80mm, body.printing-billing-80mm)",
+        "Update dynamic @page style injection in printBillingReceipt() to size: 80mm auto",
+        "Update .receipt-paper-box max-width to 380px for realistic preview",
+        "Update renderThermalReceiptHTML() to render full vertical devotee roster with index, name, and star",
+        "Update UI text and screen-reader labels from '58mm' to '80mm'"
+      ]
+    },
+    {
+      "phase": "4. History, Details Modal, Reports, & CSV",
+      "tasks": [
+        "Update applyBillingFilters() search haystack to index all devotee names and stars in devotees array",
+        "Update viewBillingDetails() to render comprehensive devotees table",
+        "Update exportBillingReportCSV() and exportVoidedBillsCSV() to output devotee names and count cleanly",
+        "Add legacy fallback handling in renderThermalReceiptHTML() for historical bills without devotees array"
+      ]
+    },
+    {
+      "phase": "5. Automated Regression & Bench Verification",
+      "tasks": [
+        "Develop test suite test_step_33_60_multiple_devotees_80mm.js covering all 19 scenarios",
+        "Run emulator suite verifying atomic persistence, idempotency, numbering, and voiding",
+        "Perform browser print emulation to verify 80 mm ticket dimensions and vertical pagination"
+      ]
+    }
+  ]
+}

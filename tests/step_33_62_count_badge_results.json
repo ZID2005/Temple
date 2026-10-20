@@ -1,0 +1,163 @@
+{
+  "step": "33.62",
+  "feature": "Minimal Devotee Count Badge Fix",
+  "timestamp": "2026-10-14T10:48:45.748Z",
+  "environment": {
+    "nodeVersion": "v24.14.0",
+    "os": "win32",
+    "htmlPath": "D:\\Temple\\Temple_Accounts-1.html",
+    "htmlSizeBytes": 808927,
+    "htmlSha256": "E507680CA498983FB57AD31D7BDC6C17BFA0E8A64630A6606753DE8B20269367"
+  },
+  "tests": [
+    {
+      "id": "TEST-33.62-01",
+      "title": "HTML markup contains <span id=\"billingDevoteeCountBadge\">",
+      "passed": true,
+      "expected": "true",
+      "actual": "true",
+      "details": ""
+    },
+    {
+      "id": "TEST-33.62-02",
+      "title": "Initial static badge text in HTML is \"1 Devotee\"",
+      "passed": true,
+      "expected": "1 Devotee",
+      "actual": "1 Devotee",
+      "details": ""
+    },
+    {
+      "id": "TEST-33.62-03",
+      "title": "Badge retains original styling (pill styling with sky background and blue text)",
+      "passed": true,
+      "expected": "true",
+      "actual": "true",
+      "details": ""
+    },
+    {
+      "id": "TEST-33.62-04",
+      "title": "renderDevoteeRows() queries el(\"billingDevoteeCountBadge\")",
+      "passed": true,
+      "expected": "true",
+      "actual": "true",
+      "details": ""
+    },
+    {
+      "id": "TEST-33.62-05",
+      "title": "updateDevoteeCountUI() queries el(\"billingDevoteeCountBadge\")",
+      "passed": true,
+      "expected": "true",
+      "actual": "true",
+      "details": ""
+    },
+    {
+      "id": "TEST-33.62-06",
+      "title": "Both functions maintain backward-compatible fallback to el(\"devoteeCountBadge\")",
+      "passed": true,
+      "expected": "true",
+      "actual": "[object Object]",
+      "details": ""
+    },
+    {
+      "id": "TEST-33.62-07",
+      "title": "Nakshatram input remains unconstrained free-text without datalist or select",
+      "passed": true,
+      "expected": "true",
+      "actual": "[object Object]",
+      "details": ""
+    },
+    {
+      "id": "TEST-33.62-08",
+      "title": "Requirement 1: Initial one-row form displays count of one (\"1 Devotee\")",
+      "passed": true,
+      "expected": "1 Devotee",
+      "actual": "1 Devotee",
+      "details": ""
+    },
+    {
+      "id": "TEST-33.62-09",
+      "title": "Requirement 2: Adding a second row updates badge to two (\"2 Devotees\")",
+      "passed": true,
+      "expected": "2 Devotees",
+      "actual": "2 Devotees",
+      "details": ""
+    },
+    {
+      "id": "TEST-33.62-10",
+      "title": "Requirement 3: Adding several rows (3, 4, 5) updates count accurately",
+      "passed": true,
+      "expected": "3 Devotees -> 4 Devotees -> 5 Devotees",
+      "actual": "3 Devotees -> 4 Devotees -> 5 Devotees",
+      "details": ""
+    },
+    {
+      "id": "TEST-33.62-11",
+      "title": "Requirement 4: Removing rows sequentially updates count accurately (4 -> 3 -> 2 -> 1)",
+      "passed": true,
+      "expected": "4 Devotees -> 3 Devotees -> 2 Devotees -> 1 Devotee",
+      "actual": "4 Devotees -> 3 Devotees -> 2 Devotees -> 1 Devotee",
+      "details": ""
+    },
+    {
+      "id": "TEST-33.62-12",
+      "title": "Requirement 5: Attempting to remove final row leaves 1 row and displays \"1 Devotee\"",
+      "passed": true,
+      "expected": "1 Devotee (count: 1)",
+      "actual": "1 Devotee (count: 1)",
+      "details": ""
+    },
+    {
+      "id": "TEST-33.62-13",
+      "title": "Requirement 6: Re-rendering form with 1 entry resets badge to \"1 Devotee\" (no stale state)",
+      "passed": true,
+      "expected": "1 Devotee",
+      "actual": "1 Devotee",
+      "details": ""
+    },
+    {
+      "id": "TEST-33.62-14",
+      "title": "Requirement 7a: Strict puja qty synchronizes with devotee count (qty = 2)",
+      "passed": true,
+      "expected": "2",
+      "actual": "2",
+      "details": ""
+    },
+    {
+      "id": "TEST-33.62-15",
+      "title": "Requirement 7b: Roster names and nakshatrams preserved across lifecycle",
+      "passed": true,
+      "expected": "true",
+      "actual": "true",
+      "details": ""
+    },
+    {
+      "id": "TEST-33.62-16",
+      "title": "Requirement 8: Fallback to el(\"devoteeCountBadge\") functions if legacy ID is present",
+      "passed": true,
+      "expected": "2 Devotees",
+      "actual": "2 Devotees",
+      "details": ""
+    },
+    {
+      "id": "TEST-33.62-17",
+      "title": "updateDevoteeCountUI(7) updates header badge to \"7 Devotees\"",
+      "passed": true,
+      "expected": "7 Devotees",
+      "actual": "7 Devotees",
+      "details": ""
+    },
+    {
+      "id": "TEST-33.62-18",
+      "title": "updateDevoteeCountUI(1) updates header badge to \"1 Devotee\"",
+      "passed": true,
+      "expected": "1 Devotee",
+      "actual": "1 Devotee",
+      "details": ""
+    }
+  ],
+  "summary": {
+    "total": 18,
+    "passed": 18,
+    "failed": 0
+  }
+}
