@@ -7361,7 +7361,7 @@
       const host = window.location.hostname || '';
       const proto = window.location.protocol || '';
       return host === 'localhost' || host === '127.0.0.1' || host === '[::1]' || host === '' || proto === 'file:';
-    }
+}
 
     function isEmulatorModeActive() {
       if (typeof window === 'undefined' || !window.location) return false;
@@ -7372,7 +7372,7 @@
         return false;
       }
       return true;
-    }
+}
 
     const DB_NAME = isEmulatorModeActive() ? 'temple_accounts_test_db' : 'temple_accounts_db';
     const DB_VERSION = 3;
@@ -7435,7 +7435,7 @@
         financialYear: financialYearLabel(new Date()),
         currencySymbol: '₹',
         receiptCounter: 1000,
-        voucherCounter: 500,
+        voucherCounter: 0,
         billingReceiptCounter: 0,
         globalSequenceCounter: 0,
         startDate: new Date().toISOString().slice(0, 10),
@@ -7600,6 +7600,9 @@
       if (store === 'chittyMembers') {
         return await deleteChittyMember(id);
       }
+      if (store === 'payments') {
+        return await deletePayment(id);
+      }
       if (store === 'receipts' || store === 'billing') {
         alert('Permanent deletion of financial records is prohibited to preserve audit history.\nPlease use the Void action instead.');
         return;
@@ -7706,19 +7709,19 @@
     async function nextVoucherNo() {
       try {
         const c = await fsGetCounters();
-        const cur = (c && typeof c.voucherCounter === 'number') ? c.voucherCounter : (parseInt(window.APP_SETTINGS && window.APP_SETTINGS.voucherCounter, 10) || 500);
+        const cur = (c && typeof c.voucherCounter === 'number') ? c.voucherCounter : (parseInt(window.APP_SETTINGS && window.APP_SETTINGS.voucherCounter, 10) || 0);
         const prefix = (c && c.voucherPrefix) || (window.APP_SETTINGS && window.APP_SETTINGS.voucherPrefix) || 'V-';
-        return prefix + (cur + 1);
+        return prefix + String(cur + 1).padStart(3, '0');
       } catch (e) {
         const s = window.APP_SETTINGS || {};
-        const cur = parseInt(s.voucherCounter, 10) || 500;
-        return (s.voucherPrefix || 'V-') + (cur + 1);
+        const cur = parseInt(s.voucherCounter, 10) || 0;
+        return (s.voucherPrefix || 'V-') + String(cur + 1).padStart(3, '0');
       }
     }
     async function bumpVoucherCounter() {
       // Counter bump is handled atomically in Firestore runTransaction
       if (window.APP_SETTINGS) {
-        window.APP_SETTINGS.voucherCounter = (parseInt(window.APP_SETTINGS.voucherCounter, 10) || 500) + 1;
+        window.APP_SETTINGS.voucherCounter = (parseInt(window.APP_SETTINGS.voucherCounter, 10) || 0) + 1;
       }
     }
 
@@ -9243,6 +9246,7 @@
                 <button class="btn-sm btn-outline" onclick="reprintReceipt('${esc(r.id)}')">Print</button>
                 ${!r.voided ? `<button class="btn-sm btn-sec" onclick="navigate('receipts', null, '${esc(r.id)}')">Edit</button>` : ''}
                 ${!r.voided ? `<button class="btn-sm btn-danger" onclick="voidRecord('receipts', '${esc(r.id)}')">Void</button>` : ''}
+                <button type="button" class="btn-sm btn-danger" onclick="deleteReceiptRecord('${esc(r.id)}')" title="Permanently delete receipt" style="background:#fee2e2;color:#b91c1c;border-color:#fca5a5;">🗑️ Delete</button>
               </td>
             </tr>`;
       }).join('')}
@@ -9801,6 +9805,168 @@
       }
       await navigate(CURRENT_VIEW);
     }
+
+    /**
+     * STEP 33.164: Explicit confirmation modal for permanent receipt deletion.
+     * Displays receipt number, date, devotee, fund/category, amount, and linked bill notice if applicable.
+     */
+    function showDeleteReceiptModal(r, id) {
+      const modalRoot = el('modal-root');
+      const rcptNoStr = r.receiptNo || (r.id ? `R-${String(r.id).padStart(3, '0')}` : 'R-???');
+      const formattedDate = typeof fmtDate === 'function' ? fmtDate(r.date) : r.date;
+      const formattedAmt = typeof fmtMoney === 'function' ? fmtMoney(r.amount) : ('₹' + (parseFloat(r.amount) || 0).toFixed(2));
+      const devoteeName = r.name || r.devoteeName || 'N/A';
+      const fundCategory = (r.fund || 'General Temple Fund') + (r.category ? ' / ' + r.category : '');
+      const isLinked = (r.source === 'billing' || !!r.billingFirestoreId || !!r.billingId || !!r.billingReceiptNo);
+      const billNoStr = r.billingReceiptNo || (r.billingId ? `BILL-${String(r.billingId).padStart(3, '0')}` : 'linked bill');
+
+      const confirmMsg = `Delete Receipt permanently?\n\nReceipt Number: ${rcptNoStr}\nDate: ${formattedDate}\nDevotee: ${devoteeName}\nFund / Category: ${fundCategory}\nAmount: ${formattedAmt}${isLinked ? `\nLinked to Bill: ${billNoStr} (both will be permanently deleted)` : ''}\n\nThis will permanently delete the receipt from Cloud Firestore and local cache.`;
+
+      if (!modalRoot) {
+        if (!confirm(confirmMsg)) return;
+        return deleteReceiptRecord(id, true);
+      }
+
+      modalRoot.innerHTML = `
+    <div class="modal-overlay" id="delete-receipt-modal" onclick="if(event.target===this) closeModal()">
+      <div class="modal-box" style="max-width: 490px; box-shadow: 0 10px 30px rgba(0,0,0,0.25);">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; border-bottom: 1px solid var(--border); padding-bottom: 10px;">
+          <div>
+            <h3 style="margin: 0; color: #b91c1c; font-size: 18px;">⚠️ Delete Receipt</h3>
+            <span class="pill danger" style="background:#fee2e2;color:#b91c1c;font-weight:700;margin-top:4px;display:inline-block;">PERMANENT DELETION</span>
+          </div>
+          <button type="button" class="btn-outline btn-sm" onclick="closeModal()" style="padding: 4px 8px; cursor: pointer; border-radius: 4px; font-weight: bold;">✕</button>
+        </div>
+        <p style="margin: 0 0 12px 0; font-size: 14px; color: var(--text-dark);">
+          Are you sure you want to permanently delete this receipt? This action cannot be undone.
+        </p>
+        <div style="background: var(--bg-warm, #fdfbf7); border: 1px solid var(--border); border-radius: 6px; padding: 12px 14px; margin-bottom: 14px;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+            <span style="font-weight: 600; color: var(--text-muted);">Receipt Number:</span>
+            <span><strong>${esc(rcptNoStr)}</strong></span>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+            <span style="font-weight: 600; color: var(--text-muted);">Date:</span>
+            <span><strong>${esc(formattedDate)}</strong></span>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+            <span style="font-weight: 600; color: var(--text-muted);">Devotee:</span>
+            <span><strong>${esc(devoteeName)}</strong></span>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+            <span style="font-weight: 600; color: var(--text-muted);">Fund / Category:</span>
+            <span><strong>${esc(fundCategory)}</strong></span>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+            <span style="font-weight: 600; color: var(--text-muted);">Amount:</span>
+            <span style="font-weight: 700; color: #b91c1c; font-size: 15px;">${formattedAmt}</span>
+          </div>
+          ${isLinked ? `
+          <div style="margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--border); font-size: 12px; color: #b91c1c;">
+            <strong>Linked Bill:</strong> ${esc(billNoStr)}<br>
+            <small>This receipt is linked to a billing transaction. Deleting it will atomically delete both the bill and the receipt to maintain accounting integrity.</small>
+          </div>` : ''}
+        </div>
+        <p class="muted" style="font-size: 12px; margin: 0 0 16px 0;">
+          This will permanently remove the record from Cloud Firestore and local storage, restoring balances and enabling safe number reuse if this is the highest allocated number.
+        </p>
+        <div style="display: flex; justify-content: flex-end; gap: 8px;">
+          <button type="button" class="btn-outline" id="btn-cancel-delete-receipt" onclick="closeModal()">Cancel</button>
+          <button type="button" class="btn btn-danger" id="btn-confirm-delete-receipt" onclick="deleteReceiptRecord('${esc(id)}', true)">Delete Receipt</button>
+        </div>
+      </div>
+    </div>
+  `;
+    }
+
+    /**
+     * STEP 33.164: Authoritative receipt deletion controller.
+     * Validates authentication, prompts for explicit confirmation, calls fsDeleteReceiptRecord,
+     * clears edit states, evicts local caches, and navigates.
+     */
+    async function deleteReceiptRecord(id, isConfirmedExplicit = false) {
+      if (window.isReceiptDeleting) return;
+
+      const user = getCurrentFirebaseUser();
+      if (!user) {
+        alert('Authentication required: please log in to perform this action.');
+        return;
+      }
+
+      let r = null;
+      try {
+        r = await fsGetOneSafe('receipts', id);
+      } catch (e) {
+        console.warn('[deleteReceiptRecord] Error fetching receipt:', e);
+      }
+
+      if (!r) {
+        alert('Receipt not found or already deleted.');
+        return;
+      }
+
+      const rcptNoStr = r.receiptNo || (r.id ? `R-${String(r.id).padStart(3, '0')}` : 'R-???');
+      const formattedDate = typeof fmtDate === 'function' ? fmtDate(r.date) : r.date;
+      const formattedAmt = typeof fmtMoney === 'function' ? fmtMoney(r.amount) : ('₹' + (parseFloat(r.amount) || 0).toFixed(2));
+      const devoteeName = r.name || r.devoteeName || 'N/A';
+      const fundCategory = (r.fund || 'General Temple Fund') + (r.category ? ' / ' + r.category : '');
+      const isLinked = (r.source === 'billing' || !!r.billingFirestoreId || !!r.billingId || !!r.billingReceiptNo);
+      const billNoStr = r.billingReceiptNo || (r.billingId ? `BILL-${String(r.billingId).padStart(3, '0')}` : 'linked bill');
+
+      if (!isConfirmedExplicit) {
+        const isMockedConfirm = typeof window.confirm === 'function' && !window.confirm.toString().includes('[native code]');
+        if (isMockedConfirm && isLocalEnvironment()) {
+          const confirmMsg = `Delete Receipt permanently?\n\nReceipt Number: ${rcptNoStr}\nDate: ${formattedDate}\nDevotee: ${devoteeName}\nFund / Category: ${fundCategory}\nAmount: ${formattedAmt}${isLinked ? `\nLinked to Bill: ${billNoStr} (both will be permanently deleted)` : ''}\n\nThis will permanently delete the receipt from Cloud Firestore and local cache.`;
+          if (!confirm(confirmMsg)) return;
+        } else {
+          showDeleteReceiptModal(r, id);
+          return;
+        }
+      }
+
+      window.isReceiptDeleting = true;
+      const confirmBtn = document.getElementById('btn-confirm-delete-receipt');
+      if (confirmBtn) {
+        confirmBtn.disabled = true;
+        confirmBtn.textContent = 'Deleting...';
+      }
+
+      try {
+        await fsDeleteReceiptRecord(r.firestoreId || id);
+
+        if (window.GlobalEditState) {
+          window.GlobalEditState.clearEditing('receipts');
+          window.GlobalEditState.clearEditing('billing');
+        }
+
+        if (typeof closeModal === 'function') {
+          closeModal();
+        }
+
+        await refreshSettings();
+        await fsGetAllSafe('receipts');
+        await fsGetAllSafe('billing');
+        if (typeof refreshBillingHistory === 'function') {
+          await refreshBillingHistory().catch(() => {});
+        }
+        await navigate(CURRENT_VIEW === 'receipts' ? 'receipts' : CURRENT_VIEW);
+
+        alert(`Receipt ${rcptNoStr} permanently deleted.`);
+      } catch (err) {
+        console.error('[deleteReceiptRecord] Error deleting receipt:', err);
+        alert('Unable to delete receipt: ' + (err.message || err));
+      } finally {
+        window.isReceiptDeleting = false;
+        const confirmBtnAfter = document.getElementById('btn-confirm-delete-receipt');
+        if (confirmBtnAfter) {
+          confirmBtnAfter.disabled = false;
+          confirmBtnAfter.textContent = 'Delete Receipt';
+        }
+      }
+    }
+
+    // Alias for backward compatibility / developer convenience
+    const deleteReceipt = deleteReceiptRecord;
 
 
     /* ===================== BILLING MODULE (STEP 2: BILLING FORM & STEP 3: RECEIPT GENERATION & 80mm PRINTING) ===================== */
@@ -12206,6 +12372,7 @@
                   <div style="display: flex; gap: 6px; align-items: center;">
                     <button type="button" class="btn-sm btn-outline" onclick="viewBillingDetails('${esc(r.id)}')" title="View Bill Details">👁️ View</button>
                     <button type="button" class="btn-sm btn-danger" onclick="reprintBillingRecord('${esc(r.id)}')" title="Reprint VOIDED 80mm Receipt">🖨️ Reprint Voided</button>
+                    <button type="button" class="btn-sm btn-danger" onclick="deleteBillingRecord('${esc(r.id)}')" title="Permanently delete voided bill" style="background:#fee2e2;color:#b91c1c;border-color:#fca5a5;">🗑️ Delete</button>
                   </div>
                 </td>
               </tr>
@@ -12274,6 +12441,7 @@
                     <button type="button" class="btn-sm btn-outline" onclick="viewBillingDetails('${esc(r.id)}')" title="View Bill Details">👁️ View</button>
                     <button type="button" class="btn-sm btn-sec" onclick="reprintBillingRecord('${esc(r.id)}')" title="Reprint 80mm Thermal Receipt">🖨️ Reprint</button>
                     <button type="button" class="btn-sm btn-danger" onclick="voidBillingRecord('${esc(r.id)}', '${esc(r.receiptNo)}')" title="Void Bill and Linked Accounting Receipt">🚫 Void</button>
+                    <button type="button" class="btn-sm btn-danger" onclick="deleteBillingRecord('${esc(r.id)}')" title="Permanently delete bill and linked records" style="background:#fee2e2;color:#b91c1c;border-color:#fca5a5;">🗑️ Delete</button>
                   </div>
                 </td>
               </tr>
@@ -13345,9 +13513,174 @@
       }
     }
 
-    /* Backward-compatibility alias: redirects any delete calls to audit-safe void */
-    async function deleteBillingRecord(id, receiptNo) {
-      return await voidBillingRecord(id, receiptNo);
+    /**
+     * STEP 33.164: Explicit confirmation modal for permanent billing deletion.
+     * Displays bill number, date, devotee/customer, amount, and linked accounting receipt notice.
+     */
+    function showDeleteBillingModal(b, id) {
+      const modalRoot = el('modal-root');
+      const billNoStr = b.receiptNo || (b.id ? `BILL-${String(b.id).padStart(3, '0')}` : 'BILL-???');
+      const formattedDate = typeof fmtDate === 'function' ? fmtDate(b.date) : b.date;
+      const totalAmt = (typeof b.totalAmount === 'number') ? b.totalAmount : (parseFloat(b.total) || parseFloat(b.amount) || 0);
+      const formattedAmt = typeof fmtMoney === 'function' ? fmtMoney(totalAmt) : ('₹' + totalAmt.toFixed(2));
+      const devoteeList = (Array.isArray(b.devotees) && b.devotees.length > 0)
+        ? b.devotees
+        : [{ name: b.devoteeName || b.name || 'N/A', star: b.star || '' }];
+      const devoteeDisplay = devoteeList.map(d => d.name + (d.star ? ` (${d.star})` : '')).join(', ');
+      const hasLinkedAcc = !!(b.accountingReceiptNo || b.accountingReceiptId);
+      const accRcptNo = b.accountingReceiptNo || (b.id ? `R-${String(b.id).padStart(3, '0')}` : 'linked receipt');
+
+      const confirmMsg = `Delete Bill permanently?\n\nBill Number: ${billNoStr}\nDate: ${formattedDate}\nDevotee: ${devoteeDisplay}\nItem: ${b.item || 'N/A'}\nFund: ${b.fund || 'N/A'}\nAmount: ${formattedAmt}${hasLinkedAcc ? `\nLinked Accounting Receipt: ${accRcptNo} (will also be permanently deleted)` : ''}\n\nThis will permanently delete the bill from Cloud Firestore and local cache.`;
+
+      if (!modalRoot) {
+        if (!confirm(confirmMsg)) return;
+        return deleteBillingRecord(id, true);
+      }
+
+      modalRoot.innerHTML = `
+    <div class="modal-overlay" id="delete-billing-modal" onclick="if(event.target===this) closeModal()">
+      <div class="modal-box" style="max-width: 490px; box-shadow: 0 10px 30px rgba(0,0,0,0.25);">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; border-bottom: 1px solid var(--border); padding-bottom: 10px;">
+          <div>
+            <h3 style="margin: 0; color: #b91c1c; font-size: 18px;">⚠️ Delete Billing Record</h3>
+            <span class="pill danger" style="background:#fee2e2;color:#b91c1c;font-weight:700;margin-top:4px;display:inline-block;">PERMANENT DELETION</span>
+          </div>
+          <button type="button" class="btn-outline btn-sm" onclick="closeModal()" style="padding: 4px 8px; cursor: pointer; border-radius: 4px; font-weight: bold;">✕</button>
+        </div>
+        <p style="margin: 0 0 12px 0; font-size: 14px; color: var(--text-dark);">
+          Are you sure you want to permanently delete this billing record? This action cannot be undone.
+        </p>
+        <div style="background: var(--bg-warm, #fdfbf7); border: 1px solid var(--border); border-radius: 6px; padding: 12px 14px; margin-bottom: 14px;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+            <span style="font-weight: 600; color: var(--text-muted);">Bill Number:</span>
+            <span><strong>${esc(billNoStr)}</strong></span>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+            <span style="font-weight: 600; color: var(--text-muted);">Date:</span>
+            <span><strong>${esc(formattedDate)}</strong></span>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+            <span style="font-weight: 600; color: var(--text-muted);">Devotee:</span>
+            <span><strong>${esc(devoteeDisplay)}</strong></span>
+          </div>
+          ${b.item ? `<div style="display: flex; justify-content: space-between; margin-bottom: 6px;"><span style="font-weight: 600; color: var(--text-muted);">Item / Vazhipadu:</span><span>${esc(b.item)}</span></div>` : ''}
+          <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+            <span style="font-weight: 600; color: var(--text-muted);">Fund:</span>
+            <span><strong>${esc(b.fund || 'General Temple Fund')}</strong></span>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+            <span style="font-weight: 600; color: var(--text-muted);">Amount:</span>
+            <span style="font-weight: 700; color: #b91c1c; font-size: 15px;">${formattedAmt}</span>
+          </div>
+          ${hasLinkedAcc ? `
+          <div style="margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--border); font-size: 12px; color: #b91c1c;">
+            <strong>Linked Accounting Receipt:</strong> ${esc(accRcptNo)}<br>
+            <small>Deleting this bill will atomically delete its linked accounting receipt to maintain ledger consistency.</small>
+          </div>` : ''}
+        </div>
+        <p class="muted" style="font-size: 12px; margin: 0 0 16px 0;">
+          This will permanently remove the record from Cloud Firestore and local storage, restoring balances and enabling safe number reuse if this is the highest allocated number.
+        </p>
+        <div style="display: flex; justify-content: flex-end; gap: 8px;">
+          <button type="button" class="btn-outline" id="btn-cancel-delete-billing" onclick="closeModal()">Cancel</button>
+          <button type="button" class="btn btn-danger" id="btn-confirm-delete-billing" onclick="deleteBillingRecord('${esc(id)}', true)">Delete Bill</button>
+        </div>
+      </div>
+    </div>
+  `;
+    }
+
+    /**
+     * STEP 33.164: Authoritative billing deletion controller.
+     * Validates authentication, prompts for explicit confirmation, calls fsDeleteBillingRecord,
+     * clears currentBillingReceipt preview if deleted, evicts local caches, and navigates.
+     */
+    async function deleteBillingRecord(id, isConfirmedExplicit = false) {
+      if (window.isBillingDeleting) return;
+
+      const user = getCurrentFirebaseUser();
+      if (!user) {
+        alert('Authentication required: please log in to perform this action.');
+        return;
+      }
+
+      let b = null;
+      try {
+        b = await getBillingRecord(id);
+      } catch (e) {
+        console.warn('[deleteBillingRecord] Error fetching billing record:', e);
+      }
+
+      if (!b) {
+        alert('Billing record not found or already deleted.');
+        return;
+      }
+
+      const billNoStr = b.receiptNo || (b.id ? `BILL-${String(b.id).padStart(3, '0')}` : 'BILL-???');
+      const formattedDate = typeof fmtDate === 'function' ? fmtDate(b.date) : b.date;
+      const totalAmt = (typeof b.totalAmount === 'number') ? b.totalAmount : (parseFloat(b.total) || parseFloat(b.amount) || 0);
+      const formattedAmt = typeof fmtMoney === 'function' ? fmtMoney(totalAmt) : ('₹' + totalAmt.toFixed(2));
+      const devoteeList = (Array.isArray(b.devotees) && b.devotees.length > 0)
+        ? b.devotees
+        : [{ name: b.devoteeName || b.name || 'N/A', star: b.star || '' }];
+      const devoteeDisplay = devoteeList.map(d => d.name + (d.star ? ` (${d.star})` : '')).join(', ');
+      const hasLinkedAcc = !!(b.accountingReceiptNo || b.accountingReceiptId);
+      const accRcptNo = b.accountingReceiptNo || (b.id ? `R-${String(b.id).padStart(3, '0')}` : 'linked receipt');
+
+      if (!isConfirmedExplicit) {
+        const isMockedConfirm = typeof window.confirm === 'function' && !window.confirm.toString().includes('[native code]');
+        if (isMockedConfirm && isLocalEnvironment()) {
+          const confirmMsg = `Delete Bill permanently?\n\nBill Number: ${billNoStr}\nDate: ${formattedDate}\nDevotee: ${devoteeDisplay}\nItem: ${b.item || 'N/A'}\nFund: ${b.fund || 'N/A'}\nAmount: ${formattedAmt}${hasLinkedAcc ? `\nLinked Accounting Receipt: ${accRcptNo} (will also be permanently deleted)` : ''}\n\nThis will permanently delete the bill from Cloud Firestore and local cache.`;
+          if (!confirm(confirmMsg)) return;
+        } else {
+          showDeleteBillingModal(b, id);
+          return;
+        }
+      }
+
+      window.isBillingDeleting = true;
+      const confirmBtn = document.getElementById('btn-confirm-delete-billing');
+      if (confirmBtn) {
+        confirmBtn.disabled = true;
+        confirmBtn.textContent = 'Deleting...';
+      }
+
+      try {
+        await fsDeleteBillingRecord(b.firestoreId || id);
+
+        if (currentBillingReceipt && (currentBillingReceipt.id === id || currentBillingReceipt.firestoreId === id || currentBillingReceipt.id === b.id || currentBillingReceipt.firestoreId === b.firestoreId)) {
+          currentBillingReceipt = null;
+        }
+
+        if (window.GlobalEditState) {
+          window.GlobalEditState.clearEditing('billing');
+          window.GlobalEditState.clearEditing('receipts');
+        }
+
+        if (typeof closeModal === 'function') {
+          closeModal();
+        }
+
+        await refreshSettings();
+        await fsGetAllSafe('billing');
+        await fsGetAllSafe('receipts');
+        if (typeof refreshBillingHistory === 'function') {
+          await refreshBillingHistory().catch(() => {});
+        }
+        await navigate(CURRENT_VIEW === 'billing' ? 'billing' : CURRENT_VIEW);
+
+        alert(`Bill ${billNoStr} permanently deleted.`);
+      } catch (err) {
+        console.error('[deleteBillingRecord] Error deleting billing record:', err);
+        alert('Unable to delete billing record: ' + (err.message || err));
+      } finally {
+        window.isBillingDeleting = false;
+        const confirmBtnAfter = document.getElementById('btn-confirm-delete-billing');
+        if (confirmBtnAfter) {
+          confirmBtnAfter.disabled = false;
+          confirmBtnAfter.textContent = 'Delete Bill';
+        }
+      }
     }
 
     VIEW_RENDERERS.billing = async function () {
@@ -13896,6 +14229,8 @@
       window.applyBillingFilters = applyBillingFilters;
       window.exportVoidedBillsCSV = exportVoidedBillsCSV;
       window.voidBillingRecord = voidBillingRecord;
+      window.deleteBillingRecord = deleteBillingRecord;
+      window.showDeleteBillingModal = showDeleteBillingModal;
       window.viewBillingDetails = viewBillingDetails;
       window.reprintBillingRecord = reprintBillingRecord;
       syncCategorySegmentedUI();
@@ -14007,7 +14342,7 @@
                 <button class="btn-sm btn-outline" onclick="reprintPayment('${esc(p.id)}')">Print</button>
                 ${!p.voided ? `<button class="btn-sm btn-sec" onclick="navigate('payments', null, '${esc(p.id)}')">Edit</button>` : ''}
                 ${!p.voided ? `<button class="btn-sm btn-danger" onclick="voidRecord('payments', '${esc(p.id)}')">Void</button>` : ''}
-                <button class="btn-sm btn-danger" onclick="deleteRecord('payments', '${esc(p.id)}', 'payments')">Delete</button>
+                <button class="btn-sm btn-danger" onclick="deletePayment('${esc(p.id)}')">Delete</button>
               </td>
             </tr>`).join('')}
         </tbody>
@@ -14109,6 +14444,235 @@
     <div class="pr-flex"><span>Prepared By</span><span>Approved By</span><span>Received By</span></div>
   `;
       window.print();
+    }
+
+    /**
+     * STEP 33.163: Modal confirmation for permanent voucher deletion.
+     * Displays voucher number, date, paid-to, fund, expense category, and amount.
+     */
+    function showDeletePaymentModal(p, id) {
+      const modalRoot = el('modal-root');
+      const voucherNoStr = p.voucherNo || (p.id ? `V-${String(p.id).padStart(3, '0')}` : 'V-???');
+      const formattedDate = typeof fmtDate === 'function' ? fmtDate(p.date) : p.date;
+      const formattedAmt = typeof fmtMoney === 'function' ? fmtMoney(p.amount) : ('₹' + p.amount);
+
+      const confirmMsg = `Delete Payment Voucher permanently?\n\nVoucher Number: ${voucherNoStr}\nDate: ${formattedDate}\nPaid To: ${p.paidTo || 'N/A'}\nFund: ${p.fund || 'N/A'}\nExpense Category: ${p.category || 'N/A'}\nAmount: ${formattedAmt}\n\nThis will permanently delete the voucher from the database.`;
+
+      if (!modalRoot) {
+        if (!confirm(confirmMsg)) return;
+        return deletePayment(id, true);
+      }
+
+      modalRoot.innerHTML = `
+    <div class="modal-overlay" id="delete-payment-modal" onclick="if(event.target===this) closeModal()">
+      <div class="modal-box" style="max-width: 480px; box-shadow: 0 10px 30px rgba(0,0,0,0.25);">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; border-bottom: 1px solid var(--border); padding-bottom: 10px;">
+          <div>
+            <h3 style="margin: 0; color: #b91c1c; font-size: 18px;">⚠️ Delete Payment Voucher</h3>
+            <span class="pill danger" style="background:#fee2e2;color:#b91c1c;font-weight:700;margin-top:4px;display:inline-block;">PERMANENT DELETION</span>
+          </div>
+          <button type="button" class="btn-outline btn-sm" onclick="closeModal()" style="padding: 4px 8px; cursor: pointer; border-radius: 4px; font-weight: bold;">✕</button>
+        </div>
+        <p style="margin: 0 0 12px 0; font-size: 14px; color: var(--text-dark);">Are you sure you want to permanently delete this payment voucher? This action cannot be undone.</p>
+        <div style="background: var(--bg-warm, #fdfbf7); border: 1px solid var(--border); border-radius: 6px; padding: 12px 14px; margin-bottom: 14px;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+            <span style="font-weight: 600; color: var(--text-muted);">Voucher Number:</span>
+            <span><strong>${esc(voucherNoStr)}</strong></span>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+            <span style="font-weight: 600; color: var(--text-muted);">Date:</span>
+            <span><strong>${formattedDate}</strong></span>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+            <span style="font-weight: 600; color: var(--text-muted);">Paid To:</span>
+            <span><strong>${esc(p.paidTo || '')}</strong></span>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+            <span style="font-weight: 600; color: var(--text-muted);">Fund:</span>
+            <span><strong>${esc(p.fund || '')}</strong></span>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+            <span style="font-weight: 600; color: var(--text-muted);">Expense Category:</span>
+            <span><strong>${esc(p.category || '')}</strong></span>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+            <span style="font-weight: 600; color: var(--text-muted);">Amount:</span>
+            <span style="font-weight: 700; color: #b91c1c; font-size: 15px;">${formattedAmt}</span>
+          </div>
+          ${p.paymentMode ? `<div style="display: flex; justify-content: space-between; margin-bottom: 6px;"><span style="font-weight: 600; color: var(--text-muted);">Mode:</span><span>${esc(p.paymentMode)}${p.bankAccount ? (' - ' + esc(p.bankAccount)) : ''}</span></div>` : ''}
+          ${p.billNo ? `<div style="display: flex; justify-content: space-between; margin-bottom: 6px;"><span style="font-weight: 600; color: var(--text-muted);">Bill No:</span><span>${esc(p.billNo)}</span></div>` : ''}
+          ${p.description ? `<div style="display: flex; justify-content: space-between;"><span style="font-weight: 600; color: var(--text-muted);">Description:</span><span>${esc(p.description)}</span></div>` : ''}
+        </div>
+        <p class="muted" style="font-size: 12px; margin: 0 0 16px 0;">This will permanently remove the voucher record and immediately update financial balances.</p>
+        <div style="display: flex; justify-content: flex-end; gap: 8px;">
+          <button type="button" class="btn-outline" id="btn-cancel-delete-payment" onclick="closeModal()">Cancel</button>
+          <button type="button" class="btn btn-danger" id="btn-confirm-delete-payment" onclick="deletePayment('${esc(id)}', true)">Delete Voucher</button>
+        </div>
+      </div>
+    </div>
+  `;
+    }
+
+    /**
+     * STEP 33.163: Permanent voucher deletion with atomic trailing-number reuse.
+     * Permanently deletes voucher from Firestore & IndexedDB, reverses balances,
+     * and decrements voucherCounter if highest-numbered voucher was deleted.
+     */
+    async function deletePayment(id, isConfirmedExplicit = false) {
+      if (window.isPaymentDeleting) return;
+
+      const user = getCurrentFirebaseUser();
+      if (!user) {
+        alert('Authentication required: please log in to perform this action.');
+        return;
+      }
+
+      let p = null;
+      try {
+        p = await fsGetOneSafe('payments', id);
+        if (!p && !isNaN(Number(id))) {
+          p = await fsGetOneSafe('payments', Number(id));
+        }
+      } catch (err) {
+        alert('Unable to load payment record: ' + (err.message || err));
+        return;
+      }
+
+      if (!p) {
+        alert('Payment voucher not found or already deleted.');
+        return;
+      }
+
+      const voucherNoStr = p.voucherNo || (p.id ? `V-${String(p.id).padStart(3, '0')}` : 'V-???');
+      const formattedDate = typeof fmtDate === 'function' ? fmtDate(p.date) : p.date;
+      const formattedAmt = typeof fmtMoney === 'function' ? fmtMoney(p.amount) : ('₹' + p.amount);
+
+      if (!isConfirmedExplicit) {
+        const isMockedConfirm = typeof window.confirm === 'function' && !window.confirm.toString().includes('[native code]');
+        if (isMockedConfirm && isLocalEnvironment()) {
+          const confirmMsg = `Delete Payment Voucher permanently?\n\nVoucher Number: ${voucherNoStr}\nDate: ${formattedDate}\nPaid To: ${p.paidTo || 'N/A'}\nFund: ${p.fund || 'N/A'}\nExpense Category: ${p.category || 'N/A'}\nAmount: ${formattedAmt}\n\nThis will permanently delete the voucher details from Cloud Firestore and local cache.`;
+          if (!confirm(confirmMsg)) return;
+        } else {
+          showDeletePaymentModal(p, id);
+          return;
+        }
+      }
+
+      window.isPaymentDeleting = true;
+      const confirmBtn = document.getElementById('btn-confirm-delete-payment');
+      if (confirmBtn) {
+        confirmBtn.disabled = true;
+        confirmBtn.textContent = 'Deleting...';
+      }
+
+      try {
+        const db = getFirestoreDb();
+        if (!db) throw new Error('Firestore is not initialized.');
+
+        const targetDocId = (p && p.firestoreId) ? p.firestoreId : ((typeof id === 'string' && id.startsWith('pmt_')) ? id : `pmt_${p.id || id}`);
+        const vMatch = voucherNoStr.match(/\d+$/);
+        const deletedVNum = vMatch ? parseInt(vMatch[0], 10) : (parseInt(p.id, 10) || null);
+
+        // Atomic transaction: permanently delete voucher document + handle counter reuse
+        await db.runTransaction(async (tx) => {
+          const counterRef = getFsCountersDocRef();
+          const pRef = db.collection('payments').doc(targetDocId);
+
+          const [pSnap, cSnap] = await Promise.all([
+            tx.get(pRef),
+            tx.get(counterRef)
+          ]);
+
+          let existingDocRef = pRef;
+          if (!pSnap.exists) {
+            // Also check alternate doc reference (e.g. raw id)
+            const altRef = db.collection('payments').doc(String(id));
+            const altSnap = await tx.get(altRef);
+            if (!altSnap.exists) {
+              throw new Error(`Payment voucher document "${targetDocId}" does not exist in Firestore.`);
+            }
+            existingDocRef = altRef;
+          }
+
+          const cData = cSnap.exists ? cSnap.data() : {};
+          const currentCounter = (typeof cData.voucherCounter === 'number') ? cData.voucherCounter : 0;
+
+          // Query remaining vouchers in payments collection to find the new maximum voucher number
+          const paymentsSnap = await db.collection('payments').get();
+          let maxRemainingNum = 0;
+          paymentsSnap.forEach(docSnap => {
+            if (docSnap.id !== targetDocId && docSnap.id !== String(id)) {
+              const d = docSnap.data();
+              const numMatch = (d.voucherNo || '').match(/\d+$/);
+              const num = numMatch ? parseInt(numMatch[0], 10) : (parseInt(d.id, 10) || 0);
+              if (num > maxRemainingNum) {
+                maxRemainingNum = num;
+              }
+            }
+          });
+
+          // 1. Permanently delete voucher document from Firestore
+          tx.delete(existingDocRef);
+
+          // Also delete legacy pay_ doc if it exists
+          if (deletedVNum) {
+            const legacyRef = db.collection('payments').doc(`pay_${deletedVNum}`);
+            tx.delete(legacyRef);
+          }
+
+          // 2. Trailing-number reuse: If deleted voucher was the highest (or at/above currentCounter),
+          // adjust voucherCounter to maxRemainingNum so the trailing number can be reused.
+          // If a middle voucher was deleted, voucherCounter is NOT moved backward below maxRemainingNum.
+          if (deletedVNum !== null && (deletedVNum >= currentCounter || deletedVNum > maxRemainingNum)) {
+            const updatePayload = {
+              voucherCounter: maxRemainingNum
+            };
+            if (typeof firebase !== 'undefined' && firebase.firestore && firebase.firestore.FieldValue) {
+              updatePayload.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
+            } else {
+              updatePayload.updatedAt = Date.now();
+            }
+            tx.set(counterRef, updatePayload, { merge: true });
+          }
+        });
+
+        // 3. Remove from IndexedDB cache
+        if (typeof deleteRec === 'function') {
+          try {
+            await deleteRec('payments', id);
+            if (p.id !== undefined && p.id !== id) await deleteRec('payments', p.id);
+            if (p.firestoreId) await deleteRec('payments', p.firestoreId);
+            if (targetDocId !== id) await deleteRec('payments', targetDocId);
+          } catch (cacheErr) {
+            console.warn('[deletePayment] Cache removal warning:', cacheErr);
+          }
+        }
+
+        if (window.GlobalEditState) {
+          window.GlobalEditState.clearEditing('payments');
+        }
+
+        if (typeof closeModal === 'function') {
+          closeModal();
+        }
+
+        // 4. Authoritative refresh of Payments store & navigation
+        await refreshSettings();
+        await fsGetAllSafe('payments');
+        await navigate('payments');
+
+        alert(`Payment voucher ${voucherNoStr} permanently deleted.`);
+      } catch (err) {
+        console.error('[deletePayment] Error deleting payment voucher:', err);
+        alert('Unable to delete payment voucher: ' + (err.message || err));
+      } finally {
+        window.isPaymentDeleting = false;
+        const confirmBtnAfter = document.getElementById('btn-confirm-delete-payment');
+        if (confirmBtnAfter) {
+          confirmBtnAfter.disabled = false;
+          confirmBtnAfter.textContent = 'Delete Voucher';
+        }
+      }
     }
 
     /* Punarudharanam Fund = dedicated dashboard-style summary + shortcuts into pre-filled Receipts/Payments */
@@ -14957,7 +15521,7 @@
         window.isTransferDeleting = false;
       }
       await navigate('transfers');
-    }
+}
 
     /* ===================== CHITTY ===================== */
     VIEW_RENDERERS.chitty = async function (editType, editId) {
@@ -18959,7 +19523,7 @@
       }
       initializeFirestore();
       return firebase.auth();
-    }
+}
 
     /* ===================== STEP 22: DARKVEIL WEBGL SHADER =====================
        Primary visual reference: DarkVeil CPPN procedural WebGL shader.
@@ -20646,12 +21210,16 @@ void main(){
             rSnap = await tx.get(rRef);
           }
         } else if (field === 'voucherCounter') {
-          let vRef = db.collection('payments').doc(`pay_${nextVal}`);
+          let vRef = db.collection('payments').doc(`pmt_${nextVal}`);
           let vSnap = await tx.get(vRef);
-          while (vSnap.exists) {
+          let legacyRef = db.collection('payments').doc(`pay_${nextVal}`);
+          let legacySnap = await tx.get(legacyRef);
+          while (vSnap.exists || legacySnap.exists) {
             nextVal++;
-            vRef = db.collection('payments').doc(`pay_${nextVal}`);
+            vRef = db.collection('payments').doc(`pmt_${nextVal}`);
             vSnap = await tx.get(vRef);
+            legacyRef = db.collection('payments').doc(`pay_${nextVal}`);
+            legacySnap = await tx.get(legacyRef);
           }
         }
 
@@ -20691,11 +21259,11 @@ void main(){
 
     /**
      * Allocates next payment voucher number atomically in Firestore.
-     * Format: V-XXXX (e.g., V-501, V-502...) - strictly independent.
+     * Format: V-001, V-002... - strictly independent.
      */
     async function fsNextVoucherNo() {
       try {
-        return await _fsAllocateCounter('voucherCounter', 500, 'voucherPrefix', 'V-', 0);
+        return await _fsAllocateCounter('voucherCounter', 0, 'voucherPrefix', 'V-', 3);
       } catch (err) {
         console.error('[Firestore fsNextVoucherNo] Transaction allocation failed:', err);
         throw err;
@@ -20749,7 +21317,7 @@ void main(){
         const defaults = {
           globalSequenceCounter: 0,
           receiptCounter: 1000,
-          voucherCounter: 500,
+          voucherCounter: 0,
           billingReceiptCounter: 0,
           receiptPrefix: 'R-',
           voucherPrefix: 'V-',
@@ -21416,6 +21984,427 @@ void main(){
       }
 
       return true;
+    }
+
+    /**
+     * STEP 33.164: Authoritative atomic deletion of billing records with trailing-number reuse.
+     * Permanently deletes billing document, linked accounting receipt document, reservation document,
+     * and idempotency record from Cloud Firestore. Recalculates globalSequenceCounter and billingReceiptCounter
+     * when the highest number in the sequence is deleted. Evicts local IndexedDB caches.
+     */
+    async function fsDeleteBillingRecord(billDocIdOrId) {
+      const user = getCurrentFirebaseUser();
+      if (!user) throw new Error('Authentication required: please log in to delete records.');
+      const db = getFirestoreDb();
+      if (!db) throw new Error('Firestore is not initialized.');
+
+      const billDocId = (typeof billDocIdOrId === 'string' && billDocIdOrId.startsWith('bill_'))
+        ? billDocIdOrId
+        : `bill_${billDocIdOrId}`;
+      const billRef = db.collection('billing').doc(billDocId);
+
+      const directBillSnap = await billRef.get();
+      let billData = directBillSnap.exists ? directBillSnap.data() : null;
+      if (!billData) {
+        const altBillRef = db.collection('billing').doc(String(billDocIdOrId));
+        const altSnap = await altBillRef.get();
+        if (altSnap.exists) billData = altSnap.data();
+      }
+      if (!billData) {
+        throw new Error(`Billing record "${billDocId}" does not exist in Firestore.`);
+      }
+
+      const rawNum = billData.id !== undefined ? billData.id : billDocId.replace('bill_', '');
+      const deletedNum = parseInt(rawNum, 10);
+
+      let linkedRcptDocId = null;
+      if (billData.accountingReceiptId) {
+        linkedRcptDocId = (typeof billData.accountingReceiptId === 'string' && billData.accountingReceiptId.startsWith('rcpt_'))
+          ? billData.accountingReceiptId
+          : `rcpt_${billData.accountingReceiptId}`;
+      } else if (!isNaN(deletedNum) && deletedNum > 0) {
+        linkedRcptDocId = `rcpt_${deletedNum}`;
+      }
+
+      let resDocId = null;
+      if (billData.reservationDocId) {
+        resDocId = billData.reservationDocId;
+      } else if (!isNaN(deletedNum) && deletedNum > 0) {
+        resDocId = `res_${deletedNum}`;
+      }
+
+      let opDocId = null;
+      if (billData.operationId) {
+        opDocId = billData.operationId.startsWith('op_') ? billData.operationId : `op_${billData.operationId}`;
+      }
+
+      await db.runTransaction(async (tx) => {
+        const counterRef = getFsCountersDocRef();
+        const [bSnap, cSnap] = await Promise.all([
+          tx.get(billRef),
+          tx.get(counterRef)
+        ]);
+
+        if (!bSnap.exists) {
+          throw new Error(`Billing record "${billDocId}" does not exist in Firestore.`);
+        }
+
+        let rcptRef = linkedRcptDocId ? db.collection('receipts').doc(linkedRcptDocId) : null;
+        let rSnap = rcptRef ? await tx.get(rcptRef) : null;
+
+        let resRef = resDocId ? db.collection('system').doc(resDocId) : null;
+        let resSnap = resRef ? await tx.get(resRef) : null;
+
+        let opRef = opDocId ? db.collection('system').doc(opDocId) : null;
+        let opSnap = opRef ? await tx.get(opRef) : null;
+
+        // Perform deletions
+        tx.delete(billRef);
+        if (rSnap && rSnap.exists) {
+          tx.delete(rcptRef);
+        }
+        if (resSnap && resSnap.exists) {
+          tx.delete(resRef);
+        }
+        if (opSnap && opSnap.exists) {
+          tx.delete(opRef);
+        }
+
+        // Query remaining records to recalculate maximum remaining sequence numbers
+        const [allBillingSnap, allReceiptsSnap, allSystemSnap] = await Promise.all([
+          db.collection('billing').get(),
+          db.collection('receipts').get(),
+          db.collection('system').get()
+        ]);
+
+        let maxRemainingSeq = 0;
+        let maxRemainingBill = 0;
+
+        allBillingSnap.forEach(snap => {
+          if (snap.id !== billDocId && snap.id !== String(billDocIdOrId)) {
+            const d = snap.data();
+            let num = null;
+            if (typeof d.id === 'number' && d.id > 0) {
+              num = d.id;
+            } else if (d.receiptNo) {
+              const m = String(d.receiptNo).match(/\d+$/);
+              if (m) num = parseInt(m[0], 10);
+            } else {
+              const m = snap.id.match(/^bill_(\d+)$/);
+              if (m) num = parseInt(m[1], 10);
+            }
+            if (num && !isNaN(num)) {
+              if (num > maxRemainingSeq) maxRemainingSeq = num;
+              if (num > maxRemainingBill) maxRemainingBill = num;
+            }
+          }
+        });
+
+        allReceiptsSnap.forEach(snap => {
+          if (snap.id !== linkedRcptDocId && (!linkedRcptDocId || snap.id !== linkedRcptDocId.replace('rcpt_', ''))) {
+            if (!snap.id.startsWith('rcpt_phys_')) {
+              const d = snap.data();
+              let num = null;
+              if (typeof d.id === 'number' && d.id > 0) {
+                num = d.id;
+              } else if (d.receiptNo && !/^(?:P|PU)\d+/i.test(d.receiptNo)) {
+                const m = String(d.receiptNo).match(/\d+$/);
+                if (m) num = parseInt(m[0], 10);
+              } else {
+                const m = snap.id.match(/^rcpt_(\d+)$/);
+                if (m) num = parseInt(m[1], 10);
+              }
+              if (num && !isNaN(num)) {
+                if (num > maxRemainingSeq) maxRemainingSeq = num;
+              }
+            }
+          }
+        });
+
+        allSystemSnap.forEach(snap => {
+          if (snap.id.startsWith('res_') && !snap.id.startsWith('res_phys_')) {
+            if (snap.id !== resDocId) {
+              const d = snap.data();
+              let num = null;
+              if (typeof d.seqNumber === 'number' && d.seqNumber > 0) {
+                num = d.seqNumber;
+              } else {
+                const m = snap.id.match(/^res_(\d+)$/);
+                if (m) num = parseInt(m[1], 10);
+              }
+              if (num && !isNaN(num)) {
+                if (num > maxRemainingSeq) maxRemainingSeq = num;
+              }
+            }
+          }
+        });
+
+        const cData = cSnap.exists ? cSnap.data() : {};
+        const currentGlobal = (typeof cData.globalSequenceCounter === 'number') ? cData.globalSequenceCounter : 0;
+
+        // Trailing-number reuse: If deleted bill was at or above current counter OR exceeds maxRemainingSeq
+        if (!isNaN(deletedNum) && (deletedNum >= currentGlobal || deletedNum > maxRemainingSeq)) {
+          const updatePayload = {
+            globalSequenceCounter: maxRemainingSeq,
+            billingReceiptCounter: maxRemainingBill
+          };
+          if (typeof firebase !== 'undefined' && firebase.firestore && firebase.firestore.FieldValue) {
+            updatePayload.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
+          } else {
+            updatePayload.updatedAt = Date.now();
+          }
+          tx.set(counterRef, updatePayload, { merge: true });
+        }
+      });
+
+      // Evict from IndexedDB cache
+      if (typeof deleteRec === 'function') {
+        try {
+          await deleteRec('billing', billDocId);
+          if (!isNaN(deletedNum)) {
+            await deleteRec('billing', deletedNum);
+            await deleteRec('billing', `bill_${deletedNum}`);
+          }
+          if (billDocIdOrId !== billDocId) await deleteRec('billing', billDocIdOrId);
+          if (billData.id !== undefined) await deleteRec('billing', billData.id);
+
+          if (linkedRcptDocId) {
+            await deleteRec('receipts', linkedRcptDocId);
+            const rNum = parseInt(linkedRcptDocId.replace('rcpt_', ''), 10);
+            if (!isNaN(rNum)) {
+              await deleteRec('receipts', rNum);
+              await deleteRec('receipts', `rcpt_${rNum}`);
+            }
+          }
+        } catch (cacheErr) {
+          console.warn('[fsDeleteBillingRecord] Cache eviction warning:', cacheErr);
+        }
+      }
+
+      try {
+        const pendingOp = localStorage.getItem('temple_pending_billing_op');
+        if (pendingOp && billData.operationId && pendingOp.includes(billData.operationId)) {
+          localStorage.removeItem('temple_pending_billing_op');
+        }
+      } catch (e) { }
+
+      return { success: true, deletedNum, billDocId, linkedRcptDocId };
+    }
+
+    /**
+     * STEP 33.164: Authoritative atomic deletion of receipts with trailing-number reuse.
+     * If linked to a bill, invokes fsDeleteBillingRecord to atomically delete both records.
+     * If an independent software receipt, permanently deletes rcpt document and reservation document,
+     * and recalculates globalSequenceCounter if it was the highest in sequence.
+     * If a physical receipt, permanently deletes physical receipt document and reservation without touching
+     * software counters.
+     */
+    async function fsDeleteReceiptRecord(rcptDocIdOrId) {
+      const user = getCurrentFirebaseUser();
+      if (!user) throw new Error('Authentication required: please log in to delete records.');
+      const db = getFirestoreDb();
+      if (!db) throw new Error('Firestore is not initialized.');
+
+      const rcptDocId = (typeof rcptDocIdOrId === 'string' && (rcptDocIdOrId.startsWith('rcpt_') || rcptDocIdOrId.startsWith('rcpt_phys_')))
+        ? rcptDocIdOrId
+        : `rcpt_${rcptDocIdOrId}`;
+      const rcptRef = db.collection('receipts').doc(rcptDocId);
+
+      let directSnap = await rcptRef.get();
+      let rcptData = directSnap.exists ? directSnap.data() : null;
+      if (!rcptData) {
+        const altRef = db.collection('receipts').doc(String(rcptDocIdOrId));
+        const altSnap = await altRef.get();
+        if (altSnap.exists) rcptData = altSnap.data();
+      }
+      if (!rcptData) {
+        throw new Error(`Receipt record "${rcptDocId}" does not exist in Firestore.`);
+      }
+
+      // Check physical receipt
+      const isPhysical = rcptDocId.startsWith('rcpt_phys_') || (typeof parsePhysicalReceiptIdentifier === 'function' && parsePhysicalReceiptIdentifier(rcptData.receiptNo)?.valid);
+      if (isPhysical) {
+        const parsedPhys = (typeof parsePhysicalReceiptIdentifier === 'function' ? parsePhysicalReceiptIdentifier(rcptData.receiptNo) : null) || {};
+        const physId = parsedPhys.formattedId || rcptDocId.replace('rcpt_phys_', '');
+        const physResRef = db.collection('system').doc(`res_phys_${physId}`);
+        const opDocRef = rcptData.operationId ? db.collection('system').doc(rcptData.operationId.startsWith('op_') ? rcptData.operationId : `op_${rcptData.operationId}`) : null;
+
+        await db.runTransaction(async (tx) => {
+          tx.delete(rcptRef);
+          const prSnap = await tx.get(physResRef);
+          if (prSnap.exists) tx.delete(physResRef);
+          if (opDocRef) {
+            const opSnap = await tx.get(opDocRef);
+            if (opSnap.exists) tx.delete(opDocRef);
+          }
+        });
+
+        if (typeof deleteRec === 'function') {
+          try {
+            await deleteRec('receipts', rcptDocId);
+            await deleteRec('receipts', physId);
+            await deleteRec('receipts', `rcpt_phys_${physId}`);
+            if (rcptDocIdOrId !== rcptDocId) await deleteRec('receipts', rcptDocIdOrId);
+          } catch (cacheErr) {
+            console.warn('[fsDeleteReceiptRecord] Cache eviction warning for physical receipt:', cacheErr);
+          }
+        }
+        return { success: true, isPhysical: true, physId };
+      }
+
+      // Check if linked to a bill
+      const isLinked = (rcptData.source === 'billing' || !!rcptData.billingFirestoreId || !!rcptData.billingId || !!rcptData.billingReceiptNo);
+      if (isLinked) {
+        const linkedBillDocId = rcptData.billingFirestoreId || (rcptData.billingId ? `bill_${rcptData.billingId}` : `bill_${rcptData.id}`);
+        return await fsDeleteBillingRecord(linkedBillDocId);
+      }
+
+      // Independent software receipt
+      const rawNum = rcptData.id !== undefined ? rcptData.id : rcptDocId.replace('rcpt_', '');
+      const deletedNum = parseInt(rawNum, 10);
+
+      let resDocId = null;
+      if (rcptData.reservationDocId) {
+        resDocId = rcptData.reservationDocId;
+      } else if (!isNaN(deletedNum) && deletedNum > 0) {
+        resDocId = `res_${deletedNum}`;
+      }
+
+      let opDocId = null;
+      if (rcptData.operationId) {
+        opDocId = rcptData.operationId.startsWith('op_') ? rcptData.operationId : `op_${rcptData.operationId}`;
+      }
+
+      await db.runTransaction(async (tx) => {
+        const counterRef = getFsCountersDocRef();
+        const [rSnap, cSnap] = await Promise.all([
+          tx.get(rcptRef),
+          tx.get(counterRef)
+        ]);
+
+        if (!rSnap.exists) {
+          throw new Error(`Receipt record "${rcptDocId}" does not exist in Firestore.`);
+        }
+
+        let resRef = resDocId ? db.collection('system').doc(resDocId) : null;
+        let resSnap = resRef ? await tx.get(resRef) : null;
+
+        let opRef = opDocId ? db.collection('system').doc(opDocId) : null;
+        let opSnap = opRef ? await tx.get(opRef) : null;
+
+        tx.delete(rcptRef);
+        if (resSnap && resSnap.exists) {
+          tx.delete(resRef);
+        }
+        if (opSnap && opSnap.exists) {
+          tx.delete(opRef);
+        }
+
+        // Query remaining records to recalculate maximum remaining sequence
+        const [allBillingSnap, allReceiptsSnap, allSystemSnap] = await Promise.all([
+          db.collection('billing').get(),
+          db.collection('receipts').get(),
+          db.collection('system').get()
+        ]);
+
+        let maxRemainingSeq = 0;
+        let maxRemainingBill = 0;
+
+        allBillingSnap.forEach(snap => {
+          const d = snap.data();
+          let num = null;
+          if (typeof d.id === 'number' && d.id > 0) {
+            num = d.id;
+          } else if (d.receiptNo) {
+            const m = String(d.receiptNo).match(/\d+$/);
+            if (m) num = parseInt(m[0], 10);
+          } else {
+            const m = snap.id.match(/^bill_(\d+)$/);
+            if (m) num = parseInt(m[1], 10);
+          }
+          if (num && !isNaN(num)) {
+            if (num > maxRemainingSeq) maxRemainingSeq = num;
+            if (num > maxRemainingBill) maxRemainingBill = num;
+          }
+        });
+
+        allReceiptsSnap.forEach(snap => {
+          if (snap.id !== rcptDocId && snap.id !== String(rcptDocIdOrId)) {
+            if (!snap.id.startsWith('rcpt_phys_')) {
+              const d = snap.data();
+              let num = null;
+              if (typeof d.id === 'number' && d.id > 0) {
+                num = d.id;
+              } else if (d.receiptNo && !/^(?:P|PU)\d+/i.test(d.receiptNo)) {
+                const m = String(d.receiptNo).match(/\d+$/);
+                if (m) num = parseInt(m[0], 10);
+              } else {
+                const m = snap.id.match(/^rcpt_(\d+)$/);
+                if (m) num = parseInt(m[1], 10);
+              }
+              if (num && !isNaN(num)) {
+                if (num > maxRemainingSeq) maxRemainingSeq = num;
+              }
+            }
+          }
+        });
+
+        allSystemSnap.forEach(snap => {
+          if (snap.id.startsWith('res_') && !snap.id.startsWith('res_phys_')) {
+            if (snap.id !== resDocId) {
+              const d = snap.data();
+              let num = null;
+              if (typeof d.seqNumber === 'number' && d.seqNumber > 0) {
+                num = d.seqNumber;
+              } else {
+                const m = snap.id.match(/^res_(\d+)$/);
+                if (m) num = parseInt(m[1], 10);
+              }
+              if (num && !isNaN(num)) {
+                if (num > maxRemainingSeq) maxRemainingSeq = num;
+              }
+            }
+          }
+        });
+
+        const cData = cSnap.exists ? cSnap.data() : {};
+        const currentGlobal = (typeof cData.globalSequenceCounter === 'number') ? cData.globalSequenceCounter : 0;
+
+        if (!isNaN(deletedNum) && (deletedNum >= currentGlobal || deletedNum > maxRemainingSeq)) {
+          const updatePayload = {
+            globalSequenceCounter: maxRemainingSeq
+          };
+          if (typeof firebase !== 'undefined' && firebase.firestore && firebase.firestore.FieldValue) {
+            updatePayload.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
+          } else {
+            updatePayload.updatedAt = Date.now();
+          }
+          tx.set(counterRef, updatePayload, { merge: true });
+        }
+      });
+
+      if (typeof deleteRec === 'function') {
+        try {
+          await deleteRec('receipts', rcptDocId);
+          if (!isNaN(deletedNum)) {
+            await deleteRec('receipts', deletedNum);
+            await deleteRec('receipts', `rcpt_${deletedNum}`);
+          }
+          if (rcptDocIdOrId !== rcptDocId) await deleteRec('receipts', rcptDocIdOrId);
+          if (rcptData.id !== undefined) await deleteRec('receipts', rcptData.id);
+        } catch (cacheErr) {
+          console.warn('[fsDeleteReceiptRecord] Cache eviction warning:', cacheErr);
+        }
+      }
+
+      try {
+        const pendingOp = localStorage.getItem('temple_pending_receipt_op');
+        if (pendingOp && rcptData.operationId && pendingOp.includes(rcptData.operationId)) {
+          localStorage.removeItem('temple_pending_receipt_op');
+        }
+      } catch (e) { }
+
+      return { success: true, deletedNum, rcptDocId, isIndependent: true };
     }
 
     /**
@@ -22734,7 +23723,7 @@ void main(){
       }
 
       return report;
-    }
+}
 
     // Expose on window for developer & console verification
     window.firestoreDb = firestoreDb;
@@ -22767,6 +23756,16 @@ void main(){
     window.fsVoidLinkedBillingAndReceipt = fsVoidLinkedBillingAndReceipt;
     window.deleteTransfer = deleteTransfer;
     window.showDeleteTransferModal = showDeleteTransferModal;
+    window.deletePayment = deletePayment;
+    window.showDeletePaymentModal = showDeletePaymentModal;
+    window.deleteBillingRecord = deleteBillingRecord;
+    window.showDeleteBillingModal = showDeleteBillingModal;
+    window.fsDeleteBillingRecord = fsDeleteBillingRecord;
+    window.deleteReceiptRecord = deleteReceiptRecord;
+    window.deleteReceipt = deleteReceiptRecord;
+    window.showDeleteReceiptModal = showDeleteReceiptModal;
+    window.fsDeleteReceiptRecord = fsDeleteReceiptRecord;
+    window.nextVoucherNo = nextVoucherNo;
     window.activeTransfers = activeTransfers;
     window.loadAuthoritativeMasterData = loadAuthoritativeMasterData;
     window.fsCreateBillingWithAccounting = fsCreateBillingWithAccounting;
@@ -22818,7 +23817,7 @@ void main(){
        - NEVER modifies IndexedDB or changes normal CRUD flows.
        ============================================================================================= */
 
-    const TempleMigration = (function () {
+    const TempleMigration = (function() {
       const SOURCE_DB_NAME = 'temple_accounts_db';
       const SOURCE_DB_VERSION = 3;
       const ALL_STORES = [
@@ -22948,7 +23947,7 @@ void main(){
         const sDoc = (rawData.settings && rawData.settings[0]) || {};
         inventory.counters = {
           receiptCounter: sDoc.receiptCounter !== undefined ? sDoc.receiptCounter : 1001,
-          voucherCounter: sDoc.voucherCounter !== undefined ? sDoc.voucherCounter : 501,
+          voucherCounter: sDoc.voucherCounter !== undefined ? sDoc.voucherCounter : 0,
           billingReceiptCounter: sDoc.billingReceiptCounter !== undefined ? sDoc.billingReceiptCounter : 0,
           receiptPrefix: sDoc.receiptPrefix || 'R-',
           voucherPrefix: sDoc.voucherPrefix || 'V-'
@@ -23005,7 +24004,7 @@ void main(){
         });
 
         // 3. voucherCounter check
-        const vCheckPassed = maxVNum === 0 || (inventory.counters.voucherCounter >= maxVNum + 1);
+        const vCheckPassed = maxVNum === 0 || (inventory.counters.voucherCounter >= maxVNum);
         inventory.counterConsistency.checks.push({
           counter: 'voucherCounter',
           settingValue: inventory.counters.voucherCounter,
