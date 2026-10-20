@@ -2367,20 +2367,20 @@
     #cashBookTable th:nth-child(8),
     #cashBookTable td:nth-child(8),
     .cashbook-total-row td,
-    #bankBookTable th:nth-child(3),
-    #bankBookTable td:nth-child(3),
     #bankBookTable th:nth-child(4),
     #bankBookTable td:nth-child(4),
     #bankBookTable th:nth-child(5),
     #bankBookTable td:nth-child(5),
+    #bankBookTable th:nth-child(6),
+    #bankBookTable td:nth-child(6),
     #ledgerTable th:nth-child(6),
     #ledgerTable td:nth-child(6),
     #ledgerTable th:nth-child(7),
     #ledgerTable td:nth-child(7),
     #receiptTable th:nth-child(8),
     #receiptTable td:nth-child(8),
-    #paymentTable th:nth-child(7),
-    #paymentTable td:nth-child(7),
+    #paymentTable th:nth-child(8),
+    #paymentTable td:nth-child(8),
     #billingHistoryTable th:nth-child(7),
     #billingHistoryTable td:nth-child(7),
     #billingHistoryTable th:nth-child(8),
@@ -2394,8 +2394,12 @@
     /* Table description column wrapping and width control */
     #receiptTable th:nth-child(4),
     #receiptTable td:nth-child(4),
+    #paymentTable th:nth-child(4),
+    #paymentTable td:nth-child(4),
     #cashBookTable th:nth-child(3),
     #cashBookTable td:nth-child(3),
+    #bankBookTable th:nth-child(3),
+    #bankBookTable td:nth-child(3),
     #ledgerTable th:nth-child(4),
     #ledgerTable td:nth-child(4) {
       white-space: normal;
@@ -9144,10 +9148,19 @@
         alert('Voided receipts cannot be edited.');
         editRec = null;
       }
-      if (editRec && (editRec.source === 'billing' || editRec.billingFirestoreId || editRec.billingId || editRec.billingReceiptNo)) {
-        alert(`Receipt ${editRec.receiptNo || editId} was generated from Pooja Bill ${editRec.billingReceiptNo || editRec.billingId || ''}.\n\nDirect editing of billing-linked receipts is not permitted to preserve audit consistency between billing and accounting records.\n\nTo make a correction, please void the bill in the Billing section and create a new bill.`);
-        editRec = null;
+      const isBillingLinked = !!(editRec && (editRec.source === 'billing' || editRec.billingFirestoreId || editRec.billingId || editRec.billingReceiptNo));
+      let linkedBill = null;
+      if (isBillingLinked) {
+        try {
+          const bDocId = editRec.billingFirestoreId || (editRec.billingId ? (String(editRec.billingId).startsWith('bill_') ? editRec.billingId : `bill_${editRec.billingId}`) : null);
+          if (bDocId) linkedBill = await fsGetOneSafe('billing', bDocId);
+          if (!linkedBill && editRec.billingId) linkedBill = await fsGetOneSafe('billing', editRec.billingId);
+          if (!linkedBill && typeof getOne === 'function' && editRec.billingId) linkedBill = await getOne('billing', editRec.billingId);
+        } catch (fetchErr) {
+          console.warn('[VIEW_RENDERERS.receipts] Linked bill fetch warning:', fetchErr);
+        }
       }
+
       if (editRec) {
         if (window.GlobalEditState) window.GlobalEditState.setEditing('receipts', editRec.id);
       } else {
@@ -9155,43 +9168,79 @@
       }
       const isBankLike = editRec ? (editRec.paymentMode === 'Bank' || editRec.paymentMode === 'UPI') : false;
 
+      let editDateISO = todayISO();
+      if (editRec && editRec.date) {
+        const dStr = String(editRec.date).trim();
+        if (/^\d{4}-\d{2}-\d{2}$/.test(dStr)) {
+          editDateISO = dStr;
+        } else if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(dStr)) {
+          const parts = dStr.split('/');
+          editDateISO = `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+        }
+      }
+
+      const formTitle = editRec
+        ? ('Edit Receipt ' + esc(editRec.receiptNo) + (isBillingLinked ? ' [BILLING-LINKED · ' + esc(linkedBill ? linkedBill.receiptNo : (editRec.billingReceiptNo || '')) + ']' : (editRec.isPhysical ? (editRec.physicalType === 'PU' ? ' [PHYSICAL · PUNARUDHARANAM]' : ' [PHYSICAL]') : '')))
+        : 'New Receipt';
+
       return `
     <div class="form-card" data-motion="fadeInUp">
-      <h3>🧾 ${editRec ? 'Edit Receipt ' + esc(editRec.receiptNo) + (editRec.isPhysical ? (editRec.physicalType === 'PU' ? ' [PHYSICAL · PUNARUDHARANAM]' : ' [PHYSICAL]') : '') : 'New Receipt'}</h3>
+      <h3>🧾 ${formTitle}</h3>
+      ${isBillingLinked ? `
+      <div class="billing-linked-sync-banner" style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:6px;padding:10px 14px;margin-bottom:16px;color:#1e40af;font-size:13px;display:flex;align-items:center;gap:8px;">
+        <span style="font-size:16px;">🔄</span>
+        <span><strong>Billing-Linked Receipt:</strong> Edits to devotee details, date, star, mobile, items, quantities, amount, fund, category, and payment mode will automatically synchronize with Pooja Bill <strong>${esc(linkedBill ? linkedBill.receiptNo : (editRec.billingReceiptNo || ''))}</strong> and update accounting ledger balances.</span>
+      </div>
+      ` : ''}
       <form id="receiptForm">
         <input type="hidden" name="editId" value="${editRec ? editRec.id : ''}">
+        <input type="hidden" name="isBillingLinked" value="${isBillingLinked ? '1' : '0'}">
+        <input type="hidden" name="linkedBillFirestoreId" value="${esc(linkedBill ? (linkedBill.firestoreId || ('bill_' + linkedBill.id)) : (editRec ? (editRec.billingFirestoreId || ('bill_' + editRec.billingId) || '') : ''))}">
+        <input type="hidden" name="linkedBillId" value="${esc(linkedBill ? linkedBill.id : (editRec ? (editRec.billingId || '') : ''))}">
+        <input type="hidden" name="billingReceiptNo" value="${esc(linkedBill ? linkedBill.receiptNo : (editRec ? (editRec.billingReceiptNo || '') : ''))}">
         <div class="form-row">
           <div class="form-group">
-            <label>Receipt Number <span style="font-weight:400;color:var(--text-muted);font-size:11px;">(Leave blank to auto-allocate; preview: ${esc(nextNo)})</span></label>
-            <input type="text" name="receiptNo" value="${esc(editRec ? editRec.receiptNo : '')}" placeholder="Auto-generated on save (e.g. ${esc(nextNo)}) or Physical (P600-P900, PU1...)" autocomplete="off" oninput="onReceiptNoInput(this)" onchange="onReceiptNoInput(this)">
+            <label>Receipt Number ${editRec ? '<span style="font-weight:400;color:var(--text-muted);font-size:11px;">(Identifier cannot be modified)</span>' : `<span style="font-weight:400;color:var(--text-muted);font-size:11px;">(Leave blank to auto-allocate; preview: ${esc(nextNo)})</span>`}</label>
+            ${editRec ? `
+            <input type="text" name="receiptNo" value="${esc(editRec.receiptNo)}" readonly style="background:var(--bg,#f3f4f6);cursor:not-allowed;" title="Receipt number cannot be changed on edit">
+            ` : `
+            <input type="text" name="receiptNo" value="" placeholder="Auto-generated on save (e.g. ${esc(nextNo)}) or Physical (P600-P900, PU1...)" autocomplete="off" oninput="onReceiptNoInput(this)" onchange="onReceiptNoInput(this)">
             <div class="receipt-number-hint" style="font-size: 11px; color: var(--text-muted); margin-top: 3px;">ℹ️ Enter a physical receipt identifier (P600–P900 for Puja, PU1+ for Punarudharanam), or leave blank for auto-allocated software sequence.</div>
+            `}
           </div>
-          <div class="form-group"><label>Date *</label><input type="date" name="date" value="${editRec ? editRec.date : todayISO()}" required></div>
-          <div class="form-group"><label>Devotee Name *</label><input type="text" name="name" value="${esc(editRec ? editRec.name : '')}" required></div>
+          <div class="form-group"><label>Date *</label><input type="date" name="date" id="receiptDateInput" value="${editRec ? editDateISO : todayISO()}" required></div>
+          <div class="form-group"><label>Devotee Name *</label><input type="text" name="name" id="receiptNameInput" value="${esc(editRec ? (editRec.name || (linkedBill ? linkedBill.devoteeName : '')) : '')}" required></div>
         </div>
         <div class="form-row">
-          <div class="form-group"><label>Star / നാൾ</label><input type="text" name="star" value="${esc(editRec ? (editRec.star || '') : '')}" placeholder="Star (optional)"></div>
-          <div class="form-group"><label>Mobile Number</label><input type="text" name="mobile" value="${esc(editRec ? editRec.mobile : '')}"></div>
-          <div class="form-group"><label>Fund *</label><select name="fund" required>${optsFromNames(funds, editRec ? editRec.fund : null)}</select></div>
-          <div class="form-group"><label>Income Category</label><select name="category">
-            <option value="" ${(editRec ? editRec.category : filterCategory) === '' ? 'selected' : ''}>-- None / General --</option>
-            ${incomeCats.map(c => `<option value="${esc(c.name)}" ${(editRec ? editRec.category : filterCategory) === c.name ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}
+          <div class="form-group"><label>Star / നാൾ</label><input type="text" name="star" id="receiptStarInput" value="${esc(editRec ? (editRec.star || (linkedBill ? linkedBill.star : '') || '') : '')}" placeholder="Star (optional)" oninput="${isBillingLinked ? 'onBillingLinkedFieldsChanged()' : ''}"></div>
+          <div class="form-group"><label>Mobile Number</label><input type="text" name="mobile" id="receiptMobileInput" value="${esc(editRec ? (editRec.mobile || (linkedBill ? linkedBill.mobile : '') || '') : '')}"></div>
+          <div class="form-group"><label>Fund *</label><select name="fund" id="receiptFundInput" required>${optsFromNames(funds, editRec ? (editRec.fund || (linkedBill ? linkedBill.fund : null)) : null)}</select></div>
+          <div class="form-group"><label>Income Category</label><select name="category" id="receiptCategoryInput">
+            <option value="" ${(editRec ? (editRec.category || (linkedBill ? linkedBill.incomeCategory : '')) : filterCategory) === '' ? 'selected' : ''}>-- None / General --</option>
+            ${incomeCats.map(c => `<option value="${esc(c.name)}" ${(editRec ? (editRec.category || (linkedBill ? linkedBill.incomeCategory : '')) : filterCategory) === c.name ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}
           </select></div>
         </div>
+        ${isBillingLinked ? `
         <div class="form-row">
-          <div class="form-group"><label>Description</label><input type="text" name="description" value="${esc(editRec ? editRec.description : '')}"></div>
+          <div class="form-group"><label>Item / Vazhipadu *</label><input type="text" name="billingItem" id="receiptBillingItemInput" value="${esc(linkedBill ? (linkedBill.item || '') : (editRec.description || ''))}" placeholder="Item / Vazhipadu name" required oninput="onBillingLinkedFieldsChanged()"></div>
+          <div class="form-group"><label>Quantity *</label><input type="number" name="billingQuantity" id="receiptBillingQuantityInput" min="1" step="1" value="${linkedBill ? (linkedBill.quantity || 1) : 1}" required oninput="onBillingLinkedFieldsChanged()"></div>
+          <div class="form-group"><label>Unit Price (₹)</label><input type="number" name="billingUnitPrice" id="receiptBillingUnitPriceInput" min="0" step="0.01" value="${linkedBill && linkedBill.unitPrice != null ? linkedBill.unitPrice : (linkedBill && linkedBill.quantity && linkedBill.totalAmount ? (linkedBill.totalAmount / linkedBill.quantity) : (editRec ? editRec.amount : ''))}" oninput="onBillingLinkedFieldsChanged()"></div>
+        </div>
+        ` : ''}
+        <div class="form-row">
+          <div class="form-group"><label>Description</label><input type="text" name="description" id="receiptDescriptionInput" value="${esc(editRec ? editRec.description : '')}"></div>
           <div class="form-group"><label>Payment Mode *</label>
             <select name="paymentMode" onchange="toggleBankField(this,'receiptBankWrap')">
               ${optSel('Cash', editRec ? editRec.paymentMode : 'Cash')}${optSel('Bank', editRec ? editRec.paymentMode : 'Cash')}${optSel('UPI', editRec ? editRec.paymentMode : 'Cash')}
             </select>
           </div>
           <div class="form-group" id="receiptBankWrap" style="display:${isBankLike ? '' : 'none'};"><label>Bank Account</label>
-            <select name="bankAccount">${optsFromNames(bankAccts, editRec ? editRec.bankAccount : null)}</select>
+            <select name="bankAccount">${optsFromNames(bankAccts, editRec ? (editRec.bankAccount || (linkedBill ? linkedBill.bankAccount : null)) : null)}</select>
           </div>
         </div>
         <div class="form-row">
-          <div class="form-group"><label>Amount (₹) *</label><input type="number" step="0.01" min="0.01" name="amount" value="${editRec ? editRec.amount : ''}" required></div>
-          <div class="form-group"><label>Remarks</label><input type="text" name="remarks" value="${esc(editRec ? editRec.remarks : '')}"></div>
+          <div class="form-group"><label>Amount (₹) *</label><input type="number" step="0.01" min="0.01" name="amount" id="receiptAmountInput" value="${editRec ? editRec.amount : ''}" required oninput="${isBillingLinked ? 'onBillingAmountInput()' : ''}"></div>
+          <div class="form-group"><label>Remarks</label><input type="text" name="remarks" id="receiptRemarksInput" value="${esc(editRec ? editRec.remarks : '')}"></div>
         </div>
         <div class="form-actions">
           <button type="button" onclick="saveReceipt(false)">${editRec ? 'UPDATE' : 'SAVE'}</button>
@@ -9257,6 +9306,41 @@
     };
     function toggleBankField(sel, wrapId) {
       el(wrapId).style.display = (sel.value === 'Bank' || sel.value === 'UPI') ? '' : 'none';
+    }
+    function onBillingLinkedFieldsChanged() {
+      const itemInp = el('receiptBillingItemInput');
+      const qtyInp = el('receiptBillingQuantityInput');
+      const priceInp = el('receiptBillingUnitPriceInput');
+      const amtInp = el('receiptAmountInput');
+      const descInp = el('receiptDescriptionInput');
+      const starInp = el('receiptStarInput');
+
+      const qty = parseInt(qtyInp ? qtyInp.value : '1', 10) || 1;
+      const unitPrice = parseFloat(priceInp ? priceInp.value : '0') || 0;
+
+      if (qty > 0 && unitPrice >= 0 && amtInp) {
+        amtInp.value = (qty * unitPrice).toFixed(2);
+      }
+
+      if (descInp && itemInp) {
+        const item = itemInp.value.trim();
+        const star = starInp ? starInp.value.trim() : '';
+        let autoDesc = item;
+        if (qty > 1) autoDesc += ` (Qty: ${qty})`;
+        if (star) autoDesc += ` | Star: ${star}`;
+        if (autoDesc) descInp.value = autoDesc;
+      }
+    }
+    function onBillingAmountInput() {
+      const qtyInp = el('receiptBillingQuantityInput');
+      const priceInp = el('receiptBillingUnitPriceInput');
+      const amtInp = el('receiptAmountInput');
+      if (!amtInp || !qtyInp || !priceInp) return;
+      const amt = parseFloat(amtInp.value) || 0;
+      const qty = parseInt(qtyInp.value, 10) || 1;
+      if (qty > 0 && amt >= 0) {
+        priceInp.value = (amt / qty).toFixed(2);
+      }
     }
     function filterReceiptTable() {
       const q = (el('receiptSearch') ? el('receiptSearch').value : '').toLowerCase();
@@ -9353,26 +9437,107 @@
             alert('Voided receipts cannot be edited.');
             return;
           }
-          if (prior && (prior.source === 'billing' || prior.billingFirestoreId || prior.billingId || prior.billingReceiptNo)) {
-            alert(`Receipt ${prior.receiptNo || editId} was generated from Pooja Bill ${prior.billingReceiptNo || prior.billingId || ''}.\n\nDirect editing of billing-linked receipts is not permitted to preserve audit consistency between billing and accounting records.\n\nTo make a correction, please void the bill in the Billing section and create a new bill.`);
-            return;
+          const isBillingLinked = !!(fd.get('isBillingLinked') === '1' || (prior && (prior.source === 'billing' || prior.billingFirestoreId || prior.billingId || prior.billingReceiptNo)));
+
+          if (isBillingLinked) {
+            const rawBillFirestoreId = fd.get('linkedBillFirestoreId') || (prior && prior.billingFirestoreId) || null;
+            const rawBillId = fd.get('linkedBillId') || (prior && prior.billingId) || null;
+            const resolvedBillDocId = rawBillFirestoreId || (rawBillId ? (String(rawBillId).startsWith('bill_') ? rawBillId : `bill_${rawBillId}`) : null);
+
+            const rawItem = fd.get('billingItem');
+            const item = (rawItem != null && String(rawItem).trim()) ? String(rawItem).trim() : (prior.description || 'Pooja');
+            const rawQty = parseInt(fd.get('billingQuantity'), 10);
+            const quantity = (!isNaN(rawQty) && rawQty >= 1) ? rawQty : 1;
+            const rawPrice = parseFloat(fd.get('billingUnitPrice'));
+            const unitPrice = (!isNaN(rawPrice) && rawPrice >= 0) ? rawPrice : parseFloat((amount / quantity).toFixed(2));
+
+            const isoDate = (fd.get('date') || '').trim();
+            let billDate = isoDate;
+            if (/^\d{4}-\d{2}-\d{2}$/.test(isoDate)) {
+              const parts = isoDate.split('-');
+              billDate = `${parts[2]}/${parts[1]}/${parts[0]}`;
+            }
+
+            let description = (fd.get('description') || '').trim();
+            if (!description) {
+              description = item;
+              if (quantity > 1) description += ` (Qty: ${quantity})`;
+              if (rec.star) description += ` | Star: ${rec.star}`;
+            }
+            rec.description = description;
+
+            const syncResult = await fsUpdateBillingLinkedReceipt({
+              receiptDocId: prior.firestoreId || (String(editId).startsWith('rcpt_') ? editId : `rcpt_${editId}`),
+              billDocId: resolvedBillDocId,
+              receiptData: {
+                date: isoDate,
+                name: rec.name,
+                star: rec.star || '',
+                mobile: rec.mobile || '',
+                fund: targetFund,
+                category: targetCategory,
+                description: description,
+                paymentMode: rec.paymentMode,
+                bankAccount: rec.bankAccount || '',
+                amount: amount,
+                remarks: rec.remarks || ''
+              },
+              billingData: {
+                date: billDate,
+                devoteeName: rec.name,
+                star: rec.star || '',
+                mobile: rec.mobile || '',
+                fund: targetFund,
+                incomeCategory: targetCategory,
+                item: item,
+                quantity: quantity,
+                unitPrice: unitPrice,
+                totalAmount: amount,
+                paymentMode: rec.paymentMode,
+                bankAccount: rec.bankAccount || '',
+                remarks: rec.remarks || ''
+              }
+            });
+
+            savedRec = syncResult.receipt;
+
+            try {
+              if (typeof putRec === 'function') {
+                await putRec('receipts', syncResult.receipt);
+                await putRec('billing', syncResult.billing);
+              }
+              if (Array.isArray(window.billingAllRecords)) {
+                const bIdx = window.billingAllRecords.findIndex(b => b && (b.id === syncResult.billing.id || b.firestoreId === syncResult.billing.firestoreId));
+                if (bIdx !== -1) {
+                  window.billingAllRecords[bIdx] = syncResult.billing;
+                } else {
+                  window.billingAllRecords.unshift(syncResult.billing);
+                }
+              }
+              if (typeof refreshBillingHistory === 'function') {
+                await refreshBillingHistory().catch(() => {});
+              }
+            } catch (cacheErr) {
+              console.warn('[saveReceipt] Linked billing local cache update warning:', cacheErr);
+            }
+          } else {
+            rec.id = editId;
+            rec.receiptNo = receiptNoInput || (prior ? prior.receiptNo : '');
+            rec.voided = prior ? prior.voided : false;
+            if (prior && prior.voidReason !== undefined) rec.voidReason = prior.voidReason;
+            if (prior && prior.voidDate !== undefined) rec.voidDate = prior.voidDate;
+            if (prior && prior.source !== undefined) rec.source = prior.source;
+            if (prior && prior.isPhysical !== undefined) rec.isPhysical = prior.isPhysical;
+            if (prior && prior.physicalType !== undefined) rec.physicalType = prior.physicalType;
+            if (prior && prior.billingId !== undefined) rec.billingId = prior.billingId;
+            if (prior && prior.billingFirestoreId !== undefined) rec.billingFirestoreId = prior.billingFirestoreId;
+            if (prior && prior.billingReceiptNo !== undefined) rec.billingReceiptNo = prior.billingReceiptNo;
+            if (prior && prior.createdBy !== undefined) rec.createdBy = prior.createdBy;
+            rec.createdAt = prior ? prior.createdAt : Date.now();
+            rec.firestoreId = prior ? prior.firestoreId : (String(editId).startsWith('rcpt_') ? editId : ('rcpt_' + editId));
+            await fsUpdateRecordSafe('receipts', rec.firestoreId || editId, rec);
+            savedRec = rec;
           }
-          rec.id = editId;
-          rec.receiptNo = receiptNoInput || (prior ? prior.receiptNo : '');
-          rec.voided = prior ? prior.voided : false;
-          if (prior && prior.voidReason !== undefined) rec.voidReason = prior.voidReason;
-          if (prior && prior.voidDate !== undefined) rec.voidDate = prior.voidDate;
-          if (prior && prior.source !== undefined) rec.source = prior.source;
-          if (prior && prior.isPhysical !== undefined) rec.isPhysical = prior.isPhysical;
-          if (prior && prior.physicalType !== undefined) rec.physicalType = prior.physicalType;
-          if (prior && prior.billingId !== undefined) rec.billingId = prior.billingId;
-          if (prior && prior.billingFirestoreId !== undefined) rec.billingFirestoreId = prior.billingFirestoreId;
-          if (prior && prior.billingReceiptNo !== undefined) rec.billingReceiptNo = prior.billingReceiptNo;
-          if (prior && prior.createdBy !== undefined) rec.createdBy = prior.createdBy;
-          rec.createdAt = prior ? prior.createdAt : Date.now();
-          rec.firestoreId = prior ? prior.firestoreId : (String(editId).startsWith('rcpt_') ? editId : ('rcpt_' + editId));
-          await fsUpdateRecordSafe('receipts', rec.firestoreId || editId, rec);
-          savedRec = rec;
         } else if (isPhysical) {
           // Step 33.69: Physical Receipt Creation Path with Numbering Isolation
           const canonicalPhysId = physCheck.formattedId;
@@ -9504,7 +9669,13 @@
       if (window.GlobalEditState) window.GlobalEditState.clearEditing('receipts');
       await refreshSettings();
       await navigate('receipts');
-      if (print && savedRec) printReceipt(savedRec);
+      if (print && savedRec) {
+        if (savedRec.source === 'billing' || savedRec.billingFirestoreId || savedRec.billingId) {
+          reprintReceipt(savedRec.firestoreId || savedRec.id);
+        } else {
+          printReceipt(savedRec);
+        }
+      }
     }
     /* Step 23.3 — BUG-002 fix: Firestore is the authoritative source for receipt reprint.
        IndexedDB is tried as a fast-path cache but any IDB error is silently suppressed
@@ -14331,11 +14502,11 @@
     </div>
     <div class="table-wrap" data-motion="fadeIn">
       <table id="paymentTable">
-        <thead><tr><th>Voucher No</th><th>Date</th><th>Paid To</th><th>Fund</th><th>Category</th><th>Mode</th><th>Amount</th><th>Status</th><th>Actions</th></tr></thead>
+        <thead><tr><th>Voucher No</th><th>Date</th><th>Paid To</th><th>Description</th><th>Fund</th><th>Category</th><th>Mode</th><th>Amount</th><th>Status</th><th>Actions</th></tr></thead>
         <tbody>
           ${list.map(p => `
             <tr data-record-id="${esc(p.id)}" data-edit-scope="payments" class="${p.voided ? 'voided' : ''} ${getEditingRowClass('payments', p.id)}">
-              <td>${esc(p.voucherNo)}</td><td>${fmtDate(p.date)}</td><td>${esc(p.paidTo)}</td><td>${esc(p.fund)}</td>
+              <td>${esc(p.voucherNo)}</td><td>${fmtDate(p.date)}</td><td>${esc(p.paidTo)}</td><td>${(p.description != null && String(p.description).trim() !== '') ? esc(String(p.description).trim()) : '—'}</td><td>${esc(p.fund)}</td>
               <td>${esc(p.category)}</td><td><span class="pill ${(p.paymentMode || '').toLowerCase()}">${esc(p.paymentMode || '')}</span></td>
               <td>${fmtMoney(p.amount)}</td><td>${p.voided ? 'Voided' : 'Active'}</td>
               <td>
@@ -14808,14 +14979,41 @@
         activeReceipts(), activePayments(), txFetcher, allLoans(), colFetcher, payFetcher
       ]);
       const rows = [];
-      receipts.filter(r => isBankMode(r.paymentMode) && !r.voided).forEach(r => rows.push({ date: r.date, particulars: `Receipt ${r.receiptNo} - ${r.name} (${r.paymentMode})`, deposit: r.amount, withdrawal: 0 }));
-      payments.filter(p => isBankMode(p.paymentMode) && !p.voided).forEach(p => rows.push({ date: p.date, particulars: `Payment ${p.voucherNo} - ${p.paidTo} (${p.paymentMode})`, deposit: 0, withdrawal: p.amount }));
-      loans.filter(l => isBankMode(l.paymentMode) && !l.voided).forEach(l => { if (l.loanReceived) rows.push({ date: l.date, particulars: `Loan Received - ${l.person}`, deposit: l.loanReceived, withdrawal: 0 }); if (l.repayment) rows.push({ date: l.date, particulars: `Loan Repayment - ${l.person}`, deposit: 0, withdrawal: l.repayment }); });
-      collections.filter(c => isBankMode(c.paymentMode) && !c.voided).forEach(c => rows.push({ date: c.date, particulars: `Chitty Collection - ${c.memberName || ''}`, deposit: c.amountReceived, withdrawal: 0 }));
-      payouts.filter(p => isBankMode(p.paymentMode) && !p.voided).forEach(p => rows.push({ date: p.date, particulars: `Chitty Payout - ${p.memberName || ''}`, deposit: 0, withdrawal: p.amount }));
+      const resolveReceiptDesc = (r) => {
+        let desc = (r.description && String(r.description).trim()) || '';
+        if (!desc && (r.source === 'billing' || r.billingFirestoreId || r.billingId || r.billingReceiptNo)) {
+          const bList = window.billingAllRecords || [];
+          const b = bList.find(item => item && (
+            (r.billingFirestoreId && (item.firestoreId === r.billingFirestoreId || item.id === r.billingFirestoreId)) ||
+            (r.billingId && (item.id === r.billingId || String(item.id) === String(r.billingId))) ||
+            (r.billingReceiptNo && (item.receiptNo === r.billingReceiptNo || item.billNo === r.billingReceiptNo))
+          ));
+          if (b) {
+            if (b.description && String(b.description).trim()) {
+              desc = String(b.description).trim();
+            } else if (b.item && String(b.item).trim()) {
+              let itemDesc = String(b.item).trim();
+              if (b.quantity && b.quantity > 1) itemDesc += ` (Qty: ${b.quantity})`;
+              if (b.star && String(b.star).trim()) itemDesc += ` | Star: ${String(b.star).trim()}`;
+              desc = itemDesc;
+            }
+          }
+        }
+        return desc;
+      };
+      receipts.filter(r => isBankMode(r.paymentMode) && !r.voided).forEach(r => rows.push({ date: r.date, particulars: `Receipt ${r.receiptNo} - ${r.name} (${r.paymentMode})`, description: resolveReceiptDesc(r), deposit: r.amount, withdrawal: 0 }));
+      payments.filter(p => isBankMode(p.paymentMode) && !p.voided).forEach(p => rows.push({ date: p.date, particulars: `Payment ${p.voucherNo} - ${p.paidTo} (${p.paymentMode})`, description: (p.description && String(p.description).trim()) || '', deposit: 0, withdrawal: p.amount }));
+      loans.filter(l => isBankMode(l.paymentMode) && !l.voided).forEach(l => {
+        const desc = (l.description && String(l.description).trim()) || '';
+        if (l.loanReceived) rows.push({ date: l.date, particulars: `Loan Received - ${l.person}`, description: desc, deposit: l.loanReceived, withdrawal: 0 });
+        if (l.repayment) rows.push({ date: l.date, particulars: `Loan Repayment - ${l.person}`, description: desc, deposit: 0, withdrawal: l.repayment });
+      });
+      collections.filter(c => isBankMode(c.paymentMode) && !c.voided).forEach(c => rows.push({ date: c.date, particulars: `Chitty Collection - ${c.memberName || ''}`, description: (c.description && String(c.description).trim()) || '', deposit: c.amountReceived, withdrawal: 0 }));
+      payouts.filter(p => isBankMode(p.paymentMode) && !p.voided).forEach(p => rows.push({ date: p.date, particulars: `Chitty Payout - ${p.memberName || ''}`, description: (p.description && String(p.description).trim()) || '', deposit: 0, withdrawal: p.amount }));
       transfers.filter(t => !t.voided).forEach(t => {
-        if (t.fromAcc === 'Bank') rows.push({ date: t.date, particulars: `Cash Withdrawal${t.reason ? ' (' + t.reason + ')' : ''}${t.refNo ? ' - Ref ' + t.refNo : ''}`, deposit: 0, withdrawal: t.amount });
-        if (t.toAcc === 'Bank') rows.push({ date: t.date, particulars: `Cash Deposit${t.reason ? ' (' + t.reason + ')' : ''}${t.refNo ? ' - Ref ' + t.refNo : ''}`, deposit: t.amount, withdrawal: 0 });
+        const desc = (t.description && String(t.description).trim()) || '';
+        if (t.fromAcc === 'Bank') rows.push({ date: t.date, particulars: `Cash Withdrawal${t.reason ? ' (' + t.reason + ')' : ''}${t.refNo ? ' - Ref ' + t.refNo : ''}`, description: desc, deposit: 0, withdrawal: t.amount });
+        if (t.toAcc === 'Bank') rows.push({ date: t.date, particulars: `Cash Deposit${t.reason ? ' (' + t.reason + ')' : ''}${t.refNo ? ' - Ref ' + t.refNo : ''}`, description: desc, deposit: t.amount, withdrawal: 0 });
       });
       rows.sort((a, b) => a.date.localeCompare(b.date));
       let bal = parseFloat(s.openingBank) || 0;
@@ -14913,21 +15111,23 @@
     VIEW_RENDERERS.bankbook = async function () {
       const rows = await buildBankBookRows();
       window._bankBookRows = rows; /* cache for recalculation/testing */
-      const closing = rows.length ? rows[rows.length - 1].balance : (parseFloat(window.APP_SETTINGS.openingBank) || 0);
+      const s = window.APP_SETTINGS || {};
+      const closing = rows.length ? rows[rows.length - 1].balance : (parseFloat(s.openingBank) || 0);
       const totalDeposit = rows.reduce((s, r) => s + (parseFloat(r.deposit) || 0), 0);
       const totalWithdrawal = rows.reduce((s, r) => s + (parseFloat(r.withdrawal) || 0), 0);
       return `
     <div class="balance-banner ok" data-motion="fadeInUp">Closing Bank Balance: ${fmtMoney(closing)}</div>
     <div class="toolbar" data-motion="calmInUp"><button class="btn-sec btn-sm motion-interactive" onclick="printGenericTable('Bank Book', document.getElementById('bankBookTable'))">Print</button></div>
     <div class="table-wrap" data-motion="fadeIn"><table id="bankBookTable">
-      <thead><tr><th>Date</th><th>Particulars</th><th>Deposit</th><th>Withdrawal</th><th>Balance</th></tr></thead>
+      <thead><tr><th>Date</th><th>Particulars</th><th>Description</th><th>Deposit</th><th>Withdrawal</th><th>Balance</th></tr></thead>
       <tbody>
-        <tr><td>${fmtDate(window.APP_SETTINGS.startDate)}</td><td><i>Opening Balance</i></td><td>-</td><td>-</td><td>${fmtMoney(window.APP_SETTINGS.openingBank)}</td></tr>
-        ${rows.map(r => `<tr><td>${fmtDate(r.date)}</td><td>${esc(r.particulars)}</td><td>${r.deposit ? fmtMoney(r.deposit) : '-'}</td><td>${r.withdrawal ? fmtMoney(r.withdrawal) : '-'}</td><td>${fmtMoney(r.balance)}</td></tr>`).join('')}
+        <tr><td>${fmtDate(s.startDate)}</td><td><i>Opening Balance</i></td><td>—</td><td>-</td><td>-</td><td>${fmtMoney(s.openingBank)}</td></tr>
+        ${rows.map(r => `<tr><td>${fmtDate(r.date)}</td><td>${esc(r.particulars)}</td><td>${(r.description != null && String(r.description).trim() !== '') ? esc(String(r.description).trim()) : '—'}</td><td>${r.deposit ? fmtMoney(r.deposit) : '-'}</td><td>${r.withdrawal ? fmtMoney(r.withdrawal) : '-'}</td><td>${fmtMoney(r.balance)}</td></tr>`).join('')}
       </tbody>
       <tfoot id="bankBookTFoot">
         <tr id="bankBookTotalRow" class="bankbook-total-row" style="font-weight: bold; background: var(--surface, #fafafa); border-top: 2px solid var(--border, #333);">
           <td><b>TOTAL</b></td>
+          <td>—</td>
           <td>—</td>
           <td id="bankBookTotalDeposit" style="text-align: right;"><b>${fmtMoney(totalDeposit)}</b></td>
           <td id="bankBookTotalWithdrawal" style="text-align: right;"><b>${fmtMoney(totalWithdrawal)}</b></td>
@@ -22408,6 +22608,202 @@ void main(){
     }
 
     /**
+     * STEP 33.166: Full Editing of Billing-Linked Receipts with Bidirectional Synchronization
+     * Atomically synchronizes edits between an accounting receipt and its originating pooja bill
+     * using a Firestore transaction (db.runTransaction) to guarantee consistency.
+     * All shared fields (devoteeName/name, star, mobile, date, item, quantity, unitPrice,
+     * totalAmount/amount, fund, incomeCategory/category, paymentMode, bankAccount, remarks)
+     * are synchronized bilaterally.
+     */
+    async function fsUpdateBillingLinkedReceipt({ receiptDocId, billDocId, receiptData, billingData }) {
+      const user = getCurrentFirebaseUser();
+      if (!user) throw new Error('Authentication required: please log in to update transactions.');
+
+      const db = getFirestoreDb();
+      if (!db) throw new Error('Firestore is not initialized.');
+
+      if (!receiptDocId) throw new Error('Cannot update: Missing receipt document identifier.');
+      if (!billDocId) throw new Error('Cannot update: Missing linked bill document identifier.');
+
+      const rDocId = (typeof receiptDocId === 'string' && receiptDocId.includes('_'))
+        ? receiptDocId
+        : `rcpt_${receiptDocId}`;
+      const bDocId = (typeof billDocId === 'string' && billDocId.includes('_'))
+        ? billDocId
+        : `bill_${billDocId}`;
+
+      // 1. Mandatory Fund Validation (Fail-Closed)
+      const targetFund = (receiptData && receiptData.fund) ? String(receiptData.fund).trim() : '';
+      if (!targetFund) {
+        throw new Error('Update rejected: Mandatory registered Fund is missing or empty.');
+      }
+      let registeredFunds = [];
+      try {
+        registeredFunds = (typeof allFunds === 'function') ? await allFunds() : await fsGetAllSafe('funds');
+      } catch (fErr) {
+        throw new Error('Update rejected: Unable to verify registered funds safely. ' + (fErr.message || fErr));
+      }
+      if (!Array.isArray(registeredFunds) || registeredFunds.length === 0) {
+        throw new Error('Update rejected: No registered funds available in master data.');
+      }
+      const matchedFund = registeredFunds.find(f => f && (f.name || '').trim() === targetFund);
+      if (!matchedFund) {
+        throw new Error(`Update rejected: Fund "${targetFund}" is invalid or not registered in master data.`);
+      }
+      const fundDocId = matchedFund.firestoreId || (matchedFund.id ? `fund_${matchedFund.id}` : null);
+      const fundDocRef = fundDocId ? db.collection('funds').doc(fundDocId) : null;
+
+      // 2. Financial validation
+      const amount = parseFloat(receiptData.amount);
+      if (isNaN(amount) || amount <= 0) {
+        throw new Error('Update rejected: Invalid amount. Must be a positive number.');
+      }
+      const quantity = parseInt(billingData.quantity, 10);
+      if (isNaN(quantity) || quantity < 1) {
+        throw new Error('Update rejected: Invalid quantity. Must be at least 1.');
+      }
+
+      const rcptRef = db.collection('receipts').doc(rDocId);
+      const billRef = db.collection('billing').doc(bDocId);
+
+      return await db.runTransaction(async (tx) => {
+        // Reads before writes
+        const [rcptSnap, billSnap, fundSnap] = await Promise.all([
+          tx.get(rcptRef),
+          tx.get(billRef),
+          fundDocRef ? tx.get(fundDocRef) : Promise.resolve(null)
+        ]);
+
+        if (!rcptSnap.exists) {
+          throw new Error(`Accounting receipt "${rDocId}" does not exist in Firestore.`);
+        }
+        if (!billSnap.exists) {
+          throw new Error(`Originating bill "${bDocId}" does not exist in Firestore.`);
+        }
+        if (fundDocRef && (!fundSnap || !fundSnap.exists)) {
+          throw new Error(`Fund master record for "${targetFund}" does not exist.`);
+        }
+
+        const rPrior = rcptSnap.data() || {};
+        const bPrior = billSnap.data() || {};
+
+        if (rPrior.voided || bPrior.voided) {
+          throw new Error('Voided transactions cannot be edited.');
+        }
+
+        // Link validation: ensure the documents are actually linked to each other
+        const rLinkedBill = rPrior.billingFirestoreId || (rPrior.billingId ? `bill_${rPrior.billingId}` : null);
+        const bLinkedRcpt = bPrior.accountingReceiptId || (bPrior.id ? `rcpt_${bPrior.id}` : null);
+        if ((rLinkedBill && rLinkedBill !== bDocId && rPrior.billingId !== bPrior.id) ||
+            (bLinkedRcpt && bLinkedRcpt !== rDocId && bPrior.id !== rPrior.id)) {
+          throw new Error(`Link integrity mismatch: Receipt "${rDocId}" and Bill "${bDocId}" do not reference each other.`);
+        }
+
+        // Read reservation document if exists
+        const resDocId = rPrior.reservationDocId || bPrior.reservationDocId;
+        let resRef = null;
+        let resSnap = null;
+        if (resDocId) {
+          resRef = db.collection('system').doc(resDocId);
+          resSnap = await tx.get(resRef);
+        }
+
+        const serverTs = (typeof firebase !== 'undefined' && firebase.firestore && firebase.firestore.FieldValue)
+          ? firebase.firestore.FieldValue.serverTimestamp()
+          : Date.now();
+
+        // Build synchronized Devotee Roster
+        const devoteeName = String(receiptData.name || billingData.devoteeName || '').trim();
+        const star = String(receiptData.star || billingData.star || '').trim();
+        const mobile = String(receiptData.mobile || billingData.mobile || '').trim();
+
+        let updatedRoster = [{ name: devoteeName, star: star }];
+        if (Array.isArray(bPrior.devotees) && bPrior.devotees.length > 1) {
+          updatedRoster = JSON.parse(JSON.stringify(bPrior.devotees));
+          updatedRoster[0] = { name: devoteeName, star: star };
+        } else if (Array.isArray(rPrior.devotees) && rPrior.devotees.length > 1) {
+          updatedRoster = JSON.parse(JSON.stringify(rPrior.devotees));
+          updatedRoster[0] = { name: devoteeName, star: star };
+        }
+
+        // Construct Updated Receipt Record
+        const updatedRcpt = {
+          ...rPrior,
+          date: receiptData.date,
+          name: devoteeName,
+          star: star,
+          mobile: mobile,
+          devotees: updatedRoster,
+          devoteeCount: updatedRoster.length,
+          fund: targetFund,
+          category: receiptData.category !== undefined ? receiptData.category : (rPrior.category || ''),
+          description: receiptData.description || rPrior.description || '',
+          paymentMode: receiptData.paymentMode,
+          bankAccount: (receiptData.paymentMode === 'Bank' || receiptData.paymentMode === 'UPI') ? (receiptData.bankAccount || '') : '',
+          amount: amount,
+          remarks: (receiptData.remarks !== undefined) ? receiptData.remarks : (rPrior.remarks || ''),
+          updatedBy: user.uid,
+          updatedAt: serverTs
+        };
+        // Strict preservation of immutable identity fields
+        updatedRcpt.id = rPrior.id;
+        updatedRcpt.receiptNo = rPrior.receiptNo;
+        updatedRcpt.firestoreId = rPrior.firestoreId || rDocId;
+        updatedRcpt.reservationDocId = rPrior.reservationDocId;
+        updatedRcpt.source = rPrior.source || 'billing';
+        updatedRcpt.billingId = rPrior.billingId;
+        updatedRcpt.billingFirestoreId = rPrior.billingFirestoreId || bDocId;
+        updatedRcpt.billingReceiptNo = rPrior.billingReceiptNo || bPrior.receiptNo;
+        updatedRcpt.createdAt = rPrior.createdAt;
+        updatedRcpt.createdBy = rPrior.createdBy;
+        updatedRcpt.voided = false;
+
+        // Construct Updated Billing Record
+        const updatedBill = {
+          ...bPrior,
+          date: billingData.date || rPrior.date,
+          devoteeName: devoteeName,
+          star: star,
+          mobile: mobile,
+          devotees: updatedRoster,
+          devoteeCount: updatedRoster.length,
+          fund: targetFund,
+          incomeCategory: billingData.incomeCategory !== undefined ? billingData.incomeCategory : (bPrior.incomeCategory || ''),
+          item: billingData.item || bPrior.item || '',
+          quantity: quantity,
+          unitPrice: (billingData.unitPrice !== undefined && !isNaN(billingData.unitPrice)) ? billingData.unitPrice : parseFloat((amount / quantity).toFixed(2)),
+          totalAmount: amount,
+          paymentMode: receiptData.paymentMode,
+          bankAccount: (receiptData.paymentMode === 'Bank' || receiptData.paymentMode === 'UPI') ? (receiptData.bankAccount || '') : '',
+          remarks: (billingData.remarks !== undefined) ? billingData.remarks : (bPrior.remarks || ''),
+          updatedBy: user.uid,
+          updatedAt: serverTs
+        };
+        // Strict preservation of immutable identity fields
+        updatedBill.id = bPrior.id;
+        updatedBill.receiptNo = bPrior.receiptNo;
+        updatedBill.firestoreId = bPrior.firestoreId || bDocId;
+        updatedBill.reservationDocId = bPrior.reservationDocId;
+        updatedBill.source = bPrior.source || 'firestore';
+        updatedBill.accountingReceiptId = bPrior.accountingReceiptId || rDocId;
+        updatedBill.accountingReceiptNo = bPrior.accountingReceiptNo || rPrior.receiptNo;
+        updatedBill.createdAt = bPrior.createdAt;
+        updatedBill.createdBy = bPrior.createdBy;
+        updatedBill.voided = false;
+
+        // Atomically write both
+        tx.set(rcptRef, updatedRcpt, { merge: true });
+        tx.set(billRef, updatedBill, { merge: true });
+
+        if (resRef && resSnap && resSnap.exists) {
+          tx.set(resRef, { updatedAt: serverTs }, { merge: true });
+        }
+
+        return { receipt: updatedRcpt, billing: updatedBill };
+      });
+    }
+
+    /**
      * Authoritative master data loader:
      * Reads settings/set_1 and all master configuration collections from Cloud Firestore.
      * Updates runtime memory (window.APP_SETTINGS) and syncs local IndexedDB cache.
@@ -23765,6 +24161,9 @@ void main(){
     window.deleteReceipt = deleteReceiptRecord;
     window.showDeleteReceiptModal = showDeleteReceiptModal;
     window.fsDeleteReceiptRecord = fsDeleteReceiptRecord;
+    window.fsUpdateBillingLinkedReceipt = fsUpdateBillingLinkedReceipt;
+    window.onBillingLinkedFieldsChanged = onBillingLinkedFieldsChanged;
+    window.onBillingAmountInput = onBillingAmountInput;
     window.nextVoucherNo = nextVoucherNo;
     window.activeTransfers = activeTransfers;
     window.loadAuthoritativeMasterData = loadAuthoritativeMasterData;
