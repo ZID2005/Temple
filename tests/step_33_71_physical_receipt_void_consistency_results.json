@@ -1,8 +1,8 @@
 {
-  "timestamp": "2026-10-17T18:17:52.696Z",
+  "timestamp": "2026-10-21T11:00:27.682Z",
   "targetFile": "Temple_Accounts-1.html",
-  "targetFileSha256": "3F6DAA24BC8CDC80034FD2C18B713EFE1685FB0B4D86CD3F749FB14769EB189D",
-  "fileSizeBytes": 834921,
+  "targetFileSha256": "41831C3FDD4176EEA96F597D78E613876917BEC7A81D60051ECC61E54A39E151",
+  "fileSizeBytes": 1248379,
   "totalTests": 71,
   "passedTests": 71,
   "failedTests": 0,
@@ -22,7 +22,7 @@
       "group": "BASELINE",
       "passed": true,
       "expected": ">= 827,070 bytes",
-      "actual": "834921 bytes",
+      "actual": "1248379 bytes",
       "detail": ""
     },
     {
@@ -112,7 +112,7 @@
       "group": "TEST_1_P_SERIES",
       "passed": true,
       "expected": "Recorded voidReason and voidDate",
-      "actual": "reason: Devotee cancellation request for P600, date: 2026-10-17",
+      "actual": "reason: Devotee cancellation request for P600, date: 2026-10-21",
       "detail": ""
     },
     {
@@ -193,7 +193,7 @@
       "group": "TEST_2_PU_SERIES",
       "passed": true,
       "expected": "Recorded voidReason and voidDate",
-      "actual": "reason: Duplicate manual slip error for PU1, date: 2026-10-17",
+      "actual": "reason: Duplicate manual slip error for PU1, date: 2026-10-21",
       "detail": ""
     },
     {
@@ -399,8 +399,8 @@
       "name": "Direct fsVoidRecordSafe repeat preserves original receipt voidDate",
       "group": "TEST_5_REPEAT_VOID",
       "passed": true,
-      "expected": "2026-10-17",
-      "actual": "2026-10-17",
+      "expected": "2026-10-21",
+      "actual": "2026-10-21",
       "detail": ""
     },
     {
@@ -417,8 +417,8 @@
       "name": "Direct fsVoidRecordSafe repeat preserves original reservation voidDate",
       "group": "TEST_5_REPEAT_VOID",
       "passed": true,
-      "expected": "2026-10-17",
-      "actual": "2026-10-17",
+      "expected": "2026-10-21",
+      "actual": "2026-10-21",
       "detail": ""
     },
     {

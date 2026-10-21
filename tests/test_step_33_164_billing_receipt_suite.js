@@ -145,11 +145,26 @@ class MockFirestore {
 
   async runTransaction(updateFunction) {
     const run = async () => {
+      let writesQueued = false;
       const tx = {
-        get: async (docRef) => docRef.get(),
-        set: (docRef, data, options) => docRef.set(data, options),
-        update: (docRef, data) => docRef.update(data),
-        delete: (docRef) => docRef.delete()
+        get: async (docRef) => {
+          if (writesQueued) {
+            throw new Error('Firestore transactions require all reads to be executed before all writes.');
+          }
+          return docRef.get();
+        },
+        set: (docRef, data, options) => {
+          writesQueued = true;
+          return docRef.set(data, options);
+        },
+        update: (docRef, data) => {
+          writesQueued = true;
+          return docRef.update(data);
+        },
+        delete: (docRef) => {
+          writesQueued = true;
+          return docRef.delete();
+        }
       };
       return await updateFunction(tx);
     };
@@ -498,34 +513,31 @@ class TempleAccountsSimulator {
 
     await this.db.runTransaction(async (tx) => {
       const counterRef = this.db.collection('system').doc('counters');
-      const [bSnap, cSnap] = await Promise.all([
+      const rcptRef = linkedRcptDocId ? this.db.collection('receipts').doc(linkedRcptDocId) : null;
+      const resRef = resDocId ? this.db.collection('system').doc(resDocId) : null;
+      const opRef = opDocId ? this.db.collection('system').doc(opDocId) : null;
+
+      // All reads first
+      const [bSnap, cSnap, rSnap, resSnap, opSnap, allBillingSnap, allReceiptsSnap, allSystemSnap] = await Promise.all([
         tx.get(billRef),
-        tx.get(counterRef)
+        tx.get(counterRef),
+        rcptRef ? tx.get(rcptRef) : Promise.resolve(null),
+        resRef ? tx.get(resRef) : Promise.resolve(null),
+        opRef ? tx.get(opRef) : Promise.resolve(null),
+        this.db.collection('billing').get(),
+        this.db.collection('receipts').get(),
+        this.db.collection('system').get()
       ]);
 
       if (!bSnap.exists) {
         throw new Error(`Billing record "${billDocId}" does not exist in Firestore.`);
       }
 
-      let rcptRef = linkedRcptDocId ? this.db.collection('receipts').doc(linkedRcptDocId) : null;
-      let rSnap = rcptRef ? await tx.get(rcptRef) : null;
-
-      let resRef = resDocId ? this.db.collection('system').doc(resDocId) : null;
-      let resSnap = resRef ? await tx.get(resRef) : null;
-
-      let opRef = opDocId ? this.db.collection('system').doc(opDocId) : null;
-      let opSnap = opRef ? await tx.get(opRef) : null;
-
+      // Perform deletions after reads
       tx.delete(billRef);
       if (rSnap && rSnap.exists) tx.delete(rcptRef);
       if (resSnap && resSnap.exists) tx.delete(resRef);
       if (opSnap && opSnap.exists) tx.delete(opRef);
-
-      const [allBillingSnap, allReceiptsSnap, allSystemSnap] = await Promise.all([
-        this.db.collection('billing').get(),
-        this.db.collection('receipts').get(),
-        this.db.collection('system').get()
-      ]);
 
       let maxRemainingSeq = 0;
       let maxRemainingBill = 0;
@@ -645,9 +657,12 @@ class TempleAccountsSimulator {
       const physResRef = this.db.collection('system').doc(`res_phys_${physId}`);
 
       await this.db.runTransaction(async (tx) => {
+        const [rcptSnap, prSnap] = await Promise.all([
+          tx.get(rcptRef),
+          tx.get(physResRef)
+        ]);
         tx.delete(rcptRef);
-        const prSnap = await tx.get(physResRef);
-        if (prSnap.exists) tx.delete(physResRef);
+        if (prSnap && prSnap.exists) tx.delete(physResRef);
       });
 
       await this.idb.deleteRec('receipts', rcptDocId);
@@ -669,26 +684,23 @@ class TempleAccountsSimulator {
 
     await this.db.runTransaction(async (tx) => {
       const counterRef = this.db.collection('system').doc('counters');
-      const [rSnap, cSnap] = await Promise.all([
+      const resRef = this.db.collection('system').doc(resDocId);
+
+      const [rSnap, cSnap, resSnap, allBillingSnap, allReceiptsSnap, allSystemSnap] = await Promise.all([
         tx.get(rcptRef),
-        tx.get(counterRef)
+        tx.get(counterRef),
+        tx.get(resRef),
+        this.db.collection('billing').get(),
+        this.db.collection('receipts').get(),
+        this.db.collection('system').get()
       ]);
 
       if (!rSnap.exists) {
         throw new Error(`Receipt record "${rcptDocId}" does not exist in Firestore.`);
       }
 
-      const resRef = this.db.collection('system').doc(resDocId);
-      const resSnap = await tx.get(resRef);
-
       tx.delete(rcptRef);
       if (resSnap && resSnap.exists) tx.delete(resRef);
-
-      const [allBillingSnap, allReceiptsSnap, allSystemSnap] = await Promise.all([
-        this.db.collection('billing').get(),
-        this.db.collection('receipts').get(),
-        this.db.collection('system').get()
-      ]);
 
       let maxRemainingSeq = 0;
       let maxRemainingBill = 0;

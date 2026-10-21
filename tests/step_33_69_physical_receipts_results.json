@@ -1,8 +1,8 @@
 {
-  "timestamp": "2026-10-18T08:14:04.021Z",
+  "timestamp": "2026-10-21T11:00:23.043Z",
   "targetFile": "Temple_Accounts-1.html",
-  "targetFileSha256": "C8183DE74331329AA51328F0510A342244BDC67C9B8793C3D7A536E115BE953E",
-  "fileSizeBytes": 941783,
+  "targetFileSha256": "41831C3FDD4176EEA96F597D78E613876917BEC7A81D60051ECC61E54A39E151",
+  "fileSizeBytes": 1248379,
   "totalTests": 70,
   "passedTests": 70,
   "failedTests": 0,
@@ -22,7 +22,7 @@
       "group": "BASELINE",
       "passed": true,
       "expected": "> 808,927 bytes",
-      "actual": "941783 bytes",
+      "actual": "1248379 bytes",
       "detail": ""
     },
     {

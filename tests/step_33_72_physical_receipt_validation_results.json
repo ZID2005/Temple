@@ -1,11 +1,11 @@
 {
-  "timestamp": "2026-10-17T18:47:31.982Z",
+  "timestamp": "2026-10-21T11:04:51.561Z",
   "targetFile": "Temple_Accounts-1.html",
-  "targetFileSha256": "90D90592494634ED123B226E1DE4A389E0BB2304C01B3A49800181655CC24A0F",
-  "fileSizeBytes": 843499,
+  "targetFileSha256": "42B423B8013110C4DF943F4198D0B8BFDC24B1DF750A5E302E3A39D243A73E43",
+  "fileSizeBytes": 1248438,
   "totalTests": 75,
-  "passedTests": 75,
-  "failedTests": 0,
+  "passedTests": 74,
+  "failedTests": 1,
   "tests": [
     {
       "id": "TC-33.72-01",
@@ -274,7 +274,7 @@
       "group": "SAVE_HANDLER",
       "passed": true,
       "expected": true,
-      "actual": "{\"id\":\"rcpt_phys_P600\",\"firestoreId\":\"rcpt_phys_P600\",\"legacyId\":\"rcpt_phys_P600\",\"receiptNo\":\"P600\",\"originalReceiptNo\":\"P600\",\"isPhysical\":true,\"physicalType\":\"P\",\"reservationDocId\":\"res_phys_P600\",\"date\":\"2026-10-16\",\"name\":\"Bhaskaran Nair\",\"star\":\"Rohini\",\"mobile\":\"9876543210\",\"fund\":\"General Temple Fund\",\"category\":\"Pooja Income\",\"description\":\"Receipt Test Description\",\"paymentMode\":\"Cash\",\"bankAccount\":\"\",\"amount\":750,\"remarks\":\"Test remarks\",\"voided\":false,\"voidReason\":\"\",\"voidDate\":\"\",\"source\":\"physical\",\"createdAt\":1792262852040,\"createdBy\":\"admin_test_user\",\"createdByName\":\"Temple Admin\",\"operationId\":\"op_phys_rcpt_1792262852038_uzkzt5ri\",\"financialFingerprint\":\"v2|2026-10-16|General Temple Fund|Pooja Income|750.00|Cash||Bhaskaran Nair|9876543210|Receipt Test Description|Test remarks|P600\"}",
+      "actual": "{\"id\":\"rcpt_phys_P600\",\"firestoreId\":\"rcpt_phys_P600\",\"legacyId\":\"rcpt_phys_P600\",\"receiptNo\":\"P600\",\"originalReceiptNo\":\"P600\",\"isPhysical\":true,\"physicalType\":\"P\",\"reservationDocId\":\"res_phys_P600\",\"date\":\"2026-10-16\",\"name\":\"Bhaskaran Nair\",\"star\":\"Rohini\",\"mobile\":\"9876543210\",\"fund\":\"General Temple Fund\",\"category\":\"Pooja Income\",\"description\":\"Receipt Test Description\",\"paymentMode\":\"Cash\",\"bankAccount\":\"\",\"amount\":750,\"remarks\":\"Test remarks\",\"voided\":false,\"voidReason\":\"\",\"voidDate\":\"\",\"source\":\"physical\",\"createdAt\":1792580691590,\"createdBy\":\"admin_test_user\",\"createdByName\":\"Temple Admin\",\"operationId\":\"op_phys_rcpt_1792580691590_79828np7\",\"financialFingerprint\":\"v2|2026-10-16|General Temple Fund|Pooja Income|750.00|Cash||Bhaskaran Nair|9876543210|Receipt Test Description|Test remarks|P600\"}",
       "detail": ""
     },
     {
@@ -326,9 +326,9 @@
       "id": "TC-33.72-36",
       "name": "Save PU1 strictly enforces Punarudharanam Fund & Donation Income mapping",
       "group": "SAVE_HANDLER",
-      "passed": true,
+      "passed": false,
       "expected": true,
-      "actual": "Punarudharanam Fund|Donation Income",
+      "actual": "Punarudharanam Fund|Pooja Income",
       "detail": ""
     },
     {
@@ -436,7 +436,7 @@
       "group": "SAVE_AND_PRINT",
       "passed": true,
       "expected": true,
-      "actual": "\n    <div class=\"pr-center pr-bold pr-title\">മറുതാ ചാമുണ്ഡി ദേവി ക്ഷേത്രം</div>\n    <div class=\"pr-center pr-sub\">ക്ഷേത്രം റോഡ്, കേരളം</div>\n    \n    <div class=\"pr-line\"></div>\n    <div class=\"pr-flex\">\n      <span>No: <b>P601</b> </span>\n      <span>16-10-2026</span>\n    </div>\n    <div class=\"pr-center\" style=\"font-size:11px; font-weight:bold; color:#1976d2; margin: 2px 0;\">[PHYSICAL PUJA RECEIPT]</div>\n    <div>Name: <b>Suresh Kumar</b></div>\n    <div>Star / നാൾ: <b>Rohini</b></div>\n    <div>Mobile: 9876543210</div>\n    <div class=\"pr-line\"></div>\n    <div>General Temple Fund — Pooja Income</div>\n    <div style=\"word-break: break-word; overflow-wrap: break-word;\">Receipt Test Description</div>\n    <div class=\"pr-flex pr-bold pr-amount\">\n      <span>Amount:</span>\n      <span >₹600.00</span>\n    </div>\n    <div>Mode: Cash</div>\n    <div style=\"font-size: 10.5px; word-break: break-word;\">In words: Six Hundred Rupees only</div>\n    <div class=\"pr-line\"></div>\n    <div class=\"pr-flex\" style=\"margin-top: 10px; font-size: 10.5px;\"><span></span><span>Treasurer / Authorized Person</span></div>\n    <div class=\"pr-center pr-bold pr-blessing\" style=\"margin-top: 6px;\">*** അമ്മേ നാരായണ ദേവി നാരായണ ***</div>\n  ",
+      "actual": "\n    <div class=\"pr-center pr-bold pr-title\">മറുതാ ചാമുണ്ഡി ദേവി ക്ഷേത്രം</div>\n    <div class=\"pr-center pr-sub\">ക്ഷേത്രം റോഡ്, കേരളം</div>\n    \n    <div class=\"pr-line\"></div>\n    <div class=\"pr-flex\">\n      <span>No: P601</span>\n      <span>16-10-2026</span>\n    </div>\n    <div class=\"pr-center\" style=\"font-size:11px; font-weight:bold; color:#1976d2; margin: 2px 0;\">[PHYSICAL PUJA RECEIPT]</div>\n    <div>Name: <b>Suresh Kumar</b></div>\n    <div>Star / നാൾ: <b>Rohini</b></div>\n    <div>Mobile: 9876543210</div>\n    <div class=\"pr-line\"></div>\n    <div>General Temple Fund — Pooja Income</div>\n    <div style=\"word-break: break-word; overflow-wrap: break-word;\">Receipt Test Description</div>\n    <div class=\"pr-flex pr-bold pr-amount\">\n      <span>Amount:</span>\n      <span >₹600.00</span>\n    </div>\n    <div>Mode: Cash</div>\n    <div style=\"font-size: 10.5px; word-break: break-word;\">In words: Six Hundred Rupees only</div>\n    <div class=\"pr-line\"></div>\n    <div class=\"pr-flex\" style=\"margin-top: 10px; font-size: 10.5px;\"><span></span><span>Treasurer / Authorized Person</span></div>\n    <div class=\"pr-center pr-bold pr-blessing\" style=\"margin-top: 6px;\">*** അമ്മേ നാരായണ ദേവി നാരായണ ***</div>\n  ",
       "detail": ""
     },
     {
@@ -445,7 +445,7 @@
       "group": "SAVE_AND_PRINT",
       "passed": true,
       "expected": true,
-      "actual": "\n    <div class=\"pr-center pr-bold pr-title\">മറുതാ ചാമുണ്ഡി ദേവി ക്ഷേത്രം</div>\n    <div class=\"pr-center pr-sub\">ക്ഷേത്രം റോഡ്, കേരളം</div>\n    \n    <div class=\"pr-line\"></div>\n    <div class=\"pr-flex\">\n      <span>No: <b>P601</b> </span>\n      <span>16-10-2026</span>\n    </div>\n    <div class=\"pr-center\" style=\"font-size:11px; font-weight:bold; color:#1976d2; margin: 2px 0;\">[PHYSICAL PUJA RECEIPT]</div>\n    <div>Name: <b>Suresh Kumar</b></div>\n    <div>Star / നാൾ: <b>Rohini</b></div>\n    <div>Mobile: 9876543210</div>\n    <div class=\"pr-line\"></div>\n    <div>General Temple Fund — Pooja Income</div>\n    <div style=\"word-break: break-word; overflow-wrap: break-word;\">Receipt Test Description</div>\n    <div class=\"pr-flex pr-bold pr-amount\">\n      <span>Amount:</span>\n      <span >₹600.00</span>\n    </div>\n    <div>Mode: Cash</div>\n    <div style=\"font-size: 10.5px; word-break: break-word;\">In words: Six Hundred Rupees only</div>\n    <div class=\"pr-line\"></div>\n    <div class=\"pr-flex\" style=\"margin-top: 10px; font-size: 10.5px;\"><span></span><span>Treasurer / Authorized Person</span></div>\n    <div class=\"pr-center pr-bold pr-blessing\" style=\"margin-top: 6px;\">*** അമ്മേ നാരായണ ദേവി നാരായണ ***</div>\n  ",
+      "actual": "\n    <div class=\"pr-center pr-bold pr-title\">മറുതാ ചാമുണ്ഡി ദേവി ക്ഷേത്രം</div>\n    <div class=\"pr-center pr-sub\">ക്ഷേത്രം റോഡ്, കേരളം</div>\n    \n    <div class=\"pr-line\"></div>\n    <div class=\"pr-flex\">\n      <span>No: P601</span>\n      <span>16-10-2026</span>\n    </div>\n    <div class=\"pr-center\" style=\"font-size:11px; font-weight:bold; color:#1976d2; margin: 2px 0;\">[PHYSICAL PUJA RECEIPT]</div>\n    <div>Name: <b>Suresh Kumar</b></div>\n    <div>Star / നാൾ: <b>Rohini</b></div>\n    <div>Mobile: 9876543210</div>\n    <div class=\"pr-line\"></div>\n    <div>General Temple Fund — Pooja Income</div>\n    <div style=\"word-break: break-word; overflow-wrap: break-word;\">Receipt Test Description</div>\n    <div class=\"pr-flex pr-bold pr-amount\">\n      <span>Amount:</span>\n      <span >₹600.00</span>\n    </div>\n    <div>Mode: Cash</div>\n    <div style=\"font-size: 10.5px; word-break: break-word;\">In words: Six Hundred Rupees only</div>\n    <div class=\"pr-line\"></div>\n    <div class=\"pr-flex\" style=\"margin-top: 10px; font-size: 10.5px;\"><span></span><span>Treasurer / Authorized Person</span></div>\n    <div class=\"pr-center pr-bold pr-blessing\" style=\"margin-top: 6px;\">*** അമ്മേ നാരായണ ദേവി നാരായണ ***</div>\n  ",
       "detail": ""
     },
     {
@@ -472,7 +472,7 @@
       "group": "SAVE_AND_PRINT",
       "passed": true,
       "expected": true,
-      "actual": "\n    <div class=\"pr-center pr-bold pr-title\">മറുതാ ചാമുണ്ഡി ദേവി ക്ഷേത്രം</div>\n    <div class=\"pr-center pr-sub\">ക്ഷേത്രം റോഡ്, കേരളം</div>\n    \n    <div class=\"pr-line\"></div>\n    <div class=\"pr-flex\">\n      <span>No: <b>PU3</b> </span>\n      <span>16-10-2026</span>\n    </div>\n    <div class=\"pr-center\" style=\"font-size:11px; font-weight:bold; color:#7b1fa2; margin: 2px 0;\">[PHYSICAL · PUNARUDHARANAM RECEIPT]</div>\n    <div>Name: <b>Devi Prasad</b></div>\n    <div>Star / നാൾ: <b>Rohini</b></div>\n    <div>Mobile: 9876543210</div>\n    <div class=\"pr-line\"></div>\n    <div>Punarudharanam Fund — Donation Income</div>\n    <div style=\"word-break: break-word; overflow-wrap: break-word;\">Receipt Test Description</div>\n    <div class=\"pr-flex pr-bold pr-amount\">\n      <span>Amount:</span>\n      <span >₹15,000.00</span>\n    </div>\n    <div>Mode: Cash</div>\n    <div style=\"font-size: 10.5px; word-break: break-word;\">In words: Fifteen Thousand Rupees only</div>\n    <div class=\"pr-line\"></div>\n    <div class=\"pr-flex\" style=\"margin-top: 10px; font-size: 10.5px;\"><span></span><span>Treasurer / Authorized Person</span></div>\n    <div class=\"pr-center pr-bold pr-blessing\" style=\"margin-top: 6px;\">*** അമ്മേ നാരായണ ദേവി നാരായണ ***</div>\n  ",
+      "actual": "\n    <div class=\"pr-center pr-bold pr-title\">മറുതാ ചാമുണ്ഡി ദേവി ക്ഷേത്രം</div>\n    <div class=\"pr-center pr-sub\">ക്ഷേത്രം റോഡ്, കേരളം</div>\n    \n    <div class=\"pr-line\"></div>\n    <div class=\"pr-flex\">\n      <span>No: PU3</span>\n      <span>16-10-2026</span>\n    </div>\n    <div class=\"pr-center\" style=\"font-size:11px; font-weight:bold; color:#7b1fa2; margin: 2px 0;\">[PHYSICAL · PUNARUDHARANAM RECEIPT]</div>\n    <div>Name: <b>Devi Prasad</b></div>\n    <div>Star / നാൾ: <b>Rohini</b></div>\n    <div>Mobile: 9876543210</div>\n    <div class=\"pr-line\"></div>\n    <div>Punarudharanam Fund — Pooja Income</div>\n    <div style=\"word-break: break-word; overflow-wrap: break-word;\">Receipt Test Description</div>\n    <div class=\"pr-flex pr-bold pr-amount\">\n      <span>Amount:</span>\n      <span >₹15,000.00</span>\n    </div>\n    <div>Mode: Cash</div>\n    <div style=\"font-size: 10.5px; word-break: break-word;\">In words: Fifteen Thousand Rupees only</div>\n    <div class=\"pr-line\"></div>\n    <div class=\"pr-flex\" style=\"margin-top: 10px; font-size: 10.5px;\"><span></span><span>Treasurer / Authorized Person</span></div>\n    <div class=\"pr-center pr-bold pr-blessing\" style=\"margin-top: 6px;\">*** അമ്മേ നാരായണ ദേവി നാരായണ ***</div>\n  ",
       "detail": ""
     },
     {
@@ -517,7 +517,7 @@
       "group": "DUPLICATES_AND_VOIDS",
       "passed": true,
       "expected": true,
-      "actual": "{\"seqNumber\":null,\"formattedNo\":\"P600\",\"physicalId\":\"P600\",\"physicalType\":\"P\",\"type\":\"physical_receipt\",\"status\":\"voided\",\"voided\":true,\"billDocId\":null,\"receiptDocId\":\"rcpt_phys_P600\",\"billReceiptNo\":null,\"receiptNo\":\"P600\",\"amount\":750,\"fund\":\"General Temple Fund\",\"category\":\"Pooja Income\",\"paymentMode\":\"Cash\",\"createdAt\":1792262852040,\"createdBy\":\"admin_test_user\",\"operationId\":\"op_phys_rcpt_1792262852038_uzkzt5ri\",\"voidReason\":\"Voided for testing\",\"voidDate\":\"2026-10-17\",\"voidedAt\":1792262852068,\"updatedBy\":\"admin_test_user\",\"updatedAt\":1792262852068}",
+      "actual": "{\"seqNumber\":null,\"formattedNo\":\"P600\",\"physicalId\":\"P600\",\"physicalType\":\"P\",\"type\":\"physical_receipt\",\"status\":\"voided\",\"voided\":true,\"billDocId\":null,\"receiptDocId\":\"rcpt_phys_P600\",\"billReceiptNo\":null,\"receiptNo\":\"P600\",\"amount\":750,\"fund\":\"General Temple Fund\",\"category\":\"Pooja Income\",\"paymentMode\":\"Cash\",\"createdAt\":1792580691590,\"createdBy\":\"admin_test_user\",\"operationId\":\"op_phys_rcpt_1792580691590_79828np7\",\"voidReason\":\"Voided for testing\",\"voidDate\":\"2026-10-21\",\"voidedAt\":1792580691683,\"updatedBy\":\"admin_test_user\",\"updatedAt\":1792580691684}",
       "detail": ""
     },
     {
@@ -544,7 +544,7 @@
       "group": "DUPLICATES_AND_VOIDS",
       "passed": true,
       "expected": true,
-      "actual": "{\"seqNumber\":null,\"formattedNo\":\"PU1\",\"physicalId\":\"PU1\",\"physicalType\":\"PU\",\"type\":\"physical_receipt\",\"status\":\"voided\",\"voided\":true,\"billDocId\":null,\"receiptDocId\":\"rcpt_phys_PU1\",\"billReceiptNo\":null,\"receiptNo\":\"PU1\",\"amount\":2500,\"fund\":\"Punarudharanam Fund\",\"category\":\"Donation Income\",\"paymentMode\":\"Cash\",\"createdAt\":1792262852057,\"createdBy\":\"admin_test_user\",\"operationId\":\"op_phys_rcpt_1792262852057_u9jr85rh\",\"voidReason\":\"Renovation test void\",\"voidDate\":\"2026-10-17\",\"voidedAt\":1792262852069,\"updatedBy\":\"admin_test_user\",\"updatedAt\":1792262852069}",
+      "actual": "{\"seqNumber\":null,\"formattedNo\":\"PU1\",\"physicalId\":\"PU1\",\"physicalType\":\"PU\",\"type\":\"physical_receipt\",\"status\":\"voided\",\"voided\":true,\"billDocId\":null,\"receiptDocId\":\"rcpt_phys_PU1\",\"billReceiptNo\":null,\"receiptNo\":\"PU1\",\"amount\":2500,\"fund\":\"Punarudharanam Fund\",\"category\":\"Pooja Income\",\"paymentMode\":\"Cash\",\"createdAt\":1792580691611,\"createdBy\":\"admin_test_user\",\"operationId\":\"op_phys_rcpt_1792580691610_rd413fnu\",\"voidReason\":\"Renovation test void\",\"voidDate\":\"2026-10-21\",\"voidedAt\":1792580691686,\"updatedBy\":\"admin_test_user\",\"updatedAt\":1792580691686}",
       "detail": ""
     },
     {
@@ -670,7 +670,7 @@
       "group": "REPRINT_VERIFICATION",
       "passed": true,
       "expected": true,
-      "actual": "\n    <div class=\"pr-center pr-bold pr-title\">മറുതാ ചാമുണ്ഡി ദേവി ക്ഷേത്രം</div>\n    <div class=\"pr-center pr-sub\">ക്ഷേത്രം റോഡ്, കേരളം</div>\n    \n    <div class=\"pr-line\"></div>\n    <div class=\"pr-flex\">\n      <span>No: <b>P900</b> </span>\n      <span>16-10-2026</span>\n    </div>\n    <div class=\"pr-center\" style=\"font-size:11px; font-weight:bold; color:#1976d2; margin: 2px 0;\">[PHYSICAL PUJA RECEIPT]</div>\n    <div>Name: <b>Devotee Test</b></div>\n    <div>Star / നാൾ: <b>Rohini</b></div>\n    <div>Mobile: 9876543210</div>\n    <div class=\"pr-line\"></div>\n    <div>General Temple Fund — Pooja Income</div>\n    <div style=\"word-break: break-word; overflow-wrap: break-word;\">Receipt Test Description</div>\n    <div class=\"pr-flex pr-bold pr-amount\">\n      <span>Amount:</span>\n      <span >₹1,000.00</span>\n    </div>\n    <div>Mode: Cash</div>\n    <div style=\"font-size: 10.5px; word-break: break-word;\">In words: One Thousand Rupees only</div>\n    <div class=\"pr-line\"></div>\n    <div class=\"pr-flex\" style=\"margin-top: 10px; font-size: 10.5px;\"><span></span><span>Treasurer / Authorized Person</span></div>\n    <div class=\"pr-center pr-bold pr-blessing\" style=\"margin-top: 6px;\">*** അമ്മേ നാരായണ ദേവി നാരായണ ***</div>\n  ",
+      "actual": "\n    <div class=\"pr-center pr-bold pr-title\">മറുതാ ചാമുണ്ഡി ദേവി ക്ഷേത്രം</div>\n    <div class=\"pr-center pr-sub\">ക്ഷേത്രം റോഡ്, കേരളം</div>\n    \n    <div class=\"pr-line\"></div>\n    <div class=\"pr-flex\">\n      <span>No: P900</span>\n      <span>16-10-2026</span>\n    </div>\n    <div class=\"pr-center\" style=\"font-size:11px; font-weight:bold; color:#1976d2; margin: 2px 0;\">[PHYSICAL PUJA RECEIPT]</div>\n    <div>Name: <b>Devotee Test</b></div>\n    <div>Star / നാൾ: <b>Rohini</b></div>\n    <div>Mobile: 9876543210</div>\n    <div class=\"pr-line\"></div>\n    <div>General Temple Fund — Pooja Income</div>\n    <div style=\"word-break: break-word; overflow-wrap: break-word;\">Receipt Test Description</div>\n    <div class=\"pr-flex pr-bold pr-amount\">\n      <span>Amount:</span>\n      <span >₹1,000.00</span>\n    </div>\n    <div>Mode: Cash</div>\n    <div style=\"font-size: 10.5px; word-break: break-word;\">In words: One Thousand Rupees only</div>\n    <div class=\"pr-line\"></div>\n    <div class=\"pr-flex\" style=\"margin-top: 10px; font-size: 10.5px;\"><span></span><span>Treasurer / Authorized Person</span></div>\n    <div class=\"pr-center pr-bold pr-blessing\" style=\"margin-top: 6px;\">*** അമ്മേ നാരായണ ദേവി നാരായണ ***</div>\n  ",
       "detail": ""
     },
     {
@@ -679,7 +679,7 @@
       "group": "REPRINT_VERIFICATION",
       "passed": true,
       "expected": true,
-      "actual": "\n    <div class=\"pr-center pr-bold pr-title\">മറുതാ ചാമുണ്ഡി ദേവി ക്ഷേത്രം</div>\n    <div class=\"pr-center pr-sub\">ക്ഷേത്രം റോഡ്, കേരളം</div>\n    \n    <div class=\"pr-line\"></div>\n    <div class=\"pr-flex\">\n      <span>No: <b>PU2</b> </span>\n      <span>16-10-2026</span>\n    </div>\n    <div class=\"pr-center\" style=\"font-size:11px; font-weight:bold; color:#7b1fa2; margin: 2px 0;\">[PHYSICAL · PUNARUDHARANAM RECEIPT]</div>\n    <div>Name: <b>Devotee Test</b></div>\n    <div>Star / നാൾ: <b>Rohini</b></div>\n    <div>Mobile: 9876543210</div>\n    <div class=\"pr-line\"></div>\n    <div>Punarudharanam Fund — Donation Income</div>\n    <div style=\"word-break: break-word; overflow-wrap: break-word;\">Receipt Test Description</div>\n    <div class=\"pr-flex pr-bold pr-amount\">\n      <span>Amount:</span>\n      <span >₹5,000.00</span>\n    </div>\n    <div>Mode: Cash</div>\n    <div style=\"font-size: 10.5px; word-break: break-word;\">In words: Five Thousand Rupees only</div>\n    <div class=\"pr-line\"></div>\n    <div class=\"pr-flex\" style=\"margin-top: 10px; font-size: 10.5px;\"><span></span><span>Treasurer / Authorized Person</span></div>\n    <div class=\"pr-center pr-bold pr-blessing\" style=\"margin-top: 6px;\">*** അമ്മേ നാരായണ ദേവി നാരായണ ***</div>\n  ",
+      "actual": "\n    <div class=\"pr-center pr-bold pr-title\">മറുതാ ചാമുണ്ഡി ദേവി ക്ഷേത്രം</div>\n    <div class=\"pr-center pr-sub\">ക്ഷേത്രം റോഡ്, കേരളം</div>\n    \n    <div class=\"pr-line\"></div>\n    <div class=\"pr-flex\">\n      <span>No: PU2</span>\n      <span>16-10-2026</span>\n    </div>\n    <div class=\"pr-center\" style=\"font-size:11px; font-weight:bold; color:#7b1fa2; margin: 2px 0;\">[PHYSICAL · PUNARUDHARANAM RECEIPT]</div>\n    <div>Name: <b>Devotee Test</b></div>\n    <div>Star / നാൾ: <b>Rohini</b></div>\n    <div>Mobile: 9876543210</div>\n    <div class=\"pr-line\"></div>\n    <div>Punarudharanam Fund — Pooja Income</div>\n    <div style=\"word-break: break-word; overflow-wrap: break-word;\">Receipt Test Description</div>\n    <div class=\"pr-flex pr-bold pr-amount\">\n      <span>Amount:</span>\n      <span >₹5,000.00</span>\n    </div>\n    <div>Mode: Cash</div>\n    <div style=\"font-size: 10.5px; word-break: break-word;\">In words: Five Thousand Rupees only</div>\n    <div class=\"pr-line\"></div>\n    <div class=\"pr-flex\" style=\"margin-top: 10px; font-size: 10.5px;\"><span></span><span>Treasurer / Authorized Person</span></div>\n    <div class=\"pr-center pr-bold pr-blessing\" style=\"margin-top: 6px;\">*** അമ്മേ നാരായണ ദേവി നാരായണ ***</div>\n  ",
       "detail": ""
     }
   ]

@@ -2051,6 +2051,268 @@
       border-radius: 5px;
     }
 
+    /* ===================== STEP 33.174: RADIAL GLOW CUSTOM PAYMENT BUTTON & BANNER ===================== */
+    @property --rg-pos-x { syntax: '<percentage>'; initial-value: 40%; inherits: false; }
+    @property --rg-pos-y { syntax: '<percentage>'; initial-value: 140%; inherits: false; }
+    @property --rg-spread-x { syntax: '<percentage>'; initial-value: 130%; inherits: false; }
+    @property --rg-spread-y { syntax: '<percentage>'; initial-value: 170%; inherits: false; }
+    @property --rg-color-1 { syntax: '<color>'; initial-value: #000022; inherits: false; }
+    @property --rg-color-2 { syntax: '<color>'; initial-value: #1f3f6d; inherits: false; }
+    @property --rg-color-3 { syntax: '<color>'; initial-value: #469396; inherits: false; }
+    @property --rg-color-4 { syntax: '<color>'; initial-value: #f1ffa5; inherits: false; }
+    @property --rg-color-5 { syntax: '<color>'; initial-value: hsl(250 80% 2.5%); inherits: false; }
+    @property --rg-border-angle { syntax: '<angle>'; initial-value: 180deg; inherits: true; }
+    @property --rg-border-color-1 { syntax: '<color>'; initial-value: hsla(230, 75%, 90%, 0.7); inherits: true; }
+    @property --rg-border-color-2 { syntax: '<color>'; initial-value: hsla(230, 50%, 90%, 0.25); inherits: true; }
+    @property --rg-stop-1 { syntax: '<percentage>'; initial-value: 37.35%; inherits: false; }
+    @property --rg-stop-2 { syntax: '<percentage>'; initial-value: 61.36%; inherits: false; }
+    @property --rg-stop-3 { syntax: '<percentage>'; initial-value: 78.42%; inherits: false; }
+    @property --rg-stop-4 { syntax: '<percentage>'; initial-value: 93.52%; inherits: false; }
+    @property --rg-stop-5 { syntax: '<percentage>'; initial-value: 100%; inherits: false; }
+
+    .btn-custom-payment.rg-button,
+    .btn-block-receipt.rg-button {
+      --transition: 0.25s;
+      --spark: 1.8s;
+      --speed: 1.2s;
+      --cut: 1px;
+      --bg: radial-gradient(
+        var(--rg-spread-x, 130%) var(--rg-spread-y, 170%) at var(--rg-pos-x, 40%) var(--rg-pos-y, 140%),
+        var(--rg-color-1, #000022) var(--rg-stop-1, 37.35%),
+        var(--rg-color-2, #1f3f6d) var(--rg-stop-2, 61.36%),
+        var(--rg-color-3, #469396) var(--rg-stop-3, 78.42%),
+        var(--rg-color-4, #f1ffa5) var(--rg-stop-4, 93.52%),
+        var(--rg-color-5, hsl(250 80% 2.5%)) var(--rg-stop-5, 100%)
+      );
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 36px;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      line-height: 1.2;
+      cursor: pointer;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: #ffffff;
+      color: var(--text);
+      box-shadow: var(--shadow-xs);
+      -webkit-font-smoothing: antialiased;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      transition:
+        background-color 0.2s ease,
+        border-color 0.2s ease,
+        box-shadow 0.25s ease,
+        color 0.2s ease,
+        transform 0.2s ease,
+        --rg-pos-x .75s, --rg-pos-y .75s,
+        --rg-spread-x .75s, --rg-spread-y .75s,
+        --rg-color-1 .75s, --rg-color-2 .75s, --rg-color-3 .75s, --rg-color-4 .75s, --rg-color-5 .75s,
+        --rg-border-angle .75s, --rg-border-color-1 .75s, --rg-border-color-2 .75s,
+        --rg-stop-1 .75s, --rg-stop-2 .75s, --rg-stop-3 .75s, --rg-stop-4 .75s, --rg-stop-5 .75s;
+    }
+
+    .btn-custom-payment.rg-button:not(.is-active):hover,
+    .btn-block-receipt.rg-button:not(.is-active):hover {
+      background: var(--surface-alt);
+      border-color: #d1c8bd;
+      box-shadow: var(--shadow-sm);
+      transform: translateY(-1px);
+    }
+
+    .btn-custom-payment.rg-button .rg-shine,
+    .btn-block-receipt.rg-button .rg-shine {
+      position: absolute;
+      inset: 0;
+      container-type: size;
+      border-radius: inherit;
+      mix-blend-mode: soft-light;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      overflow: visible;
+      pointer-events: none;
+    }
+
+    .btn-custom-payment.rg-button .rg-bg,
+    .btn-block-receipt.rg-button .rg-bg {
+      position: absolute;
+      inset: var(--cut);
+      background: transparent;
+      border-radius: inherit;
+      transition: background var(--transition), opacity var(--transition);
+      pointer-events: none;
+    }
+
+    .btn-custom-payment.rg-button .rg-label,
+    .btn-block-receipt.rg-button .rg-label {
+      position: relative;
+      z-index: 2;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .btn-custom-payment.rg-button::before,
+    .btn-block-receipt.rg-button::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      padding: 1px;
+      border-radius: inherit;
+      background-image: linear-gradient(var(--rg-border-angle, 180deg), var(--rg-border-color-1, hsla(230, 75%, 90%, 0.7)), var(--rg-border-color-2, hsla(230, 50%, 90%, 0.25)));
+      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask-composite: exclude;
+      -webkit-mask-composite: xor;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    /* Active Custom / Block Mode state */
+    .btn-custom-payment.rg-button.is-active,
+    .btn-block-receipt.rg-button.is-active {
+      background: var(--bg);
+      border-color: rgba(70, 147, 150, 0.7);
+      color: rgba(255, 255, 255, 0.98);
+      text-shadow: 0 0 2px rgba(0, 0, 0, 0.95);
+      box-shadow: 0 0 0 1px rgba(70, 147, 150, 0.4), 0 0 14px rgba(70, 147, 150, 0.45);
+    }
+
+    .btn-custom-payment.rg-button.is-active::before,
+    .btn-block-receipt.rg-button.is-active::before {
+      opacity: 1;
+    }
+
+    .btn-custom-payment.rg-button.is-active .rg-bg,
+    .btn-block-receipt.rg-button.is-active .rg-bg {
+      background: var(--bg);
+      opacity: 1;
+    }
+
+    .btn-custom-payment.rg-button.is-active .rg-shine,
+    .btn-block-receipt.rg-button.is-active .rg-shine {
+      opacity: 0.9;
+    }
+
+    .btn-custom-payment.rg-button.is-active .rg-shine span,
+    .btn-block-receipt.rg-button.is-active .rg-shine span {
+      position: absolute;
+      inset: 0;
+      height: 100cqh;
+      width: 100%;
+      aspect-ratio: 1;
+      animation: rg-slide var(--speed) ease-in-out infinite alternate;
+      overflow: visible;
+    }
+
+    .btn-custom-payment.rg-button.is-active .rg-shine span::before,
+    .btn-block-receipt.rg-button.is-active .rg-shine span::before {
+      content: "";
+      position: absolute;
+      inset: -100%;
+      background: conic-gradient(
+        from calc(270deg - (90deg * 0.5)),
+        transparent 0,
+        #fff 90deg,
+        transparent 90deg
+      );
+      animation: rg-spin calc(var(--speed) * 2) infinite linear;
+    }
+
+    .btn-custom-payment.rg-button.is-active:hover,
+    .btn-block-receipt.rg-button.is-active:hover {
+      --rg-pos-x: 0%;
+      --rg-pos-y: 120%;
+      --rg-spread-x: 110.24%;
+      --rg-spread-y: 110.2%;
+      --rg-color-1: #000020;
+      --rg-color-2: #f1ffa5;
+      --rg-color-3: #469396;
+      --rg-color-4: #1f3f6d;
+      --rg-stop-1: 0%;
+      --rg-stop-2: 10%;
+      --rg-stop-3: 35.44%;
+      --rg-stop-4: 71.34%;
+      --rg-stop-5: 150%;
+      --rg-border-angle: 190deg;
+      --rg-border-color-1: hsla(320, 75%, 90%, 0.1);
+      --rg-border-color-2: hsla(320, 50%, 90%, 0.35);
+      box-shadow: 0 0 0 1px rgba(241, 255, 165, 0.6), 0 0 20px rgba(70, 147, 150, 0.65);
+      transform: translateY(-1px);
+    }
+
+    .btn-custom-payment.rg-button:focus-visible,
+    .btn-block-receipt.rg-button:focus-visible {
+      outline: 2px solid #469396;
+      outline-offset: 2px;
+    }
+
+    .btn-custom-payment.rg-button.is-active:focus-visible,
+    .btn-block-receipt.rg-button.is-active:focus-visible {
+      outline: 2px solid #f1ffa5;
+      outline-offset: 2px;
+    }
+
+    .btn-custom-payment.rg-button:disabled,
+    .btn-block-receipt.rg-button:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      pointer-events: none;
+      box-shadow: none;
+      transform: none;
+    }
+
+    @keyframes rg-spin {
+      0% { transform: rotate(0deg); }
+      15%, 35% { transform: rotate(90deg); }
+      65%, 85% { transform: rotate(270deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @keyframes rg-slide {
+      from { transform: translate(0, 0); }
+      to { transform: translate(calc(100cqw - 100%), 0); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .btn-custom-payment.rg-button,
+      .btn-custom-payment.rg-button .rg-shine span,
+      .btn-custom-payment.rg-button .rg-shine span::before,
+      .btn-block-receipt.rg-button,
+      .btn-block-receipt.rg-button .rg-shine span,
+      .btn-block-receipt.rg-button .rg-shine span::before {
+        animation: none !important;
+        transition: none !important;
+      }
+    }
+
+    .custom-payment-banner,
+    .block-receipt-banner {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: linear-gradient(135deg, rgba(31, 63, 109, 0.08), rgba(70, 147, 150, 0.14));
+      border: 1px solid rgba(70, 147, 150, 0.35);
+      border-left: 4px solid #469396;
+      border-radius: 6px;
+      padding: 10px 14px;
+      margin-bottom: 14px;
+      color: #1f3f6d;
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .custom-payment-banner strong,
+    .block-receipt-banner strong {
+      color: #112845;
+    }
+
     /* ===================== TABLES & PILLS ===================== */
     .table-wrap {
       overflow-x: auto;
@@ -7730,8 +7992,26 @@
     }
 
     /* ---------- DATA ACCESSORS (FIRESTORE PRODUCTION PRIMARY WITH IDB CACHE) ---------- */
-    async function allReceipts() { return await fsGetAllSafe('receipts'); }
-    async function allPayments() { return await fsGetAllSafe('payments'); }
+    async function allReceipts() {
+      const list = await fsGetAllSafe('receipts');
+      return (list || []).map(r => {
+        if (!r) return r;
+        const normCat = (typeof resolveReceiptCategory === 'function') ? resolveReceiptCategory(r) : (r.category || '');
+        if (normCat && (!r.category || String(r.category).trim() !== normCat)) {
+          return { ...r, category: normCat };
+        }
+        return r;
+      });
+    }
+    async function allPayments() {
+      const list = await fsGetAllSafe('payments');
+      return (list || []).map(p => {
+        if (p && (p.description == null || String(p.description).trim() === '') && (p.desc || p.narration)) {
+          return { ...p, description: String(p.desc || p.narration).trim() };
+        }
+        return p;
+      });
+    }
     async function activeReceipts() { return notVoided(await allReceipts()); }
     async function activePayments() { return notVoided(await allPayments()); }
     async function allTransfers() { return await fsGetAllSafe('transfers'); }
@@ -8531,8 +8811,8 @@
 
       // Today's activity list
       const todayItems = [
-        ...todayReceipts.map(r => ({ ...r, kind: 'Receipt', ref: r.receiptNo, party: r.name })),
-        ...todayPayments.map(p => ({ ...p, kind: 'Payment', ref: p.voucherNo, party: p.paidTo }))
+        ...todayReceipts.map(r => ({ ...r, kind: 'Receipt', ref: r.receiptNo || '—', party: r.name })),
+        ...todayPayments.map(p => ({ ...p, kind: 'Payment', ref: p.voucherNo || '—', party: p.paidTo }))
       ].sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
 
       const recent = [...receipts.map(r => ({ ...r, kind: 'Receipt' })), ...payments.map(p => ({ ...p, kind: 'Payment' }))]
@@ -8763,7 +9043,7 @@
                     <div class="dash-compact-row">
                       <span class="dash-pill ${x.kind === 'Receipt' ? 'pill-receipt' : 'pill-payment'}">${x.kind}</span>
                       <span class="dash-compact-date">${fmtDate(x.date)}</span>
-                      <span class="dash-compact-name">${esc(x.receiptNo || x.voucherNo || '')} · ${esc(x.name || x.paidTo || '-')}</span>
+                      <span class="dash-compact-name">${esc(x.receiptNo || x.voucherNo || (x.kind === 'Payment' ? '—' : ''))} · ${esc(x.name || x.paidTo || '-')}</span>
                       <span class="dash-compact-amt">${fmtMoney(x.amount)}</span>
                     </div>
                   `).join('')}
@@ -9077,8 +9357,35 @@
       return null;
     }
 
+    /* ===================== STEP 33.172: RECEIPT CATEGORY RESOLUTION & NORMALIZATION ===================== */
+    function resolveReceiptCategory(r) {
+      if (!r) return '';
+      const raw = r.category || r.incomeCategory || r.income_category || r.categoryName || r.receiptCategory || r.cat;
+      if (raw != null && String(raw).trim() !== '') {
+        return String(raw).trim();
+      }
+      const rawNo = r.receiptNo || r.formattedNo || r.manualReceiptNo || '';
+      const pCheck = (typeof parsePhysicalReceiptIdentifier === 'function')
+        ? (rawNo ? parsePhysicalReceiptIdentifier(rawNo) : null)
+        : null;
+      if (pCheck && pCheck.valid) {
+        return pCheck.category || (pCheck.type === 'PU' ? 'Donation Income' : 'Pooja Income');
+      }
+      if (r.isPhysical || r.physicalType) {
+        return r.physicalType === 'PU' ? 'Donation Income' : 'Pooja Income';
+      }
+      return '';
+    }
+    if (typeof window !== 'undefined') {
+      window.resolveReceiptCategory = resolveReceiptCategory;
+    }
+
     function onReceiptNoInput(input) {
       if (!input) return;
+      if (window.isBlockReceiptMode || window.isBlockNumberMode) {
+        input.value = '';
+        return;
+      }
       const form = input.form || document.getElementById('receiptForm');
       if (!form) return;
       const val = (input.value || '').trim();
@@ -9102,7 +9409,7 @@
               break;
             }
           }
-          if (catSel) {
+          if (catSel && (!catSel.value || catSel.value === 'Pooja Income')) {
             for (let i = 0; i < catSel.options.length; i++) {
               if (catSel.options[i].value === 'Donation Income') {
                 catSel.selectedIndex = i;
@@ -9141,6 +9448,7 @@
     VIEW_RENDERERS.receipts = async function (filterCategory, editId) {
       const [funds, incomeCats, bankAccts, receipts] = await Promise.all([allFunds(), allIncomeCategories(), allBankAccounts(), allReceipts()]);
       const nextNo = await nextReceiptNo();
+      window._cachedReceiptPreview = nextNo;
       let list = receipts.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
       if (filterCategory) list = list.filter(r => r.category === filterCategory);
       let editRec = editId ? await fsGetOneSafe('receipts', editId) : null;
@@ -9148,6 +9456,10 @@
         alert('Voided receipts cannot be edited.');
         editRec = null;
       }
+      const isCustomRec = !!(editRec && (editRec.receiptType === 'custom' || (!editRec.receiptNo && !editRec.isPhysical)));
+      window.isBlockReceiptMode = isCustomRec;
+      window.isBlockNumberMode = isCustomRec;
+
       const isBillingLinked = !!(editRec && (editRec.source === 'billing' || editRec.billingFirestoreId || editRec.billingId || editRec.billingReceiptNo));
       let linkedBill = null;
       if (isBillingLinked) {
@@ -9180,12 +9492,25 @@
       }
 
       const formTitle = editRec
-        ? ('Edit Receipt ' + esc(editRec.receiptNo) + (isBillingLinked ? ' [BILLING-LINKED · ' + esc(linkedBill ? linkedBill.receiptNo : (editRec.billingReceiptNo || '')) + ']' : (editRec.isPhysical ? (editRec.physicalType === 'PU' ? ' [PHYSICAL · PUNARUDHARANAM]' : ' [PHYSICAL]') : '')))
+        ? (isCustomRec ? 'Edit Receipt (Unnumbered)' : ('Edit Receipt ' + esc(editRec.receiptNo) + (isBillingLinked ? ' [BILLING-LINKED · ' + esc(linkedBill ? linkedBill.receiptNo : (editRec.billingReceiptNo || '')) + ']' : (editRec.isPhysical ? (editRec.physicalType === 'PU' ? ' [PHYSICAL · PUNARUDHARANAM]' : ' [PHYSICAL]') : ''))))
         : 'New Receipt';
+
+      const editRecCategory = editRec ? (resolveReceiptCategory(editRec) || (linkedBill ? (linkedBill.incomeCategory || linkedBill.category) : '')) : (filterCategory || '');
+      const hasCustomCat = editRecCategory && !incomeCats.some(c => c.name === editRecCategory);
 
       return `
     <div class="form-card" data-motion="fadeInUp">
       <h3>🧾 ${formTitle}</h3>
+      <div id="block-receipt-banner" class="block-receipt-banner custom-payment-banner" style="display:${isCustomRec ? 'flex' : 'none'};">
+        <span style="font-size:16px;line-height:1;">⚡</span>
+        <div style="flex:1;">
+          <strong>UNNUMBERED RECEIPT — NO RECEIPT NUMBER</strong>
+          <div style="font-size:12px;color:#465f7c;margin-top:2px;">
+            This receipt will be recorded without allocating, reserving, or consuming a receipt number. Sequential numbering remains untouched.
+          </div>
+        </div>
+        ${!editRec ? `<button type="button" class="btn-sm btn-outline" onclick="toggleBlockReceiptMode(false)" style="padding:2px 8px;font-size:11px;background:#ffffff;border-color:rgba(70,147,150,0.5);cursor:pointer;">Exit Block Number Mode</button>` : ''}
+      </div>
       ${isBillingLinked ? `
       <div class="billing-linked-sync-banner" style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:6px;padding:10px 14px;margin-bottom:16px;color:#1e40af;font-size:13px;display:flex;align-items:center;gap:8px;">
         <span style="font-size:16px;">🔄</span>
@@ -9200,11 +9525,11 @@
         <input type="hidden" name="billingReceiptNo" value="${esc(linkedBill ? linkedBill.receiptNo : (editRec ? (editRec.billingReceiptNo || '') : ''))}">
         <div class="form-row">
           <div class="form-group">
-            <label>Receipt Number ${editRec ? '<span style="font-weight:400;color:var(--text-muted);font-size:11px;">(Identifier cannot be modified)</span>' : `<span style="font-weight:400;color:var(--text-muted);font-size:11px;">(Leave blank to auto-allocate; preview: ${esc(nextNo)})</span>`}</label>
+            <label id="receiptNoLabel">Receipt Number ${isCustomRec ? '<span class="custom-badge" style="display:inline-block;padding:1px 6px;font-size:11px;font-weight:700;color:#fff;background:linear-gradient(135deg, #1f3f6d, #469396);border-radius:4px;margin-left:6px;vertical-align:middle;">UNNUMBERED RECEIPT — NO RECEIPT NUMBER</span>' : (editRec ? '<span style="font-weight:400;color:var(--text-muted);font-size:11px;">(Identifier cannot be modified)</span>' : `<span style="font-weight:400;color:var(--text-muted);font-size:11px;">(Leave blank to auto-allocate; preview: ${esc(nextNo)})</span>`)}</label>
             ${editRec ? `
-            <input type="text" name="receiptNo" value="${esc(editRec.receiptNo)}" readonly style="background:var(--bg,#f3f4f6);cursor:not-allowed;" title="Receipt number cannot be changed on edit">
+            <input type="text" id="receiptNo" name="receiptNo" value="${esc(isCustomRec ? '' : editRec.receiptNo)}" placeholder="${isCustomRec ? '— (No Receipt Number)' : ''}" ${isCustomRec ? 'readonly disabled style="background:var(--bg-warm,#fdfbf7);color:var(--text-muted);cursor:not-allowed;" aria-disabled="true"' : 'readonly style="background:var(--bg,#f3f4f6);cursor:not-allowed;"'} title="${isCustomRec ? 'Unnumbered receipt has no receipt number' : 'Receipt number cannot be changed on edit'}">
             ` : `
-            <input type="text" name="receiptNo" value="" placeholder="Auto-generated on save (e.g. ${esc(nextNo)}) or Physical (P600-P900, PU1...)" autocomplete="off" oninput="onReceiptNoInput(this)" onchange="onReceiptNoInput(this)">
+            <input type="text" id="receiptNo" name="receiptNo" value="" placeholder="Auto-generated on save (e.g. ${esc(nextNo)}) or Physical (P600-P900, PU1...)" autocomplete="off" oninput="onReceiptNoInput(this)" onchange="onReceiptNoInput(this)">
             <div class="receipt-number-hint" style="font-size: 11px; color: var(--text-muted); margin-top: 3px;">ℹ️ Enter a physical receipt identifier (P600–P900 for Puja, PU1+ for Punarudharanam), or leave blank for auto-allocated software sequence.</div>
             `}
           </div>
@@ -9216,8 +9541,9 @@
           <div class="form-group"><label>Mobile Number</label><input type="text" name="mobile" id="receiptMobileInput" value="${esc(editRec ? (editRec.mobile || (linkedBill ? linkedBill.mobile : '') || '') : '')}"></div>
           <div class="form-group"><label>Fund *</label><select name="fund" id="receiptFundInput" required>${optsFromNames(funds, editRec ? (editRec.fund || (linkedBill ? linkedBill.fund : null)) : null)}</select></div>
           <div class="form-group"><label>Income Category</label><select name="category" id="receiptCategoryInput">
-            <option value="" ${(editRec ? (editRec.category || (linkedBill ? linkedBill.incomeCategory : '')) : filterCategory) === '' ? 'selected' : ''}>-- None / General --</option>
-            ${incomeCats.map(c => `<option value="${esc(c.name)}" ${(editRec ? (editRec.category || (linkedBill ? linkedBill.incomeCategory : '')) : filterCategory) === c.name ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}
+            <option value="" ${editRecCategory === '' ? 'selected' : ''}>-- None / General --</option>
+            ${incomeCats.map(c => `<option value="${esc(c.name)}" ${editRecCategory === c.name ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}
+            ${hasCustomCat ? `<option value="${esc(editRecCategory)}" selected>${esc(editRecCategory)}</option>` : ''}
           </select></div>
         </div>
         ${isBillingLinked ? `
@@ -9242,10 +9568,26 @@
           <div class="form-group"><label>Amount (₹) *</label><input type="number" step="0.01" min="0.01" name="amount" id="receiptAmountInput" value="${editRec ? editRec.amount : ''}" required oninput="${isBillingLinked ? 'onBillingAmountInput()' : ''}"></div>
           <div class="form-group"><label>Remarks</label><input type="text" name="remarks" id="receiptRemarksInput" value="${esc(editRec ? editRec.remarks : '')}"></div>
         </div>
-        <div class="form-actions">
-          <button type="button" onclick="saveReceipt(false)">${editRec ? 'UPDATE' : 'SAVE'}</button>
-          <button type="button" class="btn-green" onclick="saveReceipt(true)">${editRec ? 'UPDATE &amp; PRINT' : 'SAVE &amp; PRINT'}</button>
-          <button type="button" class="btn-outline" onclick="navigate('receipts')">CANCEL</button>
+        <div class="form-actions" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+          <button type="button" id="btn-save-receipt" onclick="saveReceipt(false)">${editRec ? 'UPDATE' : 'SAVE'}</button>
+          <button type="button" class="btn-green" id="btn-save-print-receipt" onclick="saveReceipt(true)">${editRec ? 'UPDATE &amp; PRINT' : 'SAVE &amp; PRINT'}</button>
+          <button type="button" class="btn-outline" id="btn-cancel-receipt" onclick="cancelReceiptForm()">CANCEL</button>
+          <button type="button" 
+                  class="btn-outline btn-block-receipt rg-button ${isCustomRec ? 'is-active' : ''}" 
+                  id="btn-block-receipt" 
+                  onclick="toggleBlockReceiptMode()" 
+                  data-legacy-onclick="saveReceipt(false, true)" 
+                  title="Block Number — Save without receipt number" 
+                  aria-label="Block Number — Save without receipt number" 
+                  aria-pressed="${isCustomRec ? 'true' : 'false'}" 
+                  style="display:inline-flex;align-items:center;gap:6px;font-weight:600;padding:6px 14px;border-color:var(--border);">
+            <span class="rg-shine" aria-hidden="true"><span></span></span>
+            <span class="rg-bg" aria-hidden="true"></span>
+            <span class="rg-label" style="display:inline-flex;align-items:center;gap:5px;">
+              <span class="rg-icon" style="font-size:13px;line-height:1;">🛑</span>
+              <span class="rg-text">${isCustomRec ? 'BLOCK NUMBER ACTIVE' : 'BLOCK NUMBER'}</span>
+            </span>
+          </button>
         </div>
       </form>
     </div>
@@ -9255,6 +9597,7 @@
       <select id="receiptTypeFilter" onchange="filterReceiptTable()" style="padding:5px 8px; border-radius:6px; border:1px solid var(--border); font-size:13px; background:var(--surface); color:var(--text);">
         <option value="all">All Receipts</option>
         <option value="software">Software-generated</option>
+        <option value="custom">Unnumbered (Block)</option>
         <option value="physical_p">Physical Puja (P)</option>
         <option value="physical_pu">Physical Punarudharanam (PU)</option>
       </select>
@@ -9267,10 +9610,12 @@
           ${list.map(r => {
         const isPhysPU = r.physicalType === 'PU' || (r.receiptNo && /^PU[1-9]\d*$/i.test(r.receiptNo.trim()));
         const isPhysP = !isPhysPU && (r.physicalType === 'P' || (r.receiptNo && /^P[1-9]\d*$/i.test(r.receiptNo.trim())));
-        const typeAttr = isPhysPU ? 'physical_pu' : (isPhysP ? 'physical_p' : 'software');
+        const isCustom = r.receiptType === 'custom' || (!r.receiptNo && !r.isPhysical);
+        const typeAttr = isPhysPU ? 'physical_pu' : (isPhysP ? 'physical_p' : (isCustom ? 'custom' : 'software'));
         let rowClass = r.voided ? 'voided' : '';
         if (isPhysPU) rowClass += ' row-physical-pu';
         else if (isPhysP) rowClass += ' row-physical-p';
+        else if (isCustom) rowClass += ' row-custom-receipt';
         rowClass += ' ' + getEditingRowClass('receipts', r.id);
 
         let badgeHtml = '';
@@ -9278,16 +9623,20 @@
           badgeHtml = `<span class="badge badge-physical-pu">PHYSICAL · PUNARUDHARANAM</span>`;
         } else if (isPhysP) {
           badgeHtml = `<span class="badge badge-physical-p">PHYSICAL</span>`;
+        } else if (isCustom) {
+          badgeHtml = `<span class="badge badge-custom-receipt" style="display:inline-block;padding:1px 6px;font-size:10px;font-weight:700;color:#fff;background:linear-gradient(135deg, #1f3f6d, #469396);border-radius:4px;margin-left:6px;vertical-align:middle;">UNNUMBERED</span>`;
         }
+
+        const displayNo = (r.receiptNo && String(r.receiptNo).trim()) ? esc(r.receiptNo) : '—';
 
         return `
             <tr data-record-id="${esc(r.id)}" data-edit-scope="receipts" data-receipt-type="${typeAttr}" class="${rowClass.trim()}">
-              <td><b>${esc(r.receiptNo)}</b>${badgeHtml}</td>
+              <td><b>${displayNo}</b>${badgeHtml}</td>
               <td>${fmtDate(r.date)}</td>
               <td>${esc(r.name)}${r.star ? ` <span style="font-size:11px;color:var(--text-muted);font-weight:normal;">(${esc(r.star)})</span>` : ''}</td>
               <td>${r.description && String(r.description).trim() ? esc(String(r.description).trim()) : ''}</td>
               <td>${esc(r.fund)}</td>
-              <td>${esc(r.category || '—')}</td>
+              <td>${esc((typeof resolveReceiptCategory === 'function' ? resolveReceiptCategory(r) : r.category) || '—')}</td>
               <td><span class="pill ${(r.paymentMode || '').toLowerCase()}">${esc(r.paymentMode || '')}</span></td>
               <td>${fmtMoney(r.amount)}</td>
               <td>${r.voided ? 'Voided' : 'Active'}</td>
@@ -9352,72 +9701,254 @@
         tr.style.display = (textMatch && typeMatch) ? '' : 'none';
       });
     }
-    async function saveReceipt(print) {
+
+    /* STEP 33.175: Block Number / Unnumbered Receipt Mode Handlers & Form Lifecycle */
+    function cancelReceiptForm() {
+      window.isBlockReceiptMode = false;
+      window.isBlockNumberMode = false;
+      if (window.GlobalEditState) window.GlobalEditState.clearEditing('receipts');
+      navigate('receipts');
+    }
+    window.cancelReceiptForm = cancelReceiptForm;
+
+    function setBlockReceiptMode(active) {
+      toggleBlockReceiptMode(!!active);
+    }
+    window.setBlockReceiptMode = setBlockReceiptMode;
+    window.setBlockNumberMode = setBlockReceiptMode;
+
+    function toggleBlockReceiptMode(forceState) {
+      const form = document.getElementById('receiptForm');
+      if (!form) return;
+      const isEditing = !!(form.querySelector('input[name="editId"]') && form.querySelector('input[name="editId"]').value);
+      const isBillingLinked = !!(form.querySelector('input[name="isBillingLinked"]') && form.querySelector('input[name="isBillingLinked"]').value === '1') || !!(window.GlobalEditState && window.GlobalEditState.isEditing('receipts') && window.GlobalEditState.getEditState('receipts')?.isBillingLinked) || !!window._editingIsBillingLinked;
+      if (isBillingLinked) {
+        alert('Billing-linked receipts cannot be converted to unnumbered block receipts.');
+        return;
+      }
+      const isCustomRec = form.querySelector('.custom-badge') || (window.isBlockReceiptMode);
+      if (isEditing && !isCustomRec) {
+        alert('Existing numbered receipts cannot be converted to unnumbered block receipts.');
+        return;
+      }
+      const rInput = document.getElementById('receiptNo') || form.querySelector('input[name="receiptNo"]');
+      const rLabel = document.getElementById('receiptNoLabel') || (rInput && rInput.closest('.form-group') && rInput.closest('.form-group').querySelector('label'));
+      const hintEl = form.querySelector('.receipt-number-hint');
+      const banner = document.getElementById('block-receipt-banner');
+      const blockBtn = document.getElementById('btn-block-receipt');
+
+      const newState = (typeof forceState === 'boolean') ? forceState : !window.isBlockReceiptMode;
+      window.isBlockReceiptMode = newState;
+      window.isBlockNumberMode = newState;
+
+      if (newState) {
+        // ACTIVATE BLOCK NUMBER MODE
+        if (rInput) {
+          if (!isEditing && rInput.value && rInput.value.trim() !== '') {
+            window._cachedNormalReceiptInput = rInput.value.trim();
+          }
+          rInput.value = '';
+          rInput.disabled = true;
+          rInput.readOnly = true;
+          rInput.required = false;
+          rInput.placeholder = '— (No Receipt Number)';
+          rInput.style.background = 'var(--bg-warm, #fdfbf7)';
+          rInput.style.color = 'var(--text-muted, #8c7b75)';
+          rInput.style.cursor = 'not-allowed';
+          rInput.setAttribute('aria-disabled', 'true');
+        }
+        if (rLabel) {
+          rLabel.innerHTML = 'Receipt Number <span class="custom-badge" style="display:inline-block;padding:1px 6px;font-size:11px;font-weight:700;color:#fff;background:linear-gradient(135deg, #1f3f6d, #469396);border-radius:4px;margin-left:6px;vertical-align:middle;">UNNUMBERED RECEIPT — NO RECEIPT NUMBER</span>';
+        }
+        if (hintEl) {
+          hintEl.innerHTML = '🛑 <strong>Block Number Mode Active:</strong> This receipt will be recorded without a receipt number. Sequential numbering remains untouched.';
+        }
+        if (banner) {
+          banner.style.display = 'flex';
+        }
+        if (blockBtn) {
+          blockBtn.classList.add('is-active');
+          blockBtn.setAttribute('aria-pressed', 'true');
+          blockBtn.title = 'Block Number Mode Active — Click to switch to normal numbering';
+          blockBtn.setAttribute('aria-label', 'Block Number Mode Active — Click to switch to normal numbering');
+          const textSpan = blockBtn.querySelector('.rg-text');
+          if (textSpan) textSpan.textContent = 'BLOCK NUMBER ACTIVE';
+        }
+      } else {
+        // DEACTIVATE BLOCK NUMBER MODE (RETURN TO NORMAL)
+        if (rInput) {
+          rInput.disabled = false;
+          rInput.readOnly = false;
+          rInput.style.background = '';
+          rInput.style.color = '';
+          rInput.style.cursor = '';
+          rInput.removeAttribute('aria-disabled');
+          const previewVal = window._cachedReceiptPreview || '';
+          rInput.placeholder = 'Auto-generated on save' + (previewVal ? ` (e.g. ${previewVal})` : '') + ' or Physical (P600-P900, PU1...)';
+          if (window._cachedNormalReceiptInput) {
+            rInput.value = window._cachedNormalReceiptInput;
+            if (typeof onReceiptNoInput === 'function') onReceiptNoInput(rInput);
+          } else {
+            rInput.value = '';
+          }
+        }
+        if (rLabel) {
+          const previewVal = window._cachedReceiptPreview || '';
+          rLabel.innerHTML = 'Receipt Number <span style="font-weight:400;color:var(--text-muted);font-size:11px;">(Leave blank to auto-allocate; preview: ' + esc(previewVal) + ')</span>';
+        }
+        if (hintEl) {
+          hintEl.innerHTML = 'ℹ️ Enter a physical receipt identifier (P600–P900 for Puja, PU1+ for Punarudharanam), or leave blank for auto-allocated software sequence.';
+        }
+        if (banner) {
+          banner.style.display = 'none';
+        }
+        if (blockBtn) {
+          blockBtn.classList.remove('is-active');
+          blockBtn.setAttribute('aria-pressed', 'false');
+          blockBtn.title = 'Block Number — Save without receipt number';
+          blockBtn.setAttribute('aria-label', 'Block Number — Save without receipt number');
+          const textSpan = blockBtn.querySelector('.rg-text');
+          if (textSpan) textSpan.textContent = 'BLOCK NUMBER';
+        }
+      }
+    }
+    window.toggleBlockReceiptMode = toggleBlockReceiptMode;
+    window.toggleBlockNumberMode = toggleBlockReceiptMode;
+
+    function updateReceiptNoPreview(newVal) {
+      if (newVal) {
+        window._cachedNormalReceiptPreview = newVal;
+        window._cachedReceiptPreview = newVal;
+      }
+      if (window.isBlockReceiptMode || window.isBlockNumberMode) return;
+      const rInput = document.getElementById('receiptNo') || (document.getElementById('receiptForm') && document.getElementById('receiptForm').querySelector('input[name="receiptNo"]'));
+      const rLabel = document.getElementById('receiptNoLabel');
+      if (rLabel && !rLabel.querySelector('.custom-badge')) {
+        rLabel.innerHTML = `Receipt Number <span style="font-weight:400;color:var(--text-muted);font-size:11px;">(Leave blank to auto-allocate; preview: ${esc(newVal)})</span>`;
+      }
+      if (rInput && !rInput.disabled && !rInput.readOnly && !rInput.value) {
+        rInput.placeholder = `Auto-generated on save (e.g. ${esc(newVal)}) or Physical (P600-P900, PU1...)`;
+      }
+    }
+    window.updateReceiptNoPreview = updateReceiptNoPreview;
+
+    async function saveReceipt(print, isBlock = false) {
+      if (window.isReceiptSaving) return;
+      window.isReceiptSaving = true;
+
+      const saveBtn = document.getElementById('btn-save-receipt');
+      const savePrintBtn = document.getElementById('btn-save-print-receipt');
+      const blockBtn = document.getElementById('btn-block-receipt');
+      if (saveBtn) saveBtn.disabled = true;
+      if (savePrintBtn) savePrintBtn.disabled = true;
+      if (blockBtn) blockBtn.disabled = true;
+
       const form = el('receiptForm');
       const fd = new FormData(form);
       const amount = parseFloat(fd.get('amount'));
       const receiptNoInput = (fd.get('receiptNo') || '').trim();
       const rawEditId = fd.get('editId');
       const editId = rawEditId ? (/^\d+$/.test(rawEditId.trim()) ? parseInt(rawEditId.trim(), 10) : rawEditId.trim()) : null;
+
+      // STEP 33.175: Effective block number mode: explicit parameter or active toggle state
+      const effectiveIsBlock = !!(isBlock || window.isBlockReceiptMode || window.isBlockNumberMode);
+
       if (!fd.get('name') || !fd.get('date') || !fd.get('fund') || !amount || amount <= 0) {
-        alert('Please fill all required fields with a valid amount.'); return;
+        alert('Please fill all required fields with a valid amount.');
+        window.isReceiptSaving = false;
+        if (saveBtn) saveBtn.disabled = false;
+        if (savePrintBtn) savePrintBtn.disabled = false;
+        if (blockBtn) blockBtn.disabled = false;
+        return;
       }
 
       const user = getCurrentFirebaseUser();
       if (!user) {
         alert('Authentication required: please log in to record transactions.');
+        window.isReceiptSaving = false;
+        if (saveBtn) saveBtn.disabled = false;
+        if (savePrintBtn) savePrintBtn.disabled = false;
+        if (blockBtn) blockBtn.disabled = false;
         return;
       }
 
-      // Step 33.69: Check physical receipt identifier
-      const physCheck = parsePhysicalReceiptIdentifier(receiptNoInput);
-      if (physCheck && !physCheck.valid) {
-        alert(physCheck.error);
-        return;
-      }
-      const isPhysical = !!(physCheck && physCheck.valid);
+      let isPhysical = false;
+      let physCheck = null;
 
-      // Validate manual receipt number for sequence and uniqueness if provided (new receipts only)
-      if (!editId && receiptNoInput && !isPhysical) {
-        const parsedManual = parseGlobalNumber(receiptNoInput);
-        if (!parsedManual) {
-          alert(`Invalid manual receipt number format "${receiptNoInput}". Please enter a sequential positive integer (e.g. 001, 002) or standard prefix R-001, or physical identifier (P600-P900, PU1...).`);
+      if (!effectiveIsBlock) {
+        // Step 33.69: Check physical receipt identifier
+        physCheck = parsePhysicalReceiptIdentifier(receiptNoInput);
+        if (physCheck && !physCheck.valid) {
+          alert(physCheck.error);
+          window.isReceiptSaving = false;
+          if (saveBtn) saveBtn.disabled = false;
+          if (savePrintBtn) savePrintBtn.disabled = false;
+          if (blockBtn) blockBtn.disabled = false;
           return;
         }
-        try {
-          const nextSeq = await getNextGlobalSequenceNo();
-          if (parsedManual < nextSeq) {
-            alert(`Receipt number "${receiptNoInput}" (${formatGlobalNumber(parsedManual, 'R-')}) has already been reserved or issued. Numbers cannot be reused.`);
+        isPhysical = !!(physCheck && physCheck.valid);
+
+        // Validate manual receipt number for sequence and uniqueness if provided (new receipts only)
+        if (!editId && receiptNoInput && !isPhysical) {
+          const parsedManual = parseGlobalNumber(receiptNoInput);
+          if (!parsedManual) {
+            alert(`Invalid manual receipt number format "${receiptNoInput}". Please enter a sequential positive integer (e.g. 001, 002) or standard prefix R-001, or physical identifier (P600-P900, PU1...).`);
+            window.isReceiptSaving = false;
+            if (saveBtn) saveBtn.disabled = false;
+            if (savePrintBtn) savePrintBtn.disabled = false;
+            if (blockBtn) blockBtn.disabled = false;
             return;
           }
-          if (parsedManual > nextSeq) {
-            alert(`Receipt number "${receiptNoInput}" (${formatGlobalNumber(parsedManual, 'R-')}) is out of sequence. The next required sequence number is ${formatGlobalNumber(nextSeq, 'R-')}.`);
-            return;
+          try {
+            const nextSeq = await getNextGlobalSequenceNo();
+            if (parsedManual < nextSeq) {
+              alert(`Receipt number "${receiptNoInput}" (${formatGlobalNumber(parsedManual, 'R-')}) has already been reserved or issued. Numbers cannot be reused.`);
+              window.isReceiptSaving = false;
+              if (saveBtn) saveBtn.disabled = false;
+              if (savePrintBtn) savePrintBtn.disabled = false;
+              if (blockBtn) blockBtn.disabled = false;
+              return;
+            }
+            if (parsedManual > nextSeq) {
+              alert(`Receipt number "${receiptNoInput}" (${formatGlobalNumber(parsedManual, 'R-')}) is out of sequence. The next required sequence number is ${formatGlobalNumber(nextSeq, 'R-')}.`);
+              window.isReceiptSaving = false;
+              if (saveBtn) saveBtn.disabled = false;
+              if (savePrintBtn) savePrintBtn.disabled = false;
+              if (blockBtn) blockBtn.disabled = false;
+              return;
+            }
+          } catch (dupErr) {
+            console.warn('[saveReceipt] Pre-save sequence check warning:', dupErr);
           }
-        } catch (dupErr) {
-          console.warn('[saveReceipt] Pre-save sequence check warning:', dupErr);
+        }
+
+        // Pre-save duplicate check for physical receipts
+        if (!editId && isPhysical) {
+          const canonicalPhysId = physCheck.formattedId;
+          try {
+            const existing = await allReceipts();
+            const dup = existing.find(r => r.receiptNo && r.receiptNo.trim().toUpperCase() === canonicalPhysId);
+            if (dup) {
+              alert(`Physical receipt identifier "${canonicalPhysId}" has already been entered or issued. Duplicate physical receipt numbers are strictly prohibited.`);
+              window.isReceiptSaving = false;
+              if (saveBtn) saveBtn.disabled = false;
+              if (savePrintBtn) savePrintBtn.disabled = false;
+              if (blockBtn) blockBtn.disabled = false;
+              return;
+            }
+          } catch (chkErr) {
+            console.warn('[saveReceipt] Pre-save physical duplicate check warning:', chkErr);
+          }
         }
       }
 
-      // Pre-save duplicate check for physical receipts
-      if (!editId && isPhysical) {
-        const canonicalPhysId = physCheck.formattedId;
-        try {
-          const existing = await allReceipts();
-          const dup = existing.find(r => r.receiptNo && r.receiptNo.trim().toUpperCase() === canonicalPhysId);
-          if (dup) {
-            alert(`Physical receipt identifier "${canonicalPhysId}" has already been entered or issued. Duplicate physical receipt numbers are strictly prohibited.`);
-            return;
-          }
-        } catch (chkErr) {
-          console.warn('[saveReceipt] Pre-save physical duplicate check warning:', chkErr);
-        }
-      }
-
-      const targetFund = isPhysical ? physCheck.fund : (fd.get('fund') ? String(fd.get('fund')).trim() : '');
-      const targetCategory = (isPhysical && physCheck.type === 'PU')
-        ? 'Donation Income'
-        : (isPhysical ? (physCheck.category || '') : (fd.get('category') != null ? String(fd.get('category')).trim() : ''));
+      const selectedFund = fd.get('fund') ? String(fd.get('fund')).trim() : '';
+      const targetFund = isPhysical ? physCheck.fund : selectedFund;
+      const rawCategory = fd.get('category') != null ? String(fd.get('category')).trim() : '';
+      const fallbackCategory = isPhysical
+        ? (physCheck ? (physCheck.category || (physCheck.type === 'PU' ? 'Donation Income' : 'Pooja Income')) : '')
+        : '';
+      const targetCategory = rawCategory || fallbackCategory;
 
       const rec = {
         date: fd.get('date'), name: fd.get('name'), mobile: fd.get('mobile') || '',
@@ -9522,7 +10053,14 @@
             }
           } else {
             rec.id = editId;
-            rec.receiptNo = receiptNoInput || (prior ? prior.receiptNo : '');
+            const isPriorCustom = prior && (prior.receiptType === 'custom' || (!prior.receiptNo && !prior.isPhysical));
+            if (isPriorCustom || effectiveIsBlock) {
+              rec.receiptType = 'custom';
+              rec.receiptNo = '';
+            } else {
+              rec.receiptNo = receiptNoInput || (prior ? prior.receiptNo : '');
+              if (prior && prior.receiptType) rec.receiptType = prior.receiptType;
+            }
             rec.voided = prior ? prior.voided : false;
             if (prior && prior.voidReason !== undefined) rec.voidReason = prior.voidReason;
             if (prior && prior.voidDate !== undefined) rec.voidDate = prior.voidDate;
@@ -9536,8 +10074,48 @@
             rec.createdAt = prior ? prior.createdAt : Date.now();
             rec.firestoreId = prior ? prior.firestoreId : (String(editId).startsWith('rcpt_') ? editId : ('rcpt_' + editId));
             await fsUpdateRecordSafe('receipts', rec.firestoreId || editId, rec);
+            if (isPhysical || (prior && (prior.isPhysical || prior.source === 'physical'))) {
+              try {
+                const db = getFirestoreDb();
+                const physIdent = rec.receiptNo || (prior ? prior.receiptNo : '');
+                const pParsed = typeof parsePhysicalReceiptIdentifier === 'function' ? parsePhysicalReceiptIdentifier(physIdent) : null;
+                const canId = (pParsed && pParsed.valid) ? pParsed.formattedId : physIdent;
+                const resDocId = (prior && prior.reservationDocId) ? prior.reservationDocId : `res_phys_${canId}`;
+                if (db && resDocId) {
+                  await db.collection('system').doc(resDocId).set({
+                    category: rec.category,
+                    fund: rec.fund
+                  }, { merge: true });
+                }
+              } catch (resSyncErr) {
+                console.warn('[saveReceipt] Physical reservation sync warning:', resSyncErr);
+              }
+            }
             savedRec = rec;
           }
+        } else if (effectiveIsBlock) {
+          // STEP 33.175: Block Number unnumbered receipt creation
+          // Strictly DO NOT call fsNextReceiptNo() or fsCreateIndependentReceipt()
+          // Strictly DO NOT increment or modify globalSequenceCounter, billingReceiptCounter, or receiptCounter
+          // Strictly DO NOT create reservations in system collection
+          rec.receiptNo = '';
+          rec.receiptType = 'custom';
+          rec.voided = false;
+          rec.createdAt = Date.now();
+          const randSuffix = Math.random().toString(36).substring(2, 8);
+          const customId = `c_${Date.now()}_${randSuffix}`;
+          rec.id = customId;
+          rec.firestoreId = `rcpt_${customId}`;
+          rec.source = 'firestore';
+          rec.isPhysical = false;
+          rec.physicalType = null;
+          rec.billingId = null;
+          rec.billingFirestoreId = null;
+          rec.billingReceiptNo = null;
+          rec.createdBy = user.uid;
+          rec.updatedBy = user.uid;
+          await fsSaveRecordSafe('receipts', rec, false);
+          savedRec = rec;
         } else if (isPhysical) {
           // Step 33.69: Physical Receipt Creation Path with Numbering Isolation
           const canonicalPhysId = physCheck.formattedId;
@@ -9664,8 +10242,16 @@
         console.error('Error persisting receipt to Firestore:', err);
         alert('Unable to confirm receipt persistence: ' + (err.message || err) + '\n\nIf the server completed the transaction, clicking Save Receipt again will safely verify and recover the existing record without allocating another number.');
         return;
+      } finally {
+        window.isReceiptSaving = false;
+        if (saveBtn) saveBtn.disabled = false;
+        if (savePrintBtn) savePrintBtn.disabled = false;
+        if (blockBtn) blockBtn.disabled = false;
       }
 
+      // Successful save: reset block receipt mode and stop animation
+      window.isBlockReceiptMode = false;
+      window.isBlockNumberMode = false;
       if (window.GlobalEditState) window.GlobalEditState.clearEditing('receipts');
       await refreshSettings();
       await navigate('receipts');
@@ -9677,6 +10263,18 @@
         }
       }
     }
+
+    WIRE_FUNCS.receipts = function () {
+      window.isReceiptSaving = false;
+      const rInput = document.getElementById('receiptNo');
+      if (rInput) {
+        rInput.addEventListener('input', function () {
+          if (window.isBlockReceiptMode || window.isBlockNumberMode) {
+            rInput.value = '';
+          }
+        });
+      }
+    };
     /* Step 23.3 — BUG-002 fix: Firestore is the authoritative source for receipt reprint.
        IndexedDB is tried as a fast-path cache but any IDB error is silently suppressed
        so it can never block reprint.  No writes, no counter changes.
@@ -9762,8 +10360,9 @@
       const templeName = s.templeName || 'മറുതാ ചാമുണ്ഡി ദേവി ക്ഷേത്രം';
       const templeAddress = s.address || 'ആശാരിവിളാകം, കേരളാദിത്യപുരം';
 
-      const isPhysPU = r.physicalType === 'PU' || (r.receiptNo && /^PU[1-9]\d*$/i.test(r.receiptNo.trim()));
-      const isPhysP = !isPhysPU && (r.physicalType === 'P' || (r.receiptNo && /^P[1-9]\d*$/i.test(r.receiptNo.trim())));
+      const isCustom = !r.receiptNo || r.receiptType === 'custom' || r.isCustom === true;
+      const isPhysPU = !isCustom && (r.physicalType === 'PU' || (r.receiptNo && /^PU[1-9]\d*$/i.test(r.receiptNo.trim())));
+      const isPhysP = !isCustom && !isPhysPU && (r.physicalType === 'P' || (r.receiptNo && /^P[1-9]\d*$/i.test(r.receiptNo.trim())));
       const isVoided = !!r.voided;
 
       // Clean up any lingering print state from an earlier print run
@@ -9787,9 +10386,10 @@
     ` : ''}
     <div class="pr-line"></div>
     <div class="pr-flex">
-      <span>No: ${esc(r.receiptNo)}${isVoided ? ' <span style="color:#b91c1c;font-weight:bold;">[VOID]</span>' : ''}</span>
+      <span>${isCustom ? 'UNNUMBERED RECEIPT' : ('No: ' + esc(r.receiptNo))}${isVoided ? ' <span style="color:#b91c1c;font-weight:bold;">[VOID]</span>' : ''}</span>
       <span>${fmtDate(r.date)}</span>
     </div>
+    ${isCustom ? '<div class="pr-center" style="font-size:11px; font-weight:bold; color:#1f3f6d; margin: 2px 0;">[UNNUMBERED RECEIPT]</div>' : ''}
     ${isPhysPU ? '<div class="pr-center" style="font-size:11px; font-weight:bold; color:#7b1fa2; margin: 2px 0;">[PHYSICAL · PUNARUDHARANAM RECEIPT]</div>' : (isPhysP ? '<div class="pr-center" style="font-size:11px; font-weight:bold; color:#1976d2; margin: 2px 0;">[PHYSICAL PUJA RECEIPT]</div>' : '')}
     <div>Name: <b>${esc(r.name || '---')}</b></div>
     ${r.star ? `<div>Star / നാൾ: <b>${esc(r.star)}</b></div>` : ''}
@@ -9983,11 +10583,13 @@
      */
     function showDeleteReceiptModal(r, id) {
       const modalRoot = el('modal-root');
-      const rcptNoStr = r.receiptNo || (r.id ? `R-${String(r.id).padStart(3, '0')}` : 'R-???');
+      const isCustomRcpt = !r.receiptNo || r.receiptType === 'custom' || r.isCustom === true;
+      const rcptNoStr = isCustomRcpt ? '— (Unnumbered)' : (r.receiptNo || (r.id ? `R-${String(r.id).padStart(3, '0')}` : 'R-???'));
       const formattedDate = typeof fmtDate === 'function' ? fmtDate(r.date) : r.date;
       const formattedAmt = typeof fmtMoney === 'function' ? fmtMoney(r.amount) : ('₹' + (parseFloat(r.amount) || 0).toFixed(2));
       const devoteeName = r.name || r.devoteeName || 'N/A';
-      const fundCategory = (r.fund || 'General Temple Fund') + (r.category ? ' / ' + r.category : '');
+      const rCat = (typeof resolveReceiptCategory === 'function') ? resolveReceiptCategory(r) : (r.category || '');
+      const fundCategory = (r.fund || 'General Temple Fund') + (rCat ? ' / ' + rCat : '');
       const isLinked = (r.source === 'billing' || !!r.billingFirestoreId || !!r.billingId || !!r.billingReceiptNo);
       const billNoStr = r.billingReceiptNo || (r.billingId ? `BILL-${String(r.billingId).padStart(3, '0')}` : 'linked bill');
 
@@ -10039,7 +10641,9 @@
           </div>` : ''}
         </div>
         <p class="muted" style="font-size: 12px; margin: 0 0 16px 0;">
-          This will permanently remove the record from Cloud Firestore and local storage, restoring balances and enabling safe number reuse if this is the highest allocated number.
+          ${(typeof parsePhysicalReceiptIdentifier === 'function' && parsePhysicalReceiptIdentifier(r.receiptNo)?.valid)
+            ? 'This will permanently remove the physical receipt from Cloud Firestore and local storage, restoring balances. Physical receipt numbers are not tracked by software sequence counters.'
+            : 'This will permanently remove the record from Cloud Firestore and local storage, restoring balances and enabling safe number reuse if this is the highest allocated number.'}
         </p>
         <div style="display: flex; justify-content: flex-end; gap: 8px;">
           <button type="button" class="btn-outline" id="btn-cancel-delete-receipt" onclick="closeModal()">Cancel</button>
@@ -10076,11 +10680,13 @@
         return;
       }
 
-      const rcptNoStr = r.receiptNo || (r.id ? `R-${String(r.id).padStart(3, '0')}` : 'R-???');
+      const isCustomRcpt = !r.receiptNo || r.receiptType === 'custom' || r.isCustom === true;
+      const rcptNoStr = isCustomRcpt ? '— (Unnumbered)' : (r.receiptNo || (r.id ? `R-${String(r.id).padStart(3, '0')}` : 'R-???'));
       const formattedDate = typeof fmtDate === 'function' ? fmtDate(r.date) : r.date;
       const formattedAmt = typeof fmtMoney === 'function' ? fmtMoney(r.amount) : ('₹' + (parseFloat(r.amount) || 0).toFixed(2));
       const devoteeName = r.name || r.devoteeName || 'N/A';
-      const fundCategory = (r.fund || 'General Temple Fund') + (r.category ? ' / ' + r.category : '');
+      const rCat = (typeof resolveReceiptCategory === 'function') ? resolveReceiptCategory(r) : (r.category || '');
+      const fundCategory = (r.fund || 'General Temple Fund') + (rCat ? ' / ' + rCat : '');
       const isLinked = (r.source === 'billing' || !!r.billingFirestoreId || !!r.billingId || !!r.billingReceiptNo);
       const billNoStr = r.billingReceiptNo || (r.billingId ? `BILL-${String(r.billingId).padStart(3, '0')}` : 'linked bill');
 
@@ -14447,6 +15053,9 @@
       let list = payments.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
       if (filterFund) list = list.filter(p => p.fund === filterFund);
       let editRec = editId ? await fsGetOneSafe('payments', editId) : null;
+      if (editRec && (editRec.description == null || String(editRec.description).trim() === '') && (editRec.desc || editRec.narration)) {
+        editRec.description = String(editRec.desc || editRec.narration).trim();
+      }
       if (editRec && editRec.voided) {
         alert('Voided payments cannot be edited.');
         editRec = null;
@@ -14457,14 +15066,41 @@
         if (window.GlobalEditState) window.GlobalEditState.clearEditing('payments');
       }
       const isBankLike = editRec ? (editRec.paymentMode === 'Bank' || editRec.paymentMode === 'UPI') : false;
+      const isCustomRec = editRec ? (editRec.voucherType === 'custom' || !editRec.voucherNo || editRec.voucherNo === '—') : false;
+
+      // STEP 33.174: Explicit custom-mode state initialization
+      window.isCustomPaymentMode = isCustomRec;
+      if (!editRec) {
+        window._cachedNormalVoucherPreview = nextNo;
+      } else if (!isCustomRec) {
+        window._cachedNormalVoucherPreview = editRec.voucherNo || nextNo;
+      }
 
       return `
     <div class="form-card" data-motion="fadeInUp">
-      <h3>💸 ${editRec ? 'Edit Payment ' + esc(editRec.voucherNo) : 'New Payment / Expense'}</h3>
+      <h3>💸 ${editRec ? ('Edit Payment ' + esc(isCustomRec ? '(Custom)' : editRec.voucherNo)) : 'New Payment / Expense'}</h3>
+      <div id="custom-payment-banner" class="custom-payment-banner" style="display:${isCustomRec ? 'flex' : 'none'};">
+        <span style="font-size:16px;line-height:1;">⚡</span>
+        <div style="flex:1;">
+          <strong>CUSTOM PAYMENT — NO VOUCHER NUMBER</strong>
+          <div style="font-size:12px;color:#465f7c;margin-top:2px;">
+            This payment will be recorded without allocating, reserving, or consuming a voucher number. Sequential numbering remains untouched.
+          </div>
+        </div>
+        ${!editRec ? `<button type="button" class="btn-sm btn-outline" onclick="toggleCustomPaymentMode(false)" style="padding:2px 8px;font-size:11px;background:#ffffff;border-color:rgba(70,147,150,0.5);cursor:pointer;">Exit Custom Mode</button>` : ''}
+      </div>
       <form id="paymentForm">
         <input type="hidden" name="editId" value="${editRec ? editRec.id : ''}">
         <div class="form-row">
-          <div class="form-group"><label>Voucher Number *</label><input type="text" name="voucherNo" value="${esc(editRec ? editRec.voucherNo : nextNo)}" required></div>
+          <div class="form-group">
+            <label id="paymentVoucherNoLabel">Voucher Number ${isCustomRec ? '<span class="custom-badge" style="display:inline-block;padding:1px 6px;font-size:11px;font-weight:700;color:#fff;background:linear-gradient(135deg, #1f3f6d, #469396);border-radius:4px;margin-left:6px;vertical-align:middle;">CUSTOM PAYMENT — NO VOUCHER NUMBER</span>' : '*'}</label>
+            <input type="text" 
+                   id="paymentVoucherNo" 
+                   name="voucherNo" 
+                   value="${esc(editRec ? (isCustomRec ? '' : editRec.voucherNo) : nextNo)}" 
+                   placeholder="${isCustomRec ? '— (No Voucher Number)' : ''}" 
+                   ${isCustomRec ? 'readonly disabled style="background:var(--bg-warm,#fdfbf7);color:var(--text-muted);cursor:not-allowed;" aria-disabled="true"' : 'required'}>
+          </div>
           <div class="form-group"><label>Date *</label><input type="date" name="date" value="${editRec ? editRec.date : todayISO()}" required></div>
           <div class="form-group"><label>Fund *</label><select name="fund" required>${optsFromNames(funds, editRec ? editRec.fund : filterFund)}</select></div>
         </div>
@@ -14488,10 +15124,26 @@
           <div class="form-group"><label>Amount (₹) *</label><input type="number" step="0.01" min="0.01" name="amount" value="${editRec ? editRec.amount : ''}" required></div>
           <div class="form-group"><label>Remarks</label><input type="text" name="remarks" value="${esc(editRec ? editRec.remarks : '')}"></div>
         </div>
-        <div class="form-actions">
-          <button type="button" onclick="savePayment(false)">${editRec ? 'UPDATE' : 'SAVE'}</button>
-          <button type="button" class="btn-green" onclick="savePayment(true)">${editRec ? 'UPDATE &amp; PRINT' : 'SAVE &amp; PRINT'}</button>
-          <button type="button" class="btn-outline" onclick="navigate('payments')">CANCEL</button>
+        <div class="form-actions" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+          <button type="button" id="btn-save-payment" onclick="savePayment(false)">${editRec ? 'UPDATE' : 'SAVE'}</button>
+          <button type="button" class="btn-green" id="btn-save-print-payment" onclick="savePayment(true)">${editRec ? 'UPDATE &amp; PRINT' : 'SAVE &amp; PRINT'}</button>
+          <button type="button" class="btn-outline" id="btn-cancel-payment" onclick="cancelPaymentForm()">CANCEL</button>
+          <button type="button" 
+                  class="btn-outline btn-custom-payment rg-button ${isCustomRec ? 'is-active' : ''}" 
+                  id="btn-save-custom-payment" 
+                  onclick="toggleCustomPaymentMode()" 
+                  data-legacy-onclick="savePayment(false, true)" 
+                  title="Custom — Save without voucher number" 
+                  aria-label="Custom — Save without voucher number" 
+                  aria-pressed="${isCustomRec ? 'true' : 'false'}" 
+                  style="display:inline-flex;align-items:center;gap:6px;font-weight:600;padding:6px 14px;border-color:var(--border);">
+            <span class="rg-shine" aria-hidden="true"><span></span></span>
+            <span class="rg-bg" aria-hidden="true"></span>
+            <span class="rg-label" style="display:inline-flex;align-items:center;gap:5px;">
+              <span class="rg-icon" style="font-size:13px;line-height:1;">⚙️</span>
+              <span class="rg-text">${isCustomRec ? 'CUSTOM ACTIVE' : 'CUSTOM'}</span>
+            </span>
+          </button>
         </div>
       </form>
     </div>
@@ -14506,7 +15158,7 @@
         <tbody>
           ${list.map(p => `
             <tr data-record-id="${esc(p.id)}" data-edit-scope="payments" class="${p.voided ? 'voided' : ''} ${getEditingRowClass('payments', p.id)}">
-              <td>${esc(p.voucherNo)}</td><td>${fmtDate(p.date)}</td><td>${esc(p.paidTo)}</td><td>${(p.description != null && String(p.description).trim() !== '') ? esc(String(p.description).trim()) : '—'}</td><td>${esc(p.fund)}</td>
+              <td>${(p.voucherNo && String(p.voucherNo).trim()) ? esc(p.voucherNo) : '—'}</td><td>${fmtDate(p.date)}</td><td>${esc(p.paidTo)}</td><td>${(p.description != null && String(p.description).trim() !== '') ? esc(String(p.description).trim()) : '—'}</td><td>${esc(p.fund)}</td>
               <td>${esc(p.category)}</td><td><span class="pill ${(p.paymentMode || '').toLowerCase()}">${esc(p.paymentMode || '')}</span></td>
               <td>${fmtMoney(p.amount)}</td><td>${p.voided ? 'Voided' : 'Active'}</td>
               <td>
@@ -14525,20 +15177,136 @@
       const q = el('paymentSearch').value.toLowerCase();
       qsa('#paymentTable tbody tr').forEach(tr => { tr.style.display = tr.textContent.toLowerCase().includes(q) ? '' : 'none'; });
     }
-    async function savePayment(print) {
+    /* STEP 33.174: Custom Payment Mode Handlers & Form Lifecycle */
+    function cancelPaymentForm() {
+      window.isCustomPaymentMode = false;
+      if (window.GlobalEditState) window.GlobalEditState.clearEditing('payments');
+      navigate('payments');
+    }
+
+    function toggleCustomPaymentMode(forceState) {
+      const form = document.getElementById('paymentForm');
+      if (!form) return;
+      const isEditing = !!(form.querySelector('input[name="editId"]') && form.querySelector('input[name="editId"]').value);
+      const vInput = document.getElementById('paymentVoucherNo') || form.querySelector('input[name="voucherNo"]');
+      const vLabel = document.getElementById('paymentVoucherNoLabel') || (vInput && vInput.closest('.form-group') && vInput.closest('.form-group').querySelector('label'));
+      const banner = document.getElementById('custom-payment-banner');
+      const customBtn = document.getElementById('btn-save-custom-payment');
+
+      const newState = (typeof forceState === 'boolean') ? forceState : !window.isCustomPaymentMode;
+      window.isCustomPaymentMode = newState;
+
+      if (newState) {
+        // ACTIVATE CUSTOM MODE
+        if (vInput) {
+          if (!isEditing && vInput.value && vInput.value.trim() !== '') {
+            window._cachedNormalVoucherPreview = vInput.value.trim();
+          }
+          vInput.value = '';
+          vInput.disabled = true;
+          vInput.readOnly = true;
+          vInput.required = false;
+          vInput.placeholder = '— (No Voucher Number)';
+          vInput.style.background = 'var(--bg-warm, #fdfbf7)';
+          vInput.style.color = 'var(--text-muted, #8c7b75)';
+          vInput.style.cursor = 'not-allowed';
+          vInput.setAttribute('aria-disabled', 'true');
+        }
+        if (vLabel) {
+          vLabel.innerHTML = 'Voucher Number <span class="custom-badge" style="display:inline-block;padding:1px 6px;font-size:11px;font-weight:700;color:#fff;background:linear-gradient(135deg, #1f3f6d, #469396);border-radius:4px;margin-left:6px;vertical-align:middle;">CUSTOM PAYMENT — NO VOUCHER NUMBER</span>';
+        }
+        if (banner) {
+          banner.style.display = 'flex';
+        }
+        if (customBtn) {
+          customBtn.classList.add('is-active');
+          customBtn.setAttribute('aria-pressed', 'true');
+          customBtn.title = 'Custom Mode Active — Click to switch to normal voucher';
+          customBtn.setAttribute('aria-label', 'Custom Mode Active — Click to switch to normal voucher');
+          const textSpan = customBtn.querySelector('.rg-text');
+          if (textSpan) textSpan.textContent = 'CUSTOM ACTIVE';
+        }
+      } else {
+        // DEACTIVATE CUSTOM MODE (RETURN TO NORMAL)
+        if (vInput) {
+          vInput.disabled = false;
+          vInput.readOnly = false;
+          vInput.required = true;
+          vInput.placeholder = '';
+          vInput.style.background = '';
+          vInput.style.color = '';
+          vInput.style.cursor = '';
+          vInput.removeAttribute('aria-disabled');
+          if (window._cachedNormalVoucherPreview) {
+            vInput.value = window._cachedNormalVoucherPreview;
+          } else {
+            nextVoucherNo().then(no => {
+              if (!window.isCustomPaymentMode && vInput) vInput.value = no;
+            }).catch(() => {});
+          }
+        }
+        if (vLabel) {
+          vLabel.innerHTML = 'Voucher Number *';
+        }
+        if (banner) {
+          banner.style.display = 'none';
+        }
+        if (customBtn) {
+          customBtn.classList.remove('is-active');
+          customBtn.setAttribute('aria-pressed', 'false');
+          customBtn.title = 'Custom — Save without voucher number';
+          customBtn.setAttribute('aria-label', 'Custom — Save without voucher number');
+          const textSpan = customBtn.querySelector('.rg-text');
+          if (textSpan) textSpan.textContent = 'CUSTOM';
+        }
+      }
+    }
+
+    function updatePaymentVoucherPreview(newVal) {
+      if (window.isCustomPaymentMode) return;
+      const vInput = document.getElementById('paymentVoucherNo') || (document.getElementById('paymentForm') && document.getElementById('paymentForm').querySelector('input[name="voucherNo"]'));
+      if (vInput && !vInput.disabled && !vInput.readOnly) {
+        vInput.value = newVal;
+      }
+    }
+
+    async function savePayment(print, isCustom = false) {
+      if (window.isSavingPayment) return;
+      window.isSavingPayment = true;
+
+      const saveBtn = document.getElementById('btn-save-payment');
+      const savePrintBtn = document.getElementById('btn-save-print-payment');
+      const customBtn = document.getElementById('btn-save-custom-payment');
+      if (saveBtn) saveBtn.disabled = true;
+      if (savePrintBtn) savePrintBtn.disabled = true;
+      if (customBtn) customBtn.disabled = true;
+
       const form = el('paymentForm');
       const fd = new FormData(form);
       const amount = parseFloat(fd.get('amount'));
       const voucherNoInput = (fd.get('voucherNo') || '').trim();
       const rawEditId = fd.get('editId');
       const editId = rawEditId ? (/^\d+$/.test(rawEditId.trim()) ? parseInt(rawEditId.trim(), 10) : rawEditId.trim()) : null;
+
+      // STEP 33.174: Effective custom mode: explicit argument or form toggle state
+      const effectiveIsCustom = !!(isCustom || window.isCustomPaymentMode);
+
       if (!fd.get('paidTo') || !fd.get('date') || !fd.get('fund') || !fd.get('category') || !amount || amount <= 0) {
-        alert('Please fill all required fields with a valid amount.'); return;
+        alert('Please fill all required fields with a valid amount.');
+        window.isSavingPayment = false;
+        if (saveBtn) saveBtn.disabled = false;
+        if (savePrintBtn) savePrintBtn.disabled = false;
+        if (customBtn) customBtn.disabled = false;
+        return;
       }
 
       const user = getCurrentFirebaseUser();
       if (!user) {
         alert('Authentication required: please log in to record transactions.');
+        window.isSavingPayment = false;
+        if (saveBtn) saveBtn.disabled = false;
+        if (savePrintBtn) savePrintBtn.disabled = false;
+        if (customBtn) customBtn.disabled = false;
         return;
       }
 
@@ -14557,18 +15325,48 @@
             return;
           }
           rec.id = editId;
-          rec.voucherNo = voucherNoInput || (prior ? prior.voucherNo : '');
+          const isPriorCustom = prior && (prior.voucherType === 'custom' || !prior.voucherNo || prior.voucherNo === '—');
+          if (isPriorCustom || effectiveIsCustom) {
+            rec.voucherType = 'custom';
+            rec.voucherNo = '';
+          } else {
+            rec.voucherNo = voucherNoInput || (prior ? prior.voucherNo : '');
+            if (prior && prior.voucherType) rec.voucherType = prior.voucherType;
+          }
           rec.voided = prior ? prior.voided : false;
           if (prior && prior.voidReason !== undefined) rec.voidReason = prior.voidReason;
           if (prior && prior.voidDate !== undefined) rec.voidDate = prior.voidDate;
           rec.createdAt = prior ? prior.createdAt : Date.now();
-          rec.firestoreId = prior ? prior.firestoreId : ('pmt_' + editId);
+          rec.firestoreId = prior ? prior.firestoreId : ((typeof editId === 'string' && editId.startsWith('pmt_')) ? editId : ('pmt_' + editId));
+          if (rec.description === '' && fd.get('description') === null && prior) {
+            const priorDesc = (prior.description != null && String(prior.description).trim() !== '')
+              ? String(prior.description).trim()
+              : ((prior.desc != null && String(prior.desc).trim() !== '')
+                ? String(prior.desc).trim()
+                : ((prior.narration != null && String(prior.narration).trim() !== '')
+                  ? String(prior.narration).trim()
+                  : ''));
+            if (priorDesc) rec.description = priorDesc;
+          }
           await fsUpdateRecordSafe('payments', rec.firestoreId || editId, rec);
+          savedRec = rec;
+        } else if (effectiveIsCustom) {
+          // Unnumbered custom payment: strictly DO NOT call fsNextVoucherNo(), DO NOT touch counters
+          rec.voucherNo = '';
+          rec.voucherType = 'custom';
+          rec.voided = false;
+          rec.createdAt = Date.now();
+          const randSuffix = Math.random().toString(36).substring(2, 8);
+          const customId = `c_${Date.now()}_${randSuffix}`;
+          rec.id = customId;
+          rec.firestoreId = `pmt_${customId}`;
+          await fsSaveRecordSafe('payments', rec, false);
           savedRec = rec;
         } else {
           // Allocate atomic voucher number from Firestore
           const allocatedNo = await fsNextVoucherNo();
           rec.voucherNo = allocatedNo;
+          rec.voucherType = 'normal';
           rec.voided = false;
           rec.createdAt = Date.now();
           const numMatch = allocatedNo.match(/\d+$/);
@@ -14584,13 +15382,32 @@
         console.error('Error persisting payment to Firestore:', err);
         alert('Unable to save to the cloud. Please check your connection and try again.\n(' + (err.message || err) + ')');
         return;
+      } finally {
+        window.isSavingPayment = false;
+        if (saveBtn) saveBtn.disabled = false;
+        if (savePrintBtn) savePrintBtn.disabled = false;
+        if (customBtn) customBtn.disabled = false;
       }
 
+      // Successful save: reset custom mode and stop animation
+      window.isCustomPaymentMode = false;
       if (window.GlobalEditState) window.GlobalEditState.clearEditing('payments');
       await refreshSettings();
       await navigate('payments');
       if (print && savedRec) printVoucher(savedRec);
     }
+
+    WIRE_FUNCS.payments = function () {
+      window.isSavingPayment = false;
+      const vInput = document.getElementById('paymentVoucherNo');
+      if (vInput) {
+        vInput.addEventListener('input', function () {
+          if (window.isCustomPaymentMode) {
+            vInput.value = '';
+          }
+        });
+      }
+    };
     async function reprintPayment(id) {
       const p = await fsGetOneSafe('payments', id);
       if (p) printVoucher(p);
@@ -14603,7 +15420,7 @@
     <div class="pr-center">${esc(s.address)}</div>
     <div class="pr-center pr-bold" style="margin:10px 0;">PAYMENT VOUCHER</div>
     <div class="pr-line"></div>
-    <div class="pr-flex"><span>Voucher No: ${esc(p.voucherNo)}</span><span>Date: ${fmtDate(p.date)}</span></div>
+    <div class="pr-flex"><span>Voucher No: ${esc(p.voucherNo || '—')}</span><span>Date: ${fmtDate(p.date)}</span></div>
     <div>Paid To: <b>${esc(p.paidTo)}</b></div>
     <div>Fund: ${esc(p.fund)} &nbsp; Category: ${esc(p.category)}</div>
     <div>Description: ${esc(p.description || '')}</div>
@@ -14623,11 +15440,12 @@
      */
     function showDeletePaymentModal(p, id) {
       const modalRoot = el('modal-root');
-      const voucherNoStr = p.voucherNo || (p.id ? `V-${String(p.id).padStart(3, '0')}` : 'V-???');
+      const isCustom = p.voucherType === 'custom' || !p.voucherNo || p.voucherNo === '—';
+      const voucherNoStr = isCustom ? '— (Custom)' : (p.voucherNo || (p.id ? `V-${String(p.id).padStart(3, '0')}` : 'V-???'));
       const formattedDate = typeof fmtDate === 'function' ? fmtDate(p.date) : p.date;
       const formattedAmt = typeof fmtMoney === 'function' ? fmtMoney(p.amount) : ('₹' + p.amount);
 
-      const confirmMsg = `Delete Payment Voucher permanently?\n\nVoucher Number: ${voucherNoStr}\nDate: ${formattedDate}\nPaid To: ${p.paidTo || 'N/A'}\nFund: ${p.fund || 'N/A'}\nExpense Category: ${p.category || 'N/A'}\nAmount: ${formattedAmt}\n\nThis will permanently delete the voucher from the database.`;
+      const confirmMsg = `Delete Payment ${isCustom ? 'Entry' : 'Voucher'} permanently?\n\nVoucher Number: ${voucherNoStr}\nDate: ${formattedDate}\nPaid To: ${p.paidTo || 'N/A'}\nFund: ${p.fund || 'N/A'}\nExpense Category: ${p.category || 'N/A'}\nAmount: ${formattedAmt}\n\nThis will permanently delete the ${isCustom ? 'payment record' : 'voucher'} from the database.`;
 
       if (!modalRoot) {
         if (!confirm(confirmMsg)) return;
@@ -14639,12 +15457,12 @@
       <div class="modal-box" style="max-width: 480px; box-shadow: 0 10px 30px rgba(0,0,0,0.25);">
         <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; border-bottom: 1px solid var(--border); padding-bottom: 10px;">
           <div>
-            <h3 style="margin: 0; color: #b91c1c; font-size: 18px;">⚠️ Delete Payment Voucher</h3>
+            <h3 style="margin: 0; color: #b91c1c; font-size: 18px;">⚠️ Delete Payment ${isCustom ? 'Entry' : 'Voucher'}</h3>
             <span class="pill danger" style="background:#fee2e2;color:#b91c1c;font-weight:700;margin-top:4px;display:inline-block;">PERMANENT DELETION</span>
           </div>
           <button type="button" class="btn-outline btn-sm" onclick="closeModal()" style="padding: 4px 8px; cursor: pointer; border-radius: 4px; font-weight: bold;">✕</button>
         </div>
-        <p style="margin: 0 0 12px 0; font-size: 14px; color: var(--text-dark);">Are you sure you want to permanently delete this payment voucher? This action cannot be undone.</p>
+        <p style="margin: 0 0 12px 0; font-size: 14px; color: var(--text-dark);">Are you sure you want to permanently delete this payment ${isCustom ? 'entry' : 'voucher'}? This action cannot be undone.</p>
         <div style="background: var(--bg-warm, #fdfbf7); border: 1px solid var(--border); border-radius: 6px; padding: 12px 14px; margin-bottom: 14px;">
           <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
             <span style="font-weight: 600; color: var(--text-muted);">Voucher Number:</span>
@@ -14674,10 +15492,10 @@
           ${p.billNo ? `<div style="display: flex; justify-content: space-between; margin-bottom: 6px;"><span style="font-weight: 600; color: var(--text-muted);">Bill No:</span><span>${esc(p.billNo)}</span></div>` : ''}
           ${p.description ? `<div style="display: flex; justify-content: space-between;"><span style="font-weight: 600; color: var(--text-muted);">Description:</span><span>${esc(p.description)}</span></div>` : ''}
         </div>
-        <p class="muted" style="font-size: 12px; margin: 0 0 16px 0;">This will permanently remove the voucher record and immediately update financial balances.</p>
+        <p class="muted" style="font-size: 12px; margin: 0 0 16px 0;">This will permanently remove the payment record and immediately update financial balances.</p>
         <div style="display: flex; justify-content: flex-end; gap: 8px;">
           <button type="button" class="btn-outline" id="btn-cancel-delete-payment" onclick="closeModal()">Cancel</button>
-          <button type="button" class="btn btn-danger" id="btn-confirm-delete-payment" onclick="deletePayment('${esc(id)}', true)">Delete Voucher</button>
+          <button type="button" class="btn btn-danger" id="btn-confirm-delete-payment" onclick="deletePayment('${esc(id)}', true)">Delete ${isCustom ? 'Payment' : 'Voucher'}</button>
         </div>
       </div>
     </div>
@@ -14714,14 +15532,15 @@
         return;
       }
 
-      const voucherNoStr = p.voucherNo || (p.id ? `V-${String(p.id).padStart(3, '0')}` : 'V-???');
+      const isCustom = p.voucherType === 'custom' || !p.voucherNo || p.voucherNo === '—';
+      const voucherNoStr = isCustom ? '— (Custom)' : (p.voucherNo || (p.id ? `V-${String(p.id).padStart(3, '0')}` : 'V-???'));
       const formattedDate = typeof fmtDate === 'function' ? fmtDate(p.date) : p.date;
       const formattedAmt = typeof fmtMoney === 'function' ? fmtMoney(p.amount) : ('₹' + p.amount);
 
       if (!isConfirmedExplicit) {
         const isMockedConfirm = typeof window.confirm === 'function' && !window.confirm.toString().includes('[native code]');
         if (isMockedConfirm && isLocalEnvironment()) {
-          const confirmMsg = `Delete Payment Voucher permanently?\n\nVoucher Number: ${voucherNoStr}\nDate: ${formattedDate}\nPaid To: ${p.paidTo || 'N/A'}\nFund: ${p.fund || 'N/A'}\nExpense Category: ${p.category || 'N/A'}\nAmount: ${formattedAmt}\n\nThis will permanently delete the voucher details from Cloud Firestore and local cache.`;
+          const confirmMsg = `Delete Payment ${isCustom ? 'Entry' : 'Voucher'} permanently?\n\nVoucher Number: ${voucherNoStr}\nDate: ${formattedDate}\nPaid To: ${p.paidTo || 'N/A'}\nFund: ${p.fund || 'N/A'}\nExpense Category: ${p.category || 'N/A'}\nAmount: ${formattedAmt}\n\nThis will permanently delete the ${isCustom ? 'payment details' : 'voucher details'} from Cloud Firestore and local cache.`;
           if (!confirm(confirmMsg)) return;
         } else {
           showDeletePaymentModal(p, id);
@@ -14741,8 +15560,8 @@
         if (!db) throw new Error('Firestore is not initialized.');
 
         const targetDocId = (p && p.firestoreId) ? p.firestoreId : ((typeof id === 'string' && id.startsWith('pmt_')) ? id : `pmt_${p.id || id}`);
-        const vMatch = voucherNoStr.match(/\d+$/);
-        const deletedVNum = vMatch ? parseInt(vMatch[0], 10) : (parseInt(p.id, 10) || null);
+        const vMatch = isCustom ? null : (voucherNoStr.match(/^V-(\d+)$/i) || (typeof p.voucherNo === 'string' && p.voucherNo.match(/\d+$/)));
+        const deletedVNum = vMatch ? parseInt(vMatch[1] || vMatch[0], 10) : null;
 
         // Atomic transaction: permanently delete voucher document + handle counter reuse
         await db.runTransaction(async (tx) => {
@@ -14774,8 +15593,9 @@
           paymentsSnap.forEach(docSnap => {
             if (docSnap.id !== targetDocId && docSnap.id !== String(id)) {
               const d = docSnap.data();
+              if (d.voucherType === 'custom' || !d.voucherNo || d.voucherNo === '—') return;
               const numMatch = (d.voucherNo || '').match(/\d+$/);
-              const num = numMatch ? parseInt(numMatch[0], 10) : (parseInt(d.id, 10) || 0);
+              const num = numMatch ? parseInt(numMatch[0], 10) : 0;
               if (num > maxRemainingNum) {
                 maxRemainingNum = num;
               }
@@ -14791,9 +15611,9 @@
             tx.delete(legacyRef);
           }
 
-          // 2. Trailing-number reuse: If deleted voucher was the highest (or at/above currentCounter),
-          // adjust voucherCounter to maxRemainingNum so the trailing number can be reused.
-          // If a middle voucher was deleted, voucherCounter is NOT moved backward below maxRemainingNum.
+          // 2. Trailing-number reuse: Only if deleted voucher was a numbered voucher (not custom)
+          // and was the highest (or at/above currentCounter), adjust voucherCounter to maxRemainingNum.
+          // Deleting a custom payment NEVER adjusts voucherCounter.
           if (deletedVNum !== null && (deletedVNum >= currentCounter || deletedVNum > maxRemainingNum)) {
             const updatePayload = {
               voucherCounter: maxRemainingNum
@@ -14832,7 +15652,7 @@
         await fsGetAllSafe('payments');
         await navigate('payments');
 
-        alert(`Payment voucher ${voucherNoStr} permanently deleted.`);
+        alert(`Payment ${isCustom ? 'entry' : 'voucher ' + voucherNoStr} permanently deleted.`);
       } catch (err) {
         console.error('[deletePayment] Error deleting payment voucher:', err);
         alert('Unable to delete payment voucher: ' + (err.message || err));
@@ -14867,8 +15687,8 @@
       <button class="btn-sec" onclick="navigate('payments')">+ New Renovation Expense (choose fund: Punarudharanam Fund)</button>
     </div>
     <div class="panel-row" data-motion="fadeIn">
-      <div class="panel"><h3>Receipts</h3>${simpleList(rList.map(r => `${esc(r.receiptNo)} · ${fmtDate(r.date)} · ${esc(r.name)} — ${fmtMoney(r.amount)}`))}</div>
-      <div class="panel"><h3>Expenses</h3>${simpleList(pList.map(p => `${esc(p.voucherNo)} · ${fmtDate(p.date)} · ${esc(p.paidTo)} (${esc(p.category)}) — ${fmtMoney(p.amount)}`))}</div>
+      <div class="panel"><h3>Receipts</h3>${simpleList(rList.map(r => `${esc(r.receiptNo || '—')} · ${fmtDate(r.date)} · ${esc(r.name)} — ${fmtMoney(r.amount)}`))}</div>
+      <div class="panel"><h3>Expenses</h3>${simpleList(pList.map(p => `${esc(p.voucherNo || '—')} · ${fmtDate(p.date)} · ${esc(p.paidTo)} (${esc(p.category)}) — ${fmtMoney(p.amount)}`))}</div>
     </div>
     <p class="muted" style="margin-top:10px;">Tip: project/contractor/bill tracking for each renovation expense can be added in the Remarks field of a Payment for now — dedicated project fields are planned for a future update.</p>
   `;
@@ -14883,6 +15703,40 @@
       if (str.toLowerCase() === 'bank') return 'Bank Transfer';
       return str;
     }
+    function resolveReceiptDesc(r) {
+      if (!r) return '';
+      let desc = (r.description && String(r.description).trim()) || '';
+      if (!desc && (r.source === 'billing' || r.billingFirestoreId || r.billingId || r.billingReceiptNo)) {
+        const bList = window.billingAllRecords || [];
+        const b = bList.find(item => item && (
+          (r.billingFirestoreId && (item.firestoreId === r.billingFirestoreId || item.id === r.billingFirestoreId)) ||
+          (r.billingId && (item.id === r.billingId || String(item.id) === String(r.billingId))) ||
+          (r.billingReceiptNo && (item.receiptNo === r.billingReceiptNo || item.billNo === r.billingReceiptNo))
+        ));
+        if (b) {
+          if (b.description && String(b.description).trim()) {
+            desc = String(b.description).trim();
+          } else if (b.item && String(b.item).trim()) {
+            let itemDesc = String(b.item).trim();
+            if (b.quantity && b.quantity > 1) itemDesc += ` (Qty: ${b.quantity})`;
+            if (b.star && String(b.star).trim()) itemDesc += ` | Star: ${String(b.star).trim()}`;
+            desc = itemDesc;
+          }
+        }
+      }
+      return desc;
+    }
+    function resolvePaymentDesc(p) {
+      if (!p) return '';
+      const d = (p.description != null && String(p.description).trim() !== '')
+        ? p.description
+        : ((p.desc != null && String(p.desc).trim() !== '')
+          ? p.desc
+          : ((p.narration != null && String(p.narration).trim() !== '')
+            ? p.narration
+            : ''));
+      return String(d || '').trim();
+    }
     async function buildCashBookRows() {
       const s = window.APP_SETTINGS || {};
       const txFetcher = (typeof activeTransfers === 'function') ? activeTransfers() : allTransfers();
@@ -14893,76 +15747,93 @@
       ]);
       const rows = [];
       receipts.filter(r => r.paymentMode === 'Cash' && !r.voided).forEach(r => {
-        const desc = r.description && String(r.description).trim();
+        const desc = resolveReceiptDesc(r);
         rows.push({
           date: r.date,
-          particulars: `Receipt ${r.receiptNo} - ${r.name}`,
+          particulars: (r.receiptNo && String(r.receiptNo).trim()) ? `Receipt ${r.receiptNo} - ${r.name}` : `Receipt - ${r.name}`,
           description: desc || '',
-          category: (r.category && String(r.category).trim()) ? r.category : '',
+          category: (r.category && String(r.category).trim()) ? r.category : (typeof resolveReceiptCategory === 'function' ? resolveReceiptCategory(r) : ''),
           paymentType: resolvePaymentType(r, 'Cash'),
           receipt: r.amount,
-          payment: 0
+          payment: 0,
+          txType: 'receipt'
         });
       });
       payments.filter(p => p.paymentMode === 'Cash' && !p.voided).forEach(p => rows.push({
         date: p.date,
-        particulars: `Payment ${p.voucherNo} - ${p.paidTo}`,
+        particulars: p.voucherNo ? `Payment ${p.voucherNo} - ${p.paidTo}` : `Payment - ${p.paidTo}`,
+        description: resolvePaymentDesc(p),
         category: p.category || 'Uncategorized',
         paymentType: resolvePaymentType(p, 'Cash'),
         receipt: 0,
-        payment: p.amount
+        payment: p.amount,
+        txType: 'payment'
       }));
       loans.filter(l => l.paymentMode === 'Cash' && !l.voided).forEach(l => {
+        const desc = (l.description && String(l.description).trim()) || '';
         if (l.loanReceived) rows.push({
           date: l.date,
           particulars: `Loan Received - ${l.person}`,
+          description: desc,
           category: 'Loan',
           paymentType: resolvePaymentType(l, 'Cash'),
           receipt: l.loanReceived,
-          payment: 0
+          payment: 0,
+          txType: 'receipt'
         });
         if (l.repayment) rows.push({
           date: l.date,
           particulars: `Loan Repayment - ${l.person}`,
+          description: desc,
           category: 'Loan',
           paymentType: resolvePaymentType(l, 'Cash'),
           receipt: 0,
-          payment: l.repayment
+          payment: l.repayment,
+          txType: 'payment'
         });
       });
       collections.filter(c => c.paymentMode === 'Cash' && !c.voided).forEach(c => rows.push({
         date: c.date,
         particulars: `Chitty Collection - ${c.memberName || ''}`,
+        description: (c.description && String(c.description).trim()) || '',
         category: 'Chitty',
         paymentType: resolvePaymentType(c, 'Cash'),
         receipt: c.amountReceived,
-        payment: 0
+        payment: 0,
+        txType: 'receipt'
       }));
       payouts.filter(p => p.paymentMode === 'Cash' && !p.voided).forEach(p => rows.push({
         date: p.date,
         particulars: `Chitty Payout - ${p.memberName || ''}`,
+        description: (p.description && String(p.description).trim()) || '',
         category: 'Chitty',
         paymentType: resolvePaymentType(p, 'Cash'),
         receipt: 0,
-        payment: p.amount
+        payment: p.amount,
+        txType: 'payment'
       }));
       transfers.filter(t => !t.voided).forEach(t => {
         const tType = resolvePaymentType(t, 'Bank Transfer');
+        const desc = (t.description && String(t.description).trim()) || '';
         if (t.fromAcc === 'Cash') rows.push({
           date: t.date,
           particulars: `Transfer to Bank via ${t.mode || 'Cash'}${t.reason ? ' (' + t.reason + ')' : ''}`,
+          description: desc,
           category: 'Bank Transfer',
           paymentType: tType,
           receipt: 0,
-          payment: t.amount
+          payment: t.amount,
+          txType: 'payment'
         });
         if (t.toAcc === 'Cash') rows.push({
           date: t.date,
           particulars: `Transfer from Bank via ${t.mode || 'Cash'}${t.reason ? ' (' + t.reason + ')' : ''}`,
+          description: desc,
           category: 'Bank Transfer',
           paymentType: tType,
           receipt: t.amount,
-          payment: 0
+          payment: 0,
+          txType: 'receipt'
         });
       });
       rows.sort((a, b) => String(a.date || '').localeCompare(String(b.date || '')));
@@ -14979,41 +15850,83 @@
         activeReceipts(), activePayments(), txFetcher, allLoans(), colFetcher, payFetcher
       ]);
       const rows = [];
-      const resolveReceiptDesc = (r) => {
-        let desc = (r.description && String(r.description).trim()) || '';
-        if (!desc && (r.source === 'billing' || r.billingFirestoreId || r.billingId || r.billingReceiptNo)) {
-          const bList = window.billingAllRecords || [];
-          const b = bList.find(item => item && (
-            (r.billingFirestoreId && (item.firestoreId === r.billingFirestoreId || item.id === r.billingFirestoreId)) ||
-            (r.billingId && (item.id === r.billingId || String(item.id) === String(r.billingId))) ||
-            (r.billingReceiptNo && (item.receiptNo === r.billingReceiptNo || item.billNo === r.billingReceiptNo))
-          ));
-          if (b) {
-            if (b.description && String(b.description).trim()) {
-              desc = String(b.description).trim();
-            } else if (b.item && String(b.item).trim()) {
-              let itemDesc = String(b.item).trim();
-              if (b.quantity && b.quantity > 1) itemDesc += ` (Qty: ${b.quantity})`;
-              if (b.star && String(b.star).trim()) itemDesc += ` | Star: ${String(b.star).trim()}`;
-              desc = itemDesc;
-            }
-          }
-        }
-        return desc;
-      };
-      receipts.filter(r => isBankMode(r.paymentMode) && !r.voided).forEach(r => rows.push({ date: r.date, particulars: `Receipt ${r.receiptNo} - ${r.name} (${r.paymentMode})`, description: resolveReceiptDesc(r), deposit: r.amount, withdrawal: 0 }));
-      payments.filter(p => isBankMode(p.paymentMode) && !p.voided).forEach(p => rows.push({ date: p.date, particulars: `Payment ${p.voucherNo} - ${p.paidTo} (${p.paymentMode})`, description: (p.description && String(p.description).trim()) || '', deposit: 0, withdrawal: p.amount }));
+      receipts.filter(r => isBankMode(r.paymentMode) && !r.voided).forEach(r => rows.push({
+        date: r.date,
+        particulars: (r.receiptNo && String(r.receiptNo).trim()) ? `Receipt ${r.receiptNo} - ${r.name} (${r.paymentMode})` : `Receipt - ${r.name} (${r.paymentMode})`,
+        description: resolveReceiptDesc(r),
+        category: (r.category && String(r.category).trim()) ? r.category : (typeof resolveReceiptCategory === 'function' ? resolveReceiptCategory(r) : ''),
+        deposit: r.amount,
+        withdrawal: 0,
+        txType: 'receipt'
+      }));
+      payments.filter(p => isBankMode(p.paymentMode) && !p.voided).forEach(p => rows.push({
+        date: p.date,
+        particulars: p.voucherNo ? `Payment ${p.voucherNo} - ${p.paidTo} (${p.paymentMode})` : `Payment - ${p.paidTo} (${p.paymentMode})`,
+        description: resolvePaymentDesc(p),
+        category: p.category || 'Uncategorized',
+        deposit: 0,
+        withdrawal: p.amount,
+        txType: 'payment'
+      }));
       loans.filter(l => isBankMode(l.paymentMode) && !l.voided).forEach(l => {
         const desc = (l.description && String(l.description).trim()) || '';
-        if (l.loanReceived) rows.push({ date: l.date, particulars: `Loan Received - ${l.person}`, description: desc, deposit: l.loanReceived, withdrawal: 0 });
-        if (l.repayment) rows.push({ date: l.date, particulars: `Loan Repayment - ${l.person}`, description: desc, deposit: 0, withdrawal: l.repayment });
+        if (l.loanReceived) rows.push({
+          date: l.date,
+          particulars: `Loan Received - ${l.person}`,
+          description: desc,
+          category: 'Loan',
+          deposit: l.loanReceived,
+          withdrawal: 0,
+          txType: 'receipt'
+        });
+        if (l.repayment) rows.push({
+          date: l.date,
+          particulars: `Loan Repayment - ${l.person}`,
+          description: desc,
+          category: 'Loan',
+          deposit: 0,
+          withdrawal: l.repayment,
+          txType: 'payment'
+        });
       });
-      collections.filter(c => isBankMode(c.paymentMode) && !c.voided).forEach(c => rows.push({ date: c.date, particulars: `Chitty Collection - ${c.memberName || ''}`, description: (c.description && String(c.description).trim()) || '', deposit: c.amountReceived, withdrawal: 0 }));
-      payouts.filter(p => isBankMode(p.paymentMode) && !p.voided).forEach(p => rows.push({ date: p.date, particulars: `Chitty Payout - ${p.memberName || ''}`, description: (p.description && String(p.description).trim()) || '', deposit: 0, withdrawal: p.amount }));
+      collections.filter(c => isBankMode(c.paymentMode) && !c.voided).forEach(c => rows.push({
+        date: c.date,
+        particulars: `Chitty Collection - ${c.memberName || ''}`,
+        description: (c.description && String(c.description).trim()) || '',
+        category: 'Chitty',
+        deposit: c.amountReceived,
+        withdrawal: 0,
+        txType: 'receipt'
+      }));
+      payouts.filter(p => isBankMode(p.paymentMode) && !p.voided).forEach(p => rows.push({
+        date: p.date,
+        particulars: `Chitty Payout - ${p.memberName || ''}`,
+        description: (p.description && String(p.description).trim()) || '',
+        category: 'Chitty',
+        deposit: 0,
+        withdrawal: p.amount,
+        txType: 'payment'
+      }));
       transfers.filter(t => !t.voided).forEach(t => {
         const desc = (t.description && String(t.description).trim()) || '';
-        if (t.fromAcc === 'Bank') rows.push({ date: t.date, particulars: `Cash Withdrawal${t.reason ? ' (' + t.reason + ')' : ''}${t.refNo ? ' - Ref ' + t.refNo : ''}`, description: desc, deposit: 0, withdrawal: t.amount });
-        if (t.toAcc === 'Bank') rows.push({ date: t.date, particulars: `Cash Deposit${t.reason ? ' (' + t.reason + ')' : ''}${t.refNo ? ' - Ref ' + t.refNo : ''}`, description: desc, deposit: t.amount, withdrawal: 0 });
+        if (t.fromAcc === 'Bank') rows.push({
+          date: t.date,
+          particulars: `Cash Withdrawal${t.reason ? ' (' + t.reason + ')' : ''}${t.refNo ? ' - Ref ' + t.refNo : ''}`,
+          description: desc,
+          category: 'Bank Transfer',
+          deposit: 0,
+          withdrawal: t.amount,
+          txType: 'payment'
+        });
+        if (t.toAcc === 'Bank') rows.push({
+          date: t.date,
+          particulars: `Cash Deposit${t.reason ? ' (' + t.reason + ')' : ''}${t.refNo ? ' - Ref ' + t.refNo : ''}`,
+          description: desc,
+          category: 'Bank Transfer',
+          deposit: t.amount,
+          withdrawal: 0,
+          txType: 'receipt'
+        });
       });
       rows.sort((a, b) => a.date.localeCompare(b.date));
       let bal = parseFloat(s.openingBank) || 0;
@@ -15034,6 +15947,12 @@
         <option value="">All Categories</option>
         ${cats.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join('')}
       </select>
+      <select id="cashBookTypeFilter" onchange="applyCashBookCategoryFilter()" style="padding:5px 8px; border-radius:6px; border:1px solid var(--border); font-size:13px; background:var(--surface); color:var(--text);">
+        <option value="">All Transactions</option>
+        <option value="receipt">Receipts Only</option>
+        <option value="payment">Payments Only</option>
+      </select>
+      <button class="btn-sec btn-sm motion-interactive" onclick="clearCashBookFilters()">Clear Filters</button>
       <button class="btn-sec btn-sm motion-interactive" onclick="exportCashBookCSV()">CSV / Excel</button>
       <button class="btn-sec btn-sm motion-interactive" onclick="printGenericTable('Cash Book', document.getElementById('cashBookTable'))">Print</button>
     </div>
@@ -15041,7 +15960,7 @@
       <thead><tr><th>Date</th><th>Particulars</th><th>Description</th><th>Category</th><th>Payment Type</th><th>Receipt</th><th>Payment</th><th>Balance</th></tr></thead>
       <tbody>
         <tr data-category="Opening Balance"><td>${fmtDate(window.APP_SETTINGS.startDate)}</td><td><i>Opening Balance</i></td><td></td><td>Opening Balance</td><td>—</td><td>-</td><td>-</td><td>${fmtMoney(window.APP_SETTINGS.openingCash)}</td></tr>
-        ${rows.map(r => `<tr data-category="${esc(r.category)}"><td>${fmtDate(r.date)}</td><td>${esc(r.particulars)}</td><td>${r.description && String(r.description).trim() ? esc(String(r.description).trim()) : ''}</td><td>${esc(r.category || '—')}</td><td>${esc(r.paymentType || '—')}</td><td>${r.receipt ? fmtMoney(r.receipt) : '-'}</td><td>${r.payment ? fmtMoney(r.payment) : '-'}</td><td>${fmtMoney(r.balance)}</td></tr>`).join('')}
+        ${rows.map(r => `<tr data-category="${esc(r.category)}" data-tx-type="${(parseFloat(r.receipt) || 0) > 0 ? 'receipt' : 'payment'}"><td>${fmtDate(r.date)}</td><td>${esc(r.particulars)}</td><td>${(r.description != null && String(r.description).trim() !== '') ? esc(String(r.description).trim()) : '—'}</td><td>${esc(r.category || '—')}</td><td>${esc(r.paymentType || '—')}</td><td>${r.receipt ? fmtMoney(r.receipt) : '-'}</td><td>${r.payment ? fmtMoney(r.payment) : '-'}</td><td>${fmtMoney(r.balance)}</td></tr>`).join('')}
       </tbody>
       <tfoot id="cashBookTFoot">
         <tr id="cashBookTotalRow" class="cashbook-total-row" style="font-weight: bold; background: var(--surface, #fafafa); border-top: 2px solid var(--border, #333);">
@@ -15058,25 +15977,76 @@
     </table></div>
   `;
     };
-    /* Step 28 / Step 33.6A — Cash Book category filter: shows/hides rows by category
+    /* Step 28 / Step 33.6A / Step 33.169 — Cash Book category & transaction type filter:
+       shows/hides rows by category and/or transaction type (Receipts Only, Payments Only, All)
        and recalculates the totals row for currently displayed rows.
        Balance column retains the original chronological running balance
        (not recalculated) so users see the true cash position context. */
     function applyCashBookCategoryFilter() {
-      const cat = el('cashBookCategoryFilter').value;
-      qsa('#cashBookTable tbody tr').forEach(tr => {
-        if (!cat) { tr.style.display = ''; return; }
-        tr.style.display = (tr.dataset.category === cat) ? '' : 'none';
+      const cat = el('cashBookCategoryFilter') ? el('cashBookCategoryFilter').value : '';
+      const type = el('cashBookTypeFilter') ? el('cashBookTypeFilter').value : '';
+      let visibleCount = 0;
+      const trs = qsa('#cashBookTable tbody tr');
+      trs.forEach(tr => {
+        if (tr.id === 'cashBookEmptyRow') return;
+        const isOpening = (tr.dataset.category === 'Opening Balance');
+        if (isOpening) {
+          const showOpening = (!cat || cat === 'Opening Balance') && (!type || type === 'all');
+          tr.style.display = showOpening ? '' : 'none';
+          if (showOpening) visibleCount++;
+          return;
+        }
+        const trCat = tr.dataset.category || '';
+        const trType = tr.dataset.txType || '';
+        const matchCat = !cat || trCat === cat;
+        let matchType = true;
+        if (type === 'receipt') {
+          matchType = (trType === 'receipt');
+        } else if (type === 'payment') {
+          matchType = (trType === 'payment');
+        }
+        const show = matchCat && matchType;
+        tr.style.display = show ? '' : 'none';
+        if (show) visibleCount++;
       });
+      let emptyRow = el('cashBookEmptyRow');
+      if (visibleCount === 0) {
+        if (!emptyRow && typeof document !== 'undefined' && typeof document.createElement === 'function') {
+          emptyRow = document.createElement('tr');
+          emptyRow.id = 'cashBookEmptyRow';
+          emptyRow.innerHTML = '<td colspan="8" style="text-align:center; padding:24px; color:var(--text-muted, #888); font-style:italic;">No transactions match the selected filters.</td>';
+          const tbody = qs('#cashBookTable tbody');
+          if (tbody) tbody.appendChild(emptyRow);
+        } else if (emptyRow) {
+          emptyRow.style.display = '';
+        }
+      } else if (emptyRow) {
+        if (typeof emptyRow.remove === 'function') {
+          emptyRow.remove();
+        } else {
+          emptyRow.style.display = 'none';
+        }
+      }
       updateCashBookTotals();
+    }
+    const applyCashBookFilter = applyCashBookCategoryFilter;
+    function clearCashBookFilters() {
+      if (el('cashBookCategoryFilter')) el('cashBookCategoryFilter').value = '';
+      if (el('cashBookTypeFilter')) el('cashBookTypeFilter').value = '';
+      applyCashBookCategoryFilter();
     }
     function updateCashBookTotals() {
       const cat = el('cashBookCategoryFilter') ? el('cashBookCategoryFilter').value : '';
+      const type = el('cashBookTypeFilter') ? el('cashBookTypeFilter').value : '';
       const dataRows = window._cashBookRows || [];
       let totReceipt = 0;
       let totPayment = 0;
       dataRows.forEach(r => {
         if (cat && r.category !== cat) return;
+        const isReceipt = (parseFloat(r.receipt) || 0) > 0;
+        const isPayment = (parseFloat(r.payment) || 0) > 0;
+        if (type === 'receipt' && !isReceipt) return;
+        if (type === 'payment' && !isPayment) return;
         totReceipt += (parseFloat(r.receipt) || 0);
         totPayment += (parseFloat(r.payment) || 0);
       });
@@ -15085,13 +16055,14 @@
       if (recEl) recEl.innerHTML = `<b>${fmtMoney(totReceipt)}</b>`;
       if (payEl) payEl.innerHTML = `<b>${fmtMoney(totPayment)}</b>`;
     }
-    /* Step 28 / Step 33.6A — Cash Book CSV export using existing downloadCSV utility,
+    /* Step 28 / Step 33.6A / Step 33.169 — Cash Book CSV export using existing downloadCSV utility,
        including Payment Type column and final totals row. */
     function exportCashBookCSV() {
       const csvRows = [['Date', 'Particulars', 'Description', 'Category', 'Payment Type', 'Receipt', 'Payment', 'Balance']];
       const cat = el('cashBookCategoryFilter') ? el('cashBookCategoryFilter').value : '';
+      const type = el('cashBookTypeFilter') ? el('cashBookTypeFilter').value : '';
       /* Opening balance row */
-      if (!cat || cat === 'Opening Balance') {
+      if ((!cat || cat === 'Opening Balance') && (!type || type === 'all')) {
         csvRows.push([fmtDate(window.APP_SETTINGS.startDate), 'Opening Balance', '', 'Opening Balance', '—', '-', '-', fmtMoney(window.APP_SETTINGS.openingCash)]);
       }
       /* Apply current filter if active */
@@ -15100,9 +16071,13 @@
       let totPayment = 0;
       dataRows.forEach(r => {
         if (cat && r.category !== cat) return;
+        const isReceipt = (parseFloat(r.receipt) || 0) > 0;
+        const isPayment = (parseFloat(r.payment) || 0) > 0;
+        if (type === 'receipt' && !isReceipt) return;
+        if (type === 'payment' && !isPayment) return;
         totReceipt += (parseFloat(r.receipt) || 0);
         totPayment += (parseFloat(r.payment) || 0);
-        csvRows.push([fmtDate(r.date), r.particulars, r.description || '', r.category, r.paymentType || '—', r.receipt ? fmtMoney(r.receipt) : '-', r.payment ? fmtMoney(r.payment) : '-', fmtMoney(r.balance)]);
+        csvRows.push([fmtDate(r.date), r.particulars, (r.description != null && String(r.description).trim() !== '') ? String(r.description).trim() : '—', r.category, r.paymentType || '—', r.receipt ? fmtMoney(r.receipt) : '-', r.payment ? fmtMoney(r.payment) : '-', fmtMoney(r.balance)]);
       });
       /* Final totals row */
       csvRows.push(['TOTAL', '—', '—', '—', '—', fmtMoney(totReceipt), fmtMoney(totPayment), '—']);
@@ -15113,16 +16088,40 @@
       window._bankBookRows = rows; /* cache for recalculation/testing */
       const s = window.APP_SETTINGS || {};
       const closing = rows.length ? rows[rows.length - 1].balance : (parseFloat(s.openingBank) || 0);
+      /* Build unique category list from loaded rows and master data where appropriate */
+      const txCats = rows.map(r => r.category).filter(Boolean);
+      let masterCats = [];
+      try {
+        const [inc, exp] = await Promise.all([
+          typeof allIncomeCategories === 'function' ? allIncomeCategories() : [],
+          typeof allExpenseCategories === 'function' ? allExpenseCategories() : []
+        ]);
+        masterCats = [...(inc || []).map(c => c && (c.name || c.category || c)), ...(exp || []).map(c => c && (c.name || c.category || c))].filter(Boolean);
+      } catch (_) {}
+      const cats = [...new Set([...txCats, ...masterCats])].sort();
       const totalDeposit = rows.reduce((s, r) => s + (parseFloat(r.deposit) || 0), 0);
       const totalWithdrawal = rows.reduce((s, r) => s + (parseFloat(r.withdrawal) || 0), 0);
       return `
     <div class="balance-banner ok" data-motion="fadeInUp">Closing Bank Balance: ${fmtMoney(closing)}</div>
-    <div class="toolbar" data-motion="calmInUp"><button class="btn-sec btn-sm motion-interactive" onclick="printGenericTable('Bank Book', document.getElementById('bankBookTable'))">Print</button></div>
+    <div class="toolbar" data-motion="calmInUp">
+      <select id="bankBookCategoryFilter" onchange="applyBankBookFilter()" style="padding:5px 8px; border-radius:6px; border:1px solid var(--border); font-size:13px; background:var(--surface); color:var(--text);">
+        <option value="">All Categories</option>
+        ${cats.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join('')}
+      </select>
+      <select id="bankBookTypeFilter" onchange="applyBankBookFilter()" style="padding:5px 8px; border-radius:6px; border:1px solid var(--border); font-size:13px; background:var(--surface); color:var(--text);">
+        <option value="">All Transactions</option>
+        <option value="receipt">Receipts Only</option>
+        <option value="payment">Payments Only</option>
+      </select>
+      <button class="btn-sec btn-sm motion-interactive" onclick="clearBankBookFilters()">Clear Filters</button>
+      <button class="btn-sec btn-sm motion-interactive" onclick="exportBankBookCSV()">CSV / Excel</button>
+      <button class="btn-sec btn-sm motion-interactive" onclick="printGenericTable('Bank Book', document.getElementById('bankBookTable'))">Print</button>
+    </div>
     <div class="table-wrap" data-motion="fadeIn"><table id="bankBookTable">
       <thead><tr><th>Date</th><th>Particulars</th><th>Description</th><th>Deposit</th><th>Withdrawal</th><th>Balance</th></tr></thead>
       <tbody>
         <tr><td>${fmtDate(s.startDate)}</td><td><i>Opening Balance</i></td><td>—</td><td>-</td><td>-</td><td>${fmtMoney(s.openingBank)}</td></tr>
-        ${rows.map(r => `<tr><td>${fmtDate(r.date)}</td><td>${esc(r.particulars)}</td><td>${(r.description != null && String(r.description).trim() !== '') ? esc(String(r.description).trim()) : '—'}</td><td>${r.deposit ? fmtMoney(r.deposit) : '-'}</td><td>${r.withdrawal ? fmtMoney(r.withdrawal) : '-'}</td><td>${fmtMoney(r.balance)}</td></tr>`).join('')}
+        ${rows.map(r => `<tr data-category="${esc(r.category)}" data-tx-type="${(parseFloat(r.deposit) || 0) > 0 ? 'receipt' : 'payment'}"><td>${fmtDate(r.date)}</td><td>${esc(r.particulars)}</td><td>${(r.description != null && String(r.description).trim() !== '') ? esc(String(r.description).trim()) : '—'}</td><td>${r.deposit ? fmtMoney(r.deposit) : '-'}</td><td>${r.withdrawal ? fmtMoney(r.withdrawal) : '-'}</td><td>${fmtMoney(r.balance)}</td></tr>`).join('')}
       </tbody>
       <tfoot id="bankBookTFoot">
         <tr id="bankBookTotalRow" class="bankbook-total-row" style="font-weight: bold; background: var(--surface, #fafafa); border-top: 2px solid var(--border, #333);">
@@ -15137,37 +16136,103 @@
     </table></div>
   `;
     };
-    /* Step 33.7A — Recalculate Bank Book totals on dynamic view updates or DOM filtering */
+    /* Step 33.7A / Step 33.169 — Bank Book category & transaction type filter and totals recalculation */
+    function applyBankBookFilter() {
+      const cat = el('bankBookCategoryFilter') ? el('bankBookCategoryFilter').value : '';
+      const type = el('bankBookTypeFilter') ? el('bankBookTypeFilter').value : '';
+      let visibleCount = 0;
+      const trs = qsa('#bankBookTable tbody tr');
+      trs.forEach((tr, idx) => {
+        if (tr.id === 'bankBookEmptyRow') return;
+        const isOpening = (idx === 0) || (tr.children[1] && tr.children[1].textContent.includes('Opening Balance'));
+        if (isOpening) {
+          const showOpening = (!cat || cat === 'Opening Balance') && (!type || type === 'all');
+          tr.style.display = showOpening ? '' : 'none';
+          if (showOpening) visibleCount++;
+          return;
+        }
+        const trCat = tr.dataset.category || '';
+        const trType = tr.dataset.txType || '';
+        const matchCat = !cat || trCat === cat;
+        let matchType = true;
+        if (type === 'receipt') {
+          matchType = (trType === 'receipt');
+        } else if (type === 'payment') {
+          matchType = (trType === 'payment');
+        }
+        const show = matchCat && matchType;
+        tr.style.display = show ? '' : 'none';
+        if (show) visibleCount++;
+      });
+      let emptyRow = el('bankBookEmptyRow');
+      if (visibleCount === 0) {
+        if (!emptyRow && typeof document !== 'undefined' && typeof document.createElement === 'function') {
+          emptyRow = document.createElement('tr');
+          emptyRow.id = 'bankBookEmptyRow';
+          emptyRow.innerHTML = '<td colspan="6" style="text-align:center; padding:24px; color:var(--text-muted, #888); font-style:italic;">No transactions match the selected filters.</td>';
+          const tbody = qs('#bankBookTable tbody');
+          if (tbody) tbody.appendChild(emptyRow);
+        } else if (emptyRow) {
+          emptyRow.style.display = '';
+        }
+      } else if (emptyRow) {
+        if (typeof emptyRow.remove === 'function') {
+          emptyRow.remove();
+        } else {
+          emptyRow.style.display = 'none';
+        }
+      }
+      updateBankBookTotals();
+    }
+    function clearBankBookFilters() {
+      if (el('bankBookCategoryFilter')) el('bankBookCategoryFilter').value = '';
+      if (el('bankBookTypeFilter')) el('bankBookTypeFilter').value = '';
+      applyBankBookFilter();
+    }
     function updateBankBookTotals() {
+      const cat = el('bankBookCategoryFilter') ? el('bankBookCategoryFilter').value : '';
+      const type = el('bankBookTypeFilter') ? el('bankBookTypeFilter').value : '';
       const dataRows = window._bankBookRows || [];
       let totDeposit = 0;
       let totWithdrawal = 0;
-      const trs = qsa('#bankBookTable tbody tr');
-      if (trs.length > 1) {
-        const hasHidden = Array.from(trs).some(tr => tr.style.display === 'none');
-        if (hasHidden) {
-          dataRows.forEach((r, idx) => {
-            const tr = trs[idx + 1];
-            if (tr && tr.style.display === 'none') return;
-            totDeposit += (parseFloat(r.deposit) || 0);
-            totWithdrawal += (parseFloat(r.withdrawal) || 0);
-          });
-        } else {
-          dataRows.forEach(r => {
-            totDeposit += (parseFloat(r.deposit) || 0);
-            totWithdrawal += (parseFloat(r.withdrawal) || 0);
-          });
-        }
-      } else {
-        dataRows.forEach(r => {
-          totDeposit += (parseFloat(r.deposit) || 0);
-          totWithdrawal += (parseFloat(r.withdrawal) || 0);
-        });
-      }
+      dataRows.forEach(r => {
+        if (cat && r.category !== cat) return;
+        const isReceipt = (parseFloat(r.deposit) || 0) > 0;
+        const isPayment = (parseFloat(r.withdrawal) || 0) > 0;
+        if (type === 'receipt' && !isReceipt) return;
+        if (type === 'payment' && !isPayment) return;
+        totDeposit += (parseFloat(r.deposit) || 0);
+        totWithdrawal += (parseFloat(r.withdrawal) || 0);
+      });
       const depEl = el('bankBookTotalDeposit');
       const wdrEl = el('bankBookTotalWithdrawal');
       if (depEl) depEl.innerHTML = `<b>${fmtMoney(totDeposit)}</b>`;
       if (wdrEl) wdrEl.innerHTML = `<b>${fmtMoney(totWithdrawal)}</b>`;
+    }
+    function exportBankBookCSV() {
+      const csvRows = [['Date', 'Particulars', 'Description', 'Deposit', 'Withdrawal', 'Balance']];
+      const cat = el('bankBookCategoryFilter') ? el('bankBookCategoryFilter').value : '';
+      const type = el('bankBookTypeFilter') ? el('bankBookTypeFilter').value : '';
+      const s = window.APP_SETTINGS || {};
+      /* Opening balance row */
+      if ((!cat || cat === 'Opening Balance') && (!type || type === 'all')) {
+        csvRows.push([fmtDate(s.startDate), 'Opening Balance', '—', '-', '-', fmtMoney(s.openingBank)]);
+      }
+      const dataRows = window._bankBookRows || [];
+      let totDeposit = 0;
+      let totWithdrawal = 0;
+      dataRows.forEach(r => {
+        if (cat && r.category !== cat) return;
+        const isReceipt = (parseFloat(r.deposit) || 0) > 0;
+        const isPayment = (parseFloat(r.withdrawal) || 0) > 0;
+        if (type === 'receipt' && !isReceipt) return;
+        if (type === 'payment' && !isPayment) return;
+        totDeposit += (parseFloat(r.deposit) || 0);
+        totWithdrawal += (parseFloat(r.withdrawal) || 0);
+        csvRows.push([fmtDate(r.date), r.particulars, (r.description != null && String(r.description).trim() !== '') ? String(r.description).trim() : '—', r.deposit ? fmtMoney(r.deposit) : '-', r.withdrawal ? fmtMoney(r.withdrawal) : '-', fmtMoney(r.balance)]);
+      });
+      csvRows.push(['TOTAL', '—', '—', fmtMoney(totDeposit), fmtMoney(totWithdrawal), '—']);
+      downloadCSV(csvRows, 'BankBook');
     }
     function printGenericTable(title, tableEl) {
       const s = window.APP_SETTINGS;
@@ -15182,9 +16247,10 @@
       const combined = [
         ...receipts.map(r => {
           const desc = r.description && String(r.description).trim();
-          return { date: r.date, voucher: r.receiptNo, particulars: `${r.name} - ${r.category}`, description: desc || '', fund: r.fund, debit: 0, credit: r.amount };
+          const rCat = (typeof resolveReceiptCategory === 'function' ? resolveReceiptCategory(r) : r.category) || 'General';
+          return { date: r.date, voucher: r.receiptNo || '', particulars: `${r.name} - ${rCat}`, description: desc || '', fund: r.fund, debit: 0, credit: r.amount };
         }),
-        ...payments.map(p => ({ date: p.date, voucher: p.voucherNo, particulars: p.paidTo + ' - ' + p.category, description: (p.description && String(p.description).trim()) || '', fund: p.fund, debit: p.amount, credit: 0 }))
+        ...payments.map(p => ({ date: p.date, voucher: p.voucherNo || '', particulars: p.paidTo + ' - ' + p.category, description: (p.description && String(p.description).trim()) || '', fund: p.fund, debit: p.amount, credit: 0 }))
       ].sort((a, b) => a.date.localeCompare(b.date));
       window._ledgerRows = combined; /* Cache for dynamic recalculation and testing */
 
@@ -15203,7 +16269,7 @@
     <div class="table-wrap" data-motion="fadeIn"><table id="ledgerTable">
       <thead><tr><th>Date</th><th>Voucher/Receipt No.</th><th>Particulars</th><th>Description</th><th>Fund</th><th>Debit</th><th>Credit</th></tr></thead>
       <tbody>
-        ${combined.map(x => `<tr data-date="${x.date}" data-fund="${esc(x.fund)}" data-debit="${x.debit || 0}" data-credit="${x.credit || 0}"><td>${fmtDate(x.date)}</td><td>${esc(x.voucher)}</td><td>${esc(x.particulars)}</td><td>${x.description && String(x.description).trim() ? esc(String(x.description).trim()) : ''}</td><td>${esc(x.fund)}</td><td>${x.debit ? fmtMoney(x.debit) : '-'}</td><td>${x.credit ? fmtMoney(x.credit) : '-'}</td></tr>`).join('')}
+        ${combined.map(x => `<tr data-date="${x.date}" data-fund="${esc(x.fund)}" data-debit="${x.debit || 0}" data-credit="${x.credit || 0}"><td>${fmtDate(x.date)}</td><td>${(x.voucher && String(x.voucher).trim()) ? esc(x.voucher) : '—'}</td><td>${esc(x.particulars)}</td><td>${x.description && String(x.description).trim() ? esc(String(x.description).trim()) : ''}</td><td>${esc(x.fund)}</td><td>${x.debit ? fmtMoney(x.debit) : '-'}</td><td>${x.credit ? fmtMoney(x.credit) : '-'}</td></tr>`).join('')}
       </tbody>
       <tfoot id="ledgerTFoot">
         <tr id="ledgerTotalRow" class="ledger-total-row" style="font-weight: bold; background: var(--surface, #fafafa); border-top: 2px solid var(--border, #333);">
@@ -16416,8 +17482,8 @@
       <div class="stat-card ${income - expense >= 0 ? 'accent-green' : 'accent-red'}" data-motion="calmInUp"><div class="stat-label">NET</div><div class="stat-value">${fmtMoney(income - expense)}</div></div>
     </div>
     <div class="panel-row" data-motion="calmInUp">
-      <div class="panel"><h3>Receipts</h3>${simpleList(receipts.map(r => `${esc(r.receiptNo)} · ${fmtDate(r.date)} · ${esc(r.name)} — ${fmtMoney(r.amount)}`))}</div>
-      <div class="panel"><h3>Payments</h3>${simpleList(payments.map(p => `${esc(p.voucherNo)} · ${fmtDate(p.date)} · ${esc(p.paidTo)} — ${fmtMoney(p.amount)}`))}</div>
+      <div class="panel"><h3>Receipts</h3>${simpleList(receipts.map(r => `${esc(r.receiptNo || '—')} · ${fmtDate(r.date)} · ${esc(r.name)} — ${fmtMoney(r.amount)}`))}</div>
+      <div class="panel"><h3>Payments</h3>${simpleList(payments.map(p => `${esc(p.voucherNo || '—')} · ${fmtDate(p.date)} · ${esc(p.paidTo)} — ${fmtMoney(p.amount)}`))}</div>
     </div>
   `;
       initMotionObserver(el('reportResult'));
@@ -19455,17 +20521,18 @@
         const list = await allReceipts();
         const rows = [['ReceiptNo', 'Date', 'Name', 'Mobile', 'Fund', 'Category', 'Description', 'PaymentMode', 'BankAccount', 'Amount', 'Remarks', 'Status', 'Type']];
         list.forEach(r => {
-          const isPhysPU = r.physicalType === 'PU' || (r.receiptNo && /^PU[1-9]\d*$/i.test(r.receiptNo.trim()));
-          const isPhysP = !isPhysPU && (r.physicalType === 'P' || (r.receiptNo && /^P[1-9]\d*$/i.test(r.receiptNo.trim())));
-          const typeLabel = isPhysPU ? 'Physical Punarudharanam' : (isPhysP ? 'Physical Puja' : 'Software');
-          rows.push([r.receiptNo, r.date, r.name, r.mobile, r.fund, r.category, r.description, r.paymentMode, r.bankAccount, r.amount, r.remarks, r.voided ? 'Voided' : 'Active', typeLabel]);
+          const isCustom = !r.receiptNo || r.receiptType === 'custom' || r.isCustom === true;
+          const isPhysPU = !isCustom && (r.physicalType === 'PU' || (r.receiptNo && /^PU[1-9]\d*$/i.test(r.receiptNo.trim())));
+          const isPhysP = !isCustom && !isPhysPU && (r.physicalType === 'P' || (r.receiptNo && /^P[1-9]\d*$/i.test(r.receiptNo.trim())));
+          const typeLabel = isCustom ? 'Unnumbered' : (isPhysPU ? 'Physical Punarudharanam' : (isPhysP ? 'Physical Puja' : 'Software'));
+          rows.push([r.receiptNo || '', r.date, r.name, r.mobile, r.fund, r.category, r.description, r.paymentMode, r.bankAccount, r.amount, r.remarks, r.voided ? 'Voided' : 'Active', typeLabel]);
         });
         downloadCSV(rows, 'Receipts');
 
       } else if (type === 'payments') {
         const list = await allPayments();
         const rows = [['VoucherNo', 'Date', 'PaidTo', 'Fund', 'Category', 'Description', 'PaymentMode', 'BankAccount', 'Amount', 'BillNo', 'Remarks', 'Status']];
-        list.forEach(p => rows.push([p.voucherNo, p.date, p.paidTo, p.fund, p.category, p.description, p.paymentMode, p.bankAccount, p.amount, p.billNo, p.remarks, p.voided ? 'Voided' : 'Active']));
+        list.forEach(p => rows.push([p.voucherNo || '', p.date, p.paidTo, p.fund, p.category, p.description, p.paymentMode, p.bankAccount, p.amount, p.billNo, p.remarks, p.voided ? 'Voided' : 'Active']));
         downloadCSV(rows, 'Payments');
       } else if (type === 'chittyMembers') {
         const list = await allChittyMembers();
@@ -19490,16 +20557,16 @@
       const q = el('globalSearch').value.trim().toLowerCase();
       if (!q) return;
       const [receipts, payments] = await Promise.all([allReceipts(), allPayments()]);
-      const rMatches = receipts.filter(r => [r.receiptNo, r.name, r.mobile, r.category, r.fund, r.description, String(r.amount)].join(' ').toLowerCase().includes(q));
-      const pMatches = payments.filter(p => [p.voucherNo, p.paidTo, p.category, p.fund, p.description, p.billNo, String(p.amount)].join(' ').toLowerCase().includes(q));
+      const rMatches = receipts.filter(r => [r.receiptNo || '', r.name, r.mobile, r.category, r.fund, r.description, String(r.amount)].join(' ').toLowerCase().includes(q));
+      const pMatches = payments.filter(p => [p.voucherNo || '', p.paidTo, p.category, p.fund, p.description, p.billNo, String(p.amount)].join(' ').toLowerCase().includes(q));
       const main = el('app-main');
       el('topbar-title').textContent = 'Search Results';
       qsa('.nav-item').forEach(b => b.classList.remove('active'));
       main.innerHTML = `
     <button class="btn-outline btn-sm" onclick="navigate('dashboard')">← Back to Dashboard</button>
     <div class="panel-row" style="margin-top:14px;">
-      <div class="panel"><h3>Receipts (${rMatches.length})</h3>${simpleList(rMatches.map(r => `${esc(r.receiptNo)} · ${fmtDate(r.date)} · ${esc(r.name)} — ${fmtMoney(r.amount)}`))}</div>
-      <div class="panel"><h3>Payments (${pMatches.length})</h3>${simpleList(pMatches.map(p => `${esc(p.voucherNo)} · ${fmtDate(p.date)} · ${esc(p.paidTo)} — ${fmtMoney(p.amount)}`))}</div>
+      <div class="panel"><h3>Receipts (${rMatches.length})</h3>${simpleList(rMatches.map(r => `${esc(r.receiptNo || '—')} · ${fmtDate(r.date)} · ${esc(r.name)} — ${fmtMoney(r.amount)}`))}</div>
+      <div class="panel"><h3>Payments (${pMatches.length})</h3>${simpleList(pMatches.map(p => `${esc(p.voucherNo || '—')} · ${fmtDate(p.date)} · ${esc(p.paidTo)} — ${fmtMoney(p.amount)}`))}</div>
     </div>
   `;
     }
@@ -21633,8 +22700,12 @@ void main(){
             }
             if (docSnap && docSnap.exists) {
               const data = docSnap.data();
+              const normCat = (storeName === 'receipts' && typeof resolveReceiptCategory === 'function')
+                ? resolveReceiptCategory(data)
+                : '';
               return {
                 ...data,
+                ...(normCat ? { category: normCat } : {}),
                 firestoreId: docSnap.id,
                 id: (data.legacyId !== undefined && data.legacyId !== null) ? data.legacyId : (data.id !== undefined ? data.id : docSnap.id)
               };
@@ -21647,7 +22718,28 @@ void main(){
 
       if (typeof getOne === 'function') {
         try {
-          return await getOne(storeName, id);
+          let rec = await getOne(storeName, id);
+          if (!rec && !isNaN(Number(id)) && typeof id !== 'number') {
+            rec = await getOne(storeName, Number(id));
+          }
+          if (!rec && typeof id === 'number') {
+            rec = await getOne(storeName, String(id));
+          }
+          if (!rec && typeof id === 'string' && id.includes('_')) {
+            const numPart = parseInt(id.split('_').pop(), 10);
+            if (!isNaN(numPart)) rec = await getOne(storeName, numPart);
+          }
+          if (!rec) {
+            const prefix = getDeterministicDocPrefix(storeName);
+            rec = await getOne(storeName, `${prefix}${id}`);
+          }
+          if (rec && storeName === 'receipts' && typeof resolveReceiptCategory === 'function') {
+            const normCat = resolveReceiptCategory(rec);
+            if (normCat && (!rec.category || String(rec.category).trim() !== normCat)) {
+              rec = { ...rec, category: normCat };
+            }
+          }
+          return rec || null;
         } catch (e) {
           console.warn(`[Repository] IndexedDB getOne failed for ${storeName}/${id}:`, e);
         }
@@ -21876,8 +22968,12 @@ void main(){
       // 2. Update IndexedDB cache
       if (typeof getOne === 'function' && typeof putRec === 'function') {
         try {
-          const cached = (await getOne(storeName, id)) || {};
-          await putRec(storeName, { ...cached, ...payload, id: id });
+          const targetId = (updates && updates.id !== undefined && updates.id !== null) ? updates.id : id;
+          const cached = (await getOne(storeName, targetId)) || (await getOne(storeName, id)) || (await getOne(storeName, docId)) || {};
+          await putRec(storeName, { ...cached, ...payload, id: targetId });
+          if (targetId !== id && typeof id === 'string' && id.includes('_')) {
+            try { await putRec(storeName, { ...cached, ...payload, id: id }); } catch (_) {}
+          }
         } catch (cacheErr) {
           console.warn(`[Repository] Cache update warning for ${storeName}/${id}:`, cacheErr);
         }
@@ -22240,42 +23336,28 @@ void main(){
 
       await db.runTransaction(async (tx) => {
         const counterRef = getFsCountersDocRef();
-        const [bSnap, cSnap] = await Promise.all([
+        const rcptRef = linkedRcptDocId ? db.collection('receipts').doc(linkedRcptDocId) : null;
+        const resRef = resDocId ? db.collection('system').doc(resDocId) : null;
+        const opRef = opDocId ? db.collection('system').doc(opDocId) : null;
+
+        // 1. Read target bill document
+        // 2. Read linked receipt, reservation, counter, operation documents
+        // 3. Complete all other necessary transaction reads (collections for sequence recalculation)
+        const [bSnap, cSnap, rSnap, resSnap, opSnap, allBillingSnap, allReceiptsSnap, allSystemSnap] = await Promise.all([
           tx.get(billRef),
-          tx.get(counterRef)
-        ]);
-
-        if (!bSnap.exists) {
-          throw new Error(`Billing record "${billDocId}" does not exist in Firestore.`);
-        }
-
-        let rcptRef = linkedRcptDocId ? db.collection('receipts').doc(linkedRcptDocId) : null;
-        let rSnap = rcptRef ? await tx.get(rcptRef) : null;
-
-        let resRef = resDocId ? db.collection('system').doc(resDocId) : null;
-        let resSnap = resRef ? await tx.get(resRef) : null;
-
-        let opRef = opDocId ? db.collection('system').doc(opDocId) : null;
-        let opSnap = opRef ? await tx.get(opRef) : null;
-
-        // Perform deletions
-        tx.delete(billRef);
-        if (rSnap && rSnap.exists) {
-          tx.delete(rcptRef);
-        }
-        if (resSnap && resSnap.exists) {
-          tx.delete(resRef);
-        }
-        if (opSnap && opSnap.exists) {
-          tx.delete(opRef);
-        }
-
-        // Query remaining records to recalculate maximum remaining sequence numbers
-        const [allBillingSnap, allReceiptsSnap, allSystemSnap] = await Promise.all([
+          tx.get(counterRef),
+          rcptRef ? tx.get(rcptRef) : Promise.resolve(null),
+          resRef ? tx.get(resRef) : Promise.resolve(null),
+          opRef ? tx.get(opRef) : Promise.resolve(null),
           db.collection('billing').get(),
           db.collection('receipts').get(),
           db.collection('system').get()
         ]);
+
+        // 4. Validate document existence and deletion eligibility
+        if (!bSnap.exists) {
+          throw new Error(`Billing record "${billDocId}" does not exist in Firestore.`);
+        }
 
         let maxRemainingSeq = 0;
         let maxRemainingBill = 0;
@@ -22342,6 +23424,18 @@ void main(){
         const cData = cSnap.exists ? cSnap.data() : {};
         const currentGlobal = (typeof cData.globalSequenceCounter === 'number') ? cData.globalSequenceCounter : 0;
 
+        // 5. Only after all reads are complete, perform required writes and deletes
+        tx.delete(billRef);
+        if (rSnap && rSnap.exists) {
+          tx.delete(rcptRef);
+        }
+        if (resSnap && resSnap.exists) {
+          tx.delete(resRef);
+        }
+        if (opSnap && opSnap.exists) {
+          tx.delete(opRef);
+        }
+
         // Trailing-number reuse: If deleted bill was at or above current counter OR exceeds maxRemainingSeq
         if (!isNaN(deletedNum) && (deletedNum >= currentGlobal || deletedNum > maxRemainingSeq)) {
           const updatePayload = {
@@ -22392,12 +23486,13 @@ void main(){
     }
 
     /**
-     * STEP 33.164: Authoritative atomic deletion of receipts with trailing-number reuse.
+     * STEP 33.164 / STEP 33.171: Authoritative atomic deletion of receipts with trailing-number reuse.
+     * Enforces strict read-before-write ordering in all Firestore transactions.
      * If linked to a bill, invokes fsDeleteBillingRecord to atomically delete both records.
      * If an independent software receipt, permanently deletes rcpt document and reservation document,
      * and recalculates globalSequenceCounter if it was the highest in sequence.
-     * If a physical receipt, permanently deletes physical receipt document and reservation without touching
-     * software counters.
+     * If a physical receipt, permanently deletes physical receipt document, reservation, and operation
+     * without modifying software counters.
      */
     async function fsDeleteReceiptRecord(rcptDocIdOrId) {
       const user = getCurrentFirebaseUser();
@@ -22405,37 +23500,132 @@ void main(){
       const db = getFirestoreDb();
       if (!db) throw new Error('Firestore is not initialized.');
 
-      const rcptDocId = (typeof rcptDocIdOrId === 'string' && (rcptDocIdOrId.startsWith('rcpt_') || rcptDocIdOrId.startsWith('rcpt_phys_')))
+      let rcptDocId = (typeof rcptDocIdOrId === 'string' && (rcptDocIdOrId.startsWith('rcpt_') || rcptDocIdOrId.startsWith('rcpt_phys_')))
         ? rcptDocIdOrId
         : `rcpt_${rcptDocIdOrId}`;
-      const rcptRef = db.collection('receipts').doc(rcptDocId);
+      let rcptRef = db.collection('receipts').doc(rcptDocId);
 
       let directSnap = await rcptRef.get();
       let rcptData = directSnap.exists ? directSnap.data() : null;
+
+      // If not found directly, check physical candidate ID if identifier matches physical pattern
+      if (!rcptData && typeof parsePhysicalReceiptIdentifier === 'function') {
+        const stripped = String(rcptDocIdOrId).replace(/^rcpt_phys_/, '').replace(/^rcpt_/, '').replace(/^phys_/, '');
+        const parsedPhys = parsePhysicalReceiptIdentifier(stripped);
+        if (parsedPhys && parsedPhys.valid) {
+          const physCandidateRef = db.collection('receipts').doc(`rcpt_phys_${parsedPhys.formattedId}`);
+          const physCandidateSnap = await physCandidateRef.get();
+          if (physCandidateSnap.exists) {
+            rcptData = physCandidateSnap.data();
+            rcptRef = physCandidateRef;
+            rcptDocId = `rcpt_phys_${parsedPhys.formattedId}`;
+          }
+        }
+      }
+
+      // If not found, check raw identifier as docId
       if (!rcptData) {
         const altRef = db.collection('receipts').doc(String(rcptDocIdOrId));
         const altSnap = await altRef.get();
-        if (altSnap.exists) rcptData = altSnap.data();
+        if (altSnap.exists) {
+          rcptData = altSnap.data();
+          rcptRef = altRef;
+          rcptDocId = String(rcptDocIdOrId);
+        }
       }
+
+      // If still not found, search by receiptNo query
+      if (!rcptData) {
+        try {
+          const qSnap = await db.collection('receipts').where('receiptNo', '==', String(rcptDocIdOrId)).limit(1).get();
+          if (!qSnap.empty) {
+            const foundDoc = qSnap.docs[0];
+            rcptData = foundDoc.data();
+            rcptRef = foundDoc.ref;
+            rcptDocId = foundDoc.id;
+          }
+        } catch (qErr) { }
+      }
+
       if (!rcptData) {
         throw new Error(`Receipt record "${rcptDocId}" does not exist in Firestore.`);
       }
 
       // Check physical receipt
-      const isPhysical = rcptDocId.startsWith('rcpt_phys_') || (typeof parsePhysicalReceiptIdentifier === 'function' && parsePhysicalReceiptIdentifier(rcptData.receiptNo)?.valid);
+      const isPhysical = rcptDocId.startsWith('rcpt_phys_')
+        || (rcptData && (rcptData.source === 'physical' || rcptData.isPhysical === true))
+        || (typeof parsePhysicalReceiptIdentifier === 'function' && !!parsePhysicalReceiptIdentifier(rcptData.receiptNo)?.valid)
+        || (typeof parsePhysicalReceiptIdentifier === 'function' && !!parsePhysicalReceiptIdentifier(rcptDocId.replace(/^rcpt_/, ''))?.valid);
+
       if (isPhysical) {
-        const parsedPhys = (typeof parsePhysicalReceiptIdentifier === 'function' ? parsePhysicalReceiptIdentifier(rcptData.receiptNo) : null) || {};
-        const physId = parsedPhys.formattedId || rcptDocId.replace('rcpt_phys_', '');
-        const physResRef = db.collection('system').doc(`res_phys_${physId}`);
-        const opDocRef = rcptData.operationId ? db.collection('system').doc(rcptData.operationId.startsWith('op_') ? rcptData.operationId : `op_${rcptData.operationId}`) : null;
+        let physId = null;
+        if (typeof parsePhysicalReceiptIdentifier === 'function') {
+          const p1 = parsePhysicalReceiptIdentifier(rcptData.receiptNo);
+          if (p1 && p1.valid) physId = p1.formattedId;
+          if (!physId) {
+            const strippedDoc = rcptDocId.replace(/^rcpt_phys_/, '').replace(/^rcpt_/, '');
+            const p2 = parsePhysicalReceiptIdentifier(strippedDoc);
+            if (p2 && p2.valid) physId = p2.formattedId;
+          }
+        }
+        if (!physId) {
+          physId = rcptDocId.replace(/^rcpt_phys_/, '').replace(/^rcpt_/, '');
+        }
+
+        const physResDocId = `res_phys_${physId}`;
+        const physResRef = db.collection('system').doc(physResDocId);
+        const altResRef = (rcptData.reservationDocId && rcptData.reservationDocId !== physResDocId)
+          ? db.collection('system').doc(rcptData.reservationDocId)
+          : null;
+
+        let opDocRef = null;
+        if (rcptData.operationId) {
+          const opId = rcptData.operationId;
+          const opDocId = (typeof opId === 'string' && opId.startsWith('op_')) ? opId : `op_${opId}`;
+          opDocRef = db.collection('system').doc(opDocId);
+        }
 
         await db.runTransaction(async (tx) => {
-          tx.delete(rcptRef);
-          const prSnap = await tx.get(physResRef);
-          if (prSnap.exists) tx.delete(physResRef);
+          // 1. Read the target receipt document
+          // 2. Read any relevant linked reservation or operation documents
+          // 3. Complete all other necessary transaction reads
+          const readPromises = [
+            tx.get(rcptRef),
+            tx.get(physResRef)
+          ];
+          if (altResRef) {
+            readPromises.push(tx.get(altResRef));
+          }
           if (opDocRef) {
-            const opSnap = await tx.get(opDocRef);
-            if (opSnap.exists) tx.delete(opDocRef);
+            readPromises.push(tx.get(opDocRef));
+          }
+          const readSnaps = await Promise.all(readPromises);
+          const rcptSnap = readSnaps[0];
+          const prSnap = readSnaps[1];
+          let nextIdx = 2;
+          const altResSnap = altResRef ? readSnaps[nextIdx++] : null;
+          const opSnap = opDocRef ? readSnaps[nextIdx++] : null;
+
+          // 4. Validate document existence, receipt type, linkage, and deletion eligibility
+          if (!rcptSnap.exists) {
+            throw new Error(`Receipt record "${rcptDocId}" does not exist in Firestore.`);
+          }
+          const rSnapData = rcptSnap.data() || {};
+          const isLinkedTx = (rSnapData.source === 'billing' || !!rSnapData.billingFirestoreId || !!rSnapData.billingId || !!rSnapData.billingReceiptNo);
+          if (isLinkedTx) {
+            throw new Error(`Cannot delete receipt "${rcptDocId}" as physical: record is linked to billing.`);
+          }
+
+          // 5. Only after all reads are complete, perform the required writes and deletes
+          tx.delete(rcptRef);
+          if (prSnap && prSnap.exists) {
+            tx.delete(physResRef);
+          }
+          if (altResSnap && altResSnap.exists) {
+            tx.delete(altResRef);
+          }
+          if (opDocRef && opSnap && opSnap.exists) {
+            tx.delete(opDocRef);
           }
         });
 
@@ -22445,11 +23635,22 @@ void main(){
             await deleteRec('receipts', physId);
             await deleteRec('receipts', `rcpt_phys_${physId}`);
             if (rcptDocIdOrId !== rcptDocId) await deleteRec('receipts', rcptDocIdOrId);
+            if (rcptData.id !== undefined && rcptData.id !== physId && rcptData.id !== rcptDocId) {
+              await deleteRec('receipts', rcptData.id);
+            }
           } catch (cacheErr) {
             console.warn('[fsDeleteReceiptRecord] Cache eviction warning for physical receipt:', cacheErr);
           }
         }
-        return { success: true, isPhysical: true, physId };
+
+        try {
+          const pendingOp = localStorage.getItem('temple_pending_receipt_op');
+          if (pendingOp && rcptData.operationId && pendingOp.includes(rcptData.operationId)) {
+            localStorage.removeItem('temple_pending_receipt_op');
+          }
+        } catch (e) { }
+
+        return { success: true, isPhysical: true, physId, rcptDocId };
       }
 
       // Check if linked to a bill
@@ -22477,35 +23678,26 @@ void main(){
 
       await db.runTransaction(async (tx) => {
         const counterRef = getFsCountersDocRef();
-        const [rSnap, cSnap] = await Promise.all([
+        const resRef = resDocId ? db.collection('system').doc(resDocId) : null;
+        const opRef = opDocId ? db.collection('system').doc(opDocId) : null;
+
+        // 1. Read the target receipt document
+        // 2. Read any relevant counter, reservation, or operation documents
+        // 3. Complete all other necessary transaction reads (remaining collections for sequence recalculation)
+        const [rSnap, cSnap, resSnap, opSnap, allBillingSnap, allReceiptsSnap, allSystemSnap] = await Promise.all([
           tx.get(rcptRef),
-          tx.get(counterRef)
-        ]);
-
-        if (!rSnap.exists) {
-          throw new Error(`Receipt record "${rcptDocId}" does not exist in Firestore.`);
-        }
-
-        let resRef = resDocId ? db.collection('system').doc(resDocId) : null;
-        let resSnap = resRef ? await tx.get(resRef) : null;
-
-        let opRef = opDocId ? db.collection('system').doc(opDocId) : null;
-        let opSnap = opRef ? await tx.get(opRef) : null;
-
-        tx.delete(rcptRef);
-        if (resSnap && resSnap.exists) {
-          tx.delete(resRef);
-        }
-        if (opSnap && opSnap.exists) {
-          tx.delete(opRef);
-        }
-
-        // Query remaining records to recalculate maximum remaining sequence
-        const [allBillingSnap, allReceiptsSnap, allSystemSnap] = await Promise.all([
+          tx.get(counterRef),
+          resRef ? tx.get(resRef) : Promise.resolve(null),
+          opRef ? tx.get(opRef) : Promise.resolve(null),
           db.collection('billing').get(),
           db.collection('receipts').get(),
           db.collection('system').get()
         ]);
+
+        // 4. Validate document existence, receipt type, linkage, and deletion eligibility
+        if (!rSnap.exists) {
+          throw new Error(`Receipt record "${rcptDocId}" does not exist in Firestore.`);
+        }
 
         let maxRemainingSeq = 0;
         let maxRemainingBill = 0;
@@ -22569,6 +23761,15 @@ void main(){
 
         const cData = cSnap.exists ? cSnap.data() : {};
         const currentGlobal = (typeof cData.globalSequenceCounter === 'number') ? cData.globalSequenceCounter : 0;
+
+        // 5. Only after all reads are complete, perform the required writes and deletes
+        tx.delete(rcptRef);
+        if (resSnap && resSnap.exists) {
+          tx.delete(resRef);
+        }
+        if (opSnap && opSnap.exists) {
+          tx.delete(opRef);
+        }
 
         if (!isNaN(deletedNum) && (deletedNum >= currentGlobal || deletedNum > maxRemainingSeq)) {
           const updatePayload = {
@@ -23620,12 +24821,12 @@ void main(){
         const incomingFp = computeReceiptFingerprint({ ...receiptInput, manualReceiptNo: physId });
 
         // 4. Resolve fund and category accounting mappings
-        const resolvedFund = (parsed.type === 'PU')
-          ? 'Punarudharanam Fund'
-          : (parsed.type === 'P' ? 'General Temple Fund' : (receiptInput.fund || parsed.fund));
-        const resolvedCategory = (parsed.type === 'PU')
-          ? 'Donation Income'
-          : ((receiptInput.category && receiptInput.category !== 'Donation Income') ? receiptInput.category : (parsed.category || 'Pooja Income'));
+        const resolvedFund = (receiptInput.fund && String(receiptInput.fund).trim())
+          ? String(receiptInput.fund).trim()
+          : (parsed.type === 'PU' ? 'Punarudharanam Fund' : (parsed.type === 'P' ? 'General Temple Fund' : (parsed.fund || 'General Temple Fund')));
+        const resolvedCategory = (receiptInput.category && String(receiptInput.category).trim())
+          ? String(receiptInput.category).trim()
+          : (parsed.category || (parsed.type === 'PU' ? 'Donation Income' : 'Pooja Income'));
 
         // 5. Construct physical receipt document in 'receipts' collection
         const recPayload = {
@@ -24165,6 +25366,10 @@ void main(){
     window.onBillingLinkedFieldsChanged = onBillingLinkedFieldsChanged;
     window.onBillingAmountInput = onBillingAmountInput;
     window.nextVoucherNo = nextVoucherNo;
+    window.toggleCustomPaymentMode = toggleCustomPaymentMode;
+    window.setCustomPaymentMode = toggleCustomPaymentMode;
+    window.updatePaymentVoucherPreview = updatePaymentVoucherPreview;
+    window.savePayment = savePayment;
     window.activeTransfers = activeTransfers;
     window.loadAuthoritativeMasterData = loadAuthoritativeMasterData;
     window.fsCreateBillingWithAccounting = fsCreateBillingWithAccounting;
