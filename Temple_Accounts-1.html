@@ -7640,6 +7640,21 @@
       return true;
 }
 
+    function isFirestoreQuotaExceeded(err) {
+      if (!err) return false;
+      if (typeof isBrowserStorageQuotaExceeded === 'function' && isBrowserStorageQuotaExceeded(err)) return false;
+      if (err.code === 'resource-exhausted' || err.code === 'RESOURCE_EXHAUSTED') return true;
+      const msg = String(err.message || err.details || err || '').toLowerCase();
+      return msg.includes('quota exceeded') || msg.includes('resource_exhausted') || msg.includes('quota limit') || (msg.includes('quota') && msg.includes('firestore'));
+    }
+
+    function isBrowserStorageQuotaExceeded(err) {
+      if (!err) return false;
+      if (err.name === 'QuotaExceededError' || err.name === 'NS_ERROR_DOM_QUOTA_REACHED' || err.code === 22 || err.number === -2147024882) return true;
+      const msg = String(err.message || err || '').toLowerCase();
+      return msg.includes('quotaexceedederror') || (msg.includes('quota') && (msg.includes('storage') || msg.includes('localstorage') || msg.includes('indexeddb') || msg.includes('setitem')));
+    }
+
     const DB_NAME = isEmulatorModeActive() ? 'temple_accounts_test_db' : 'temple_accounts_db';
     const DB_VERSION = 3;
     const STORES = ['settings', 'funds', 'incomeCategories', 'expenseCategories', 'bankAccounts',
@@ -10388,11 +10403,16 @@
       };
 
       let savedRec = null;
+      let persistenceError = null;
       try {
         if (editId) {
           const prior = await fsGetOneSafe('receipts', editId);
           if (prior && prior.voided) {
             alert('Voided receipts cannot be edited.');
+            window.isReceiptSaving = false;
+            if (saveBtn) saveBtn.disabled = false;
+            if (savePrintBtn) savePrintBtn.disabled = false;
+            if (blockBtn) blockBtn.disabled = false;
             return;
           }
           const isBillingLinked = !!(fd.get('isBillingLinked') === '1' || (prior && (prior.source === 'billing' || prior.billingFirestoreId || prior.billingId || prior.billingReceiptNo)));
@@ -10642,18 +10662,7 @@
             operationId: opId
           });
 
-          try {
-            localStorage.removeItem('temple_pending_phys_receipt_op');
-          } catch (e) { }
-
           savedRec = result.receiptRecord;
-          try {
-            if (typeof putRec === 'function') {
-              await putRec('receipts', savedRec);
-            }
-          } catch (cacheErr) {
-            console.warn('[saveReceipt] Physical receipt local cache update warning:', cacheErr);
-          }
           // Note: globalSequenceCounter is strictly protected and NEVER modified for physical receipts!
         } else {
           // Authoritative atomic independent receipt creation in Firestore with retry-safe idempotency
@@ -10702,29 +10711,52 @@
             operationId: opId
           });
 
-          try {
-            localStorage.removeItem('temple_pending_receipt_op');
-          } catch (e) { }
-
           savedRec = result.receiptRecord;
-          try {
-            if (typeof putRec === 'function') {
-              await putRec('receipts', savedRec);
-            }
-            const s = (await getOne('settings', 1)) || window.APP_SETTINGS || { id: 1 };
-            s.globalSequenceCounter = savedRec.id;
-            window.APP_SETTINGS = s;
-            if (typeof putRec === 'function') {
-              await putRec('settings', s);
-            }
-          } catch (cacheErr) {
-            console.warn('[saveReceipt] Independent receipt local cache update warning:', cacheErr);
-          }
         }
       } catch (err) {
-        console.error('Error persisting receipt to Firestore:', err);
-        alert('Unable to confirm receipt persistence: ' + (err.message || err) + '\n\nIf the server completed the transaction, clicking Save Receipt again will safely verify and recover the existing record without allocating another number.');
+        persistenceError = err;
+      }
+
+      // Check if server transaction failed or encountered an error before confirmation
+      if (!savedRec || persistenceError) {
+        console.error('Error persisting receipt to Firestore:', persistenceError);
+        const isQuota = typeof isFirestoreQuotaExceeded === 'function'
+          ? isFirestoreQuotaExceeded(persistenceError)
+          : (persistenceError && (persistenceError.code === 'resource-exhausted' || String(persistenceError.message || persistenceError).toLowerCase().includes('quota')));
+
+        if (isQuota) {
+          alert('Cloud Firestore storage/operation quota exceeded.\n\nThe cloud database has reached its operation or storage limit and could not persist the receipt. Please try again after quota resets or contact your administrator. No receipt number has been allocated.');
+        } else {
+          alert('Unable to confirm receipt persistence: ' + ((persistenceError && persistenceError.message) || persistenceError) + '\n\nIf the server completed the transaction, clicking Save Receipt again will safely verify and recover the existing record without allocating another number.');
+        }
+        window.isReceiptSaving = false;
+        if (saveBtn) saveBtn.disabled = false;
+        if (savePrintBtn) savePrintBtn.disabled = false;
+        if (blockBtn) blockBtn.disabled = false;
         return;
+      }
+
+      // Authoritative Firestore persistence confirmed: clean up pending op markers safely
+      try {
+        localStorage.removeItem('temple_pending_receipt_op');
+        localStorage.removeItem('temple_pending_phys_receipt_op');
+      } catch (e) { }
+
+      // Update local IndexedDB cache (nonessential; local storage errors MUST NOT invalidate authoritative server record)
+      try {
+        if (typeof putRec === 'function') {
+          await putRec('receipts', savedRec);
+        }
+        if (savedRec && typeof savedRec.id === 'number') {
+          const s = (typeof getOne === 'function' ? await getOne('settings', 1) : null) || window.APP_SETTINGS || { id: 1 };
+          s.globalSequenceCounter = Math.max(parseInt(s.globalSequenceCounter, 10) || 0, savedRec.id);
+          window.APP_SETTINGS = s;
+          if (typeof putRec === 'function') {
+            await putRec('settings', s);
+          }
+        }
+      } catch (cacheErr) {
+        console.warn('[saveReceipt] Local cache update warning (non-fatal):', cacheErr);
       } finally {
         window.isReceiptSaving = false;
         if (saveBtn) saveBtn.disabled = false;
@@ -10737,13 +10769,17 @@
       window.isBlockNumberMode = false;
       window._cachedEditReceiptNo = null;
       if (window.GlobalEditState) window.GlobalEditState.clearEditing('receipts');
-      await refreshSettings();
-      await navigate('receipts');
+      try { await refreshSettings(); } catch (e) { console.warn('[saveReceipt] refreshSettings notice:', e); }
+      try { await navigate('receipts'); } catch (e) { console.warn('[saveReceipt] navigate notice:', e); }
       if (print && savedRec) {
-        if (savedRec.source === 'billing' || savedRec.billingFirestoreId || savedRec.billingId) {
-          reprintReceipt(savedRec.firestoreId || savedRec.id);
-        } else {
-          printReceipt(savedRec);
+        try {
+          if (savedRec.source === 'billing' || savedRec.billingFirestoreId || savedRec.billingId) {
+            reprintReceipt(savedRec.firestoreId || savedRec.id);
+          } else {
+            printReceipt(savedRec);
+          }
+        } catch (printErr) {
+          console.warn('[saveReceipt] Print notice (non-fatal):', printErr);
         }
       }
     }
@@ -26057,6 +26093,9 @@ void main(){
     window.isEmulatorModeActive = isEmulatorModeActive;
     window.downloadBackup = downloadBackup;
     window.restoreBackup = restoreBackup;
+    window.isFirestoreQuotaExceeded = isFirestoreQuotaExceeded;
+    window.isBrowserStorageQuotaExceeded = isBrowserStorageQuotaExceeded;
+    window.saveReceipt = saveReceipt;
 
     /* ===================== CONTROLLED INDEXEDDB -> FIRESTORE MIGRATION LAYER =====================
        Step 11: Controlled, non-destructive migration and staging layer.
