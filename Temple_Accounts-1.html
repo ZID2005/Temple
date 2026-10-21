@@ -7996,11 +7996,19 @@
       const list = await fsGetAllSafe('receipts');
       return (list || []).map(r => {
         if (!r) return r;
+        let mutated = false;
+        let copy = r;
         const normCat = (typeof resolveReceiptCategory === 'function') ? resolveReceiptCategory(r) : (r.category || '');
         if (normCat && (!r.category || String(r.category).trim() !== normCat)) {
-          return { ...r, category: normCat };
+          if (!mutated) { copy = { ...r }; mutated = true; }
+          copy.category = normCat;
         }
-        return r;
+        const normFund = (typeof resolveReceiptFund === 'function') ? resolveReceiptFund(r) : (r.fund || '');
+        if (normFund && (!r.fund || String(r.fund).trim() !== normFund)) {
+          if (!mutated) { copy = { ...r }; mutated = true; }
+          copy.fund = normFund;
+        }
+        return copy;
       });
     }
     async function allPayments() {
@@ -9380,6 +9388,32 @@
       window.resolveReceiptCategory = resolveReceiptCategory;
     }
 
+    /* ===================== STEP 33.176: RECEIPT FUND RESOLUTION & NORMALIZATION ===================== */
+    function resolveReceiptFund(r) {
+      if (!r) return '';
+      const raw = r.fund || r.fundName || r.fund_name || r.fundType || r.billingFund;
+      if (raw != null && String(raw).trim() !== '') {
+        return String(raw).trim();
+      }
+      const rawNo = r.receiptNo || r.formattedNo || r.manualReceiptNo || '';
+      const pCheck = (typeof parsePhysicalReceiptIdentifier === 'function')
+        ? (rawNo ? parsePhysicalReceiptIdentifier(rawNo) : null)
+        : null;
+      if (pCheck && pCheck.valid) {
+        return pCheck.fund || (pCheck.type === 'PU' ? 'Punarudharanam Fund' : 'General Temple Fund');
+      }
+      if (r.physicalType === 'PU') {
+        return 'Punarudharanam Fund';
+      }
+      if (r.physicalType === 'P' || r.isPhysical) {
+        return 'General Temple Fund';
+      }
+      return 'General Temple Fund';
+    }
+    if (typeof window !== 'undefined') {
+      window.resolveReceiptFund = resolveReceiptFund;
+    }
+
     function onReceiptNoInput(input) {
       if (!input) return;
       if (window.isBlockReceiptMode || window.isBlockNumberMode) {
@@ -9388,25 +9422,32 @@
       }
       const form = input.form || document.getElementById('receiptForm');
       if (!form) return;
+      const isEditing = !!(form.querySelector('input[name="editId"]') && form.querySelector('input[name="editId"]').value);
+      if (isEditing) return;
       const val = (input.value || '').trim();
       const phys = parsePhysicalReceiptIdentifier(val);
       const hintEl = form.querySelector('.receipt-number-hint');
 
       if (phys && phys.valid) {
-        if (hintEl) {
-          if (phys.type === 'PU') {
-            hintEl.innerHTML = `<span style="color:#7b1fa2;font-weight:600;">⚡ Physical Punarudharanam Receipt (${esc(phys.formattedId)}) detected.</span> Renovation Fund mapping applied.`;
-          } else {
-            hintEl.innerHTML = `<span style="color:#1976d2;font-weight:600;">⚡ Physical Puja Receipt (${esc(phys.formattedId)}) detected.</span> General Temple Fund / Puja mapping applied.`;
-          }
-        }
         const fundSel = form.querySelector('select[name="fund"]');
         const catSel = form.querySelector('select[name="category"]');
-        if (phys.type === 'PU' && fundSel) {
-          for (let i = 0; i < fundSel.options.length; i++) {
-            if (fundSel.options[i].value === 'Punarudharanam Fund') {
-              fundSel.selectedIndex = i;
-              break;
+        const userModifiedFund = fundSel && fundSel.dataset && fundSel.dataset.userModified === 'true';
+
+        if (hintEl) {
+          if (phys.type === 'PU') {
+            hintEl.innerHTML = `<span style="color:#7b1fa2;font-weight:600;">⚡ Physical Punarudharanam Receipt (${esc(phys.formattedId)}) detected.</span>${!userModifiedFund ? ' Renovation Fund mapping applied.' : ''}`;
+          } else {
+            hintEl.innerHTML = `<span style="color:#1976d2;font-weight:600;">⚡ Physical Puja Receipt (${esc(phys.formattedId)}) detected.</span>${!userModifiedFund ? ' General Temple Fund / Puja mapping applied.' : ''}`;
+          }
+        }
+
+        if (phys.type === 'PU') {
+          if (fundSel && !userModifiedFund) {
+            for (let i = 0; i < fundSel.options.length; i++) {
+              if (fundSel.options[i].value === 'Punarudharanam Fund') {
+                fundSel.selectedIndex = i;
+                break;
+              }
             }
           }
           if (catSel && (!catSel.value || catSel.value === 'Pooja Income')) {
@@ -9417,11 +9458,13 @@
               }
             }
           }
-        } else if (phys.type === 'P' && fundSel) {
-          for (let i = 0; i < fundSel.options.length; i++) {
-            if (fundSel.options[i].value === 'General Temple Fund') {
-              fundSel.selectedIndex = i;
-              break;
+        } else if (phys.type === 'P') {
+          if (fundSel && !userModifiedFund) {
+            for (let i = 0; i < fundSel.options.length; i++) {
+              if (fundSel.options[i].value === 'General Temple Fund') {
+                fundSel.selectedIndex = i;
+                break;
+              }
             }
           }
           if (catSel && (!catSel.value || catSel.value === 'Donation Income')) {
@@ -9459,6 +9502,9 @@
       const isCustomRec = !!(editRec && (editRec.receiptType === 'custom' || (!editRec.receiptNo && !editRec.isPhysical)));
       window.isBlockReceiptMode = isCustomRec;
       window.isBlockNumberMode = isCustomRec;
+      window._cachedEditReceiptNo = editRec ? (editRec.receiptNo || '') : null;
+      window._explicitBlockModeDisabled = false;
+      window._explicitBlockModeEnabled = false;
 
       const isBillingLinked = !!(editRec && (editRec.source === 'billing' || editRec.billingFirestoreId || editRec.billingId || editRec.billingReceiptNo));
       let linkedBill = null;
@@ -9497,6 +9543,8 @@
 
       const editRecCategory = editRec ? (resolveReceiptCategory(editRec) || (linkedBill ? (linkedBill.incomeCategory || linkedBill.category) : '')) : (filterCategory || '');
       const hasCustomCat = editRecCategory && !incomeCats.some(c => c.name === editRecCategory);
+      const editRecFund = editRec ? ((typeof resolveReceiptFund === 'function' ? resolveReceiptFund(editRec) : editRec.fund) || (linkedBill ? (linkedBill.fund || linkedBill.fundName) : null)) : null;
+      const hasCustomFund = editRecFund && !funds.some(f => (typeof f === 'string' ? f : f.name) === editRecFund);
 
       return `
     <div class="form-card" data-motion="fadeInUp">
@@ -9509,7 +9557,7 @@
             This receipt will be recorded without allocating, reserving, or consuming a receipt number. Sequential numbering remains untouched.
           </div>
         </div>
-        ${!editRec ? `<button type="button" class="btn-sm btn-outline" onclick="toggleBlockReceiptMode(false)" style="padding:2px 8px;font-size:11px;background:#ffffff;border-color:rgba(70,147,150,0.5);cursor:pointer;">Exit Block Number Mode</button>` : ''}
+        <button type="button" class="btn-sm btn-outline" onclick="toggleBlockReceiptMode(false)" style="padding:2px 8px;font-size:11px;background:#ffffff;border-color:rgba(70,147,150,0.5);cursor:pointer;">Exit Block Number Mode</button>
       </div>
       ${isBillingLinked ? `
       <div class="billing-linked-sync-banner" style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:6px;padding:10px 14px;margin-bottom:16px;color:#1e40af;font-size:13px;display:flex;align-items:center;gap:8px;">
@@ -9520,6 +9568,12 @@
       <form id="receiptForm">
         <input type="hidden" name="editId" value="${editRec ? editRec.id : ''}">
         <input type="hidden" name="isBillingLinked" value="${isBillingLinked ? '1' : '0'}">
+        <input type="hidden" name="isPhysical" value="${editRec && (editRec.isPhysical || editRec.physicalType || (typeof parsePhysicalReceiptIdentifier === 'function' && parsePhysicalReceiptIdentifier(editRec.receiptNo)?.valid)) ? '1' : '0'}">
+        <input type="hidden" name="physicalType" value="${esc(editRec && editRec.physicalType ? editRec.physicalType : '')}">
+        <input type="hidden" name="originalReceiptNo" value="${esc(editRec ? (editRec.receiptNo || '') : '')}">
+        <input type="hidden" name="originalReceiptType" value="${esc(editRec ? (editRec.receiptType || '') : '')}">
+        <input type="hidden" name="blockModeAction" id="receiptBlockModeAction" value="">
+        <input type="hidden" name="isBlockReceiptMode" id="receiptIsBlockInput" value="${isCustomRec ? '1' : '0'}">
         <input type="hidden" name="linkedBillFirestoreId" value="${esc(linkedBill ? (linkedBill.firestoreId || ('bill_' + linkedBill.id)) : (editRec ? (editRec.billingFirestoreId || ('bill_' + editRec.billingId) || '') : ''))}">
         <input type="hidden" name="linkedBillId" value="${esc(linkedBill ? linkedBill.id : (editRec ? (editRec.billingId || '') : ''))}">
         <input type="hidden" name="billingReceiptNo" value="${esc(linkedBill ? linkedBill.receiptNo : (editRec ? (editRec.billingReceiptNo || '') : ''))}">
@@ -9527,7 +9581,8 @@
           <div class="form-group">
             <label id="receiptNoLabel">Receipt Number ${isCustomRec ? '<span class="custom-badge" style="display:inline-block;padding:1px 6px;font-size:11px;font-weight:700;color:#fff;background:linear-gradient(135deg, #1f3f6d, #469396);border-radius:4px;margin-left:6px;vertical-align:middle;">UNNUMBERED RECEIPT — NO RECEIPT NUMBER</span>' : (editRec ? '<span style="font-weight:400;color:var(--text-muted);font-size:11px;">(Identifier cannot be modified)</span>' : `<span style="font-weight:400;color:var(--text-muted);font-size:11px;">(Leave blank to auto-allocate; preview: ${esc(nextNo)})</span>`)}</label>
             ${editRec ? `
-            <input type="text" id="receiptNo" name="receiptNo" value="${esc(isCustomRec ? '' : editRec.receiptNo)}" placeholder="${isCustomRec ? '— (No Receipt Number)' : ''}" ${isCustomRec ? 'readonly disabled style="background:var(--bg-warm,#fdfbf7);color:var(--text-muted);cursor:not-allowed;" aria-disabled="true"' : 'readonly style="background:var(--bg,#f3f4f6);cursor:not-allowed;"'} title="${isCustomRec ? 'Unnumbered receipt has no receipt number' : 'Receipt number cannot be changed on edit'}">
+            <input type="text" id="receiptNo" name="receiptNo" value="${esc(isCustomRec ? '' : editRec.receiptNo)}" placeholder="${isCustomRec ? '— (No Receipt Number)' : ''}" ${isCustomRec ? 'readonly disabled style="background:var(--bg-warm,#fdfbf7);color:var(--text-muted);cursor:not-allowed;" aria-disabled="true"' : 'readonly style="background:var(--bg,#f3f4f6);cursor:not-allowed;"'} title="${isCustomRec ? 'Unnumbered receipt has no receipt number' : 'Receipt number cannot be changed directly'}">
+            <div class="receipt-number-hint" style="font-size: 11px; color: var(--text-muted); margin-top: 3px;">${isCustomRec ? '🛑 <strong>Block Number Mode Active:</strong> This receipt is recorded without a receipt number. Click BLOCK NUMBER to allocate a number.' : (editRec.isPhysical ? 'ℹ️ Physical receipt identifier cannot be converted.' : (isBillingLinked ? 'ℹ️ Billing-linked receipt number is synchronized with Billing.' : 'ℹ️ Ordinary receipt. Click BLOCK NUMBER to convert to unnumbered receipt.'))}</div>
             ` : `
             <input type="text" id="receiptNo" name="receiptNo" value="" placeholder="Auto-generated on save (e.g. ${esc(nextNo)}) or Physical (P600-P900, PU1...)" autocomplete="off" oninput="onReceiptNoInput(this)" onchange="onReceiptNoInput(this)">
             <div class="receipt-number-hint" style="font-size: 11px; color: var(--text-muted); margin-top: 3px;">ℹ️ Enter a physical receipt identifier (P600–P900 for Puja, PU1+ for Punarudharanam), or leave blank for auto-allocated software sequence.</div>
@@ -9539,7 +9594,7 @@
         <div class="form-row">
           <div class="form-group"><label>Star / നാൾ</label><input type="text" name="star" id="receiptStarInput" value="${esc(editRec ? (editRec.star || (linkedBill ? linkedBill.star : '') || '') : '')}" placeholder="Star (optional)" oninput="${isBillingLinked ? 'onBillingLinkedFieldsChanged()' : ''}"></div>
           <div class="form-group"><label>Mobile Number</label><input type="text" name="mobile" id="receiptMobileInput" value="${esc(editRec ? (editRec.mobile || (linkedBill ? linkedBill.mobile : '') || '') : '')}"></div>
-          <div class="form-group"><label>Fund *</label><select name="fund" id="receiptFundInput" required>${optsFromNames(funds, editRec ? (editRec.fund || (linkedBill ? linkedBill.fund : null)) : null)}</select></div>
+          <div class="form-group"><label>Fund *</label><select name="fund" id="receiptFundInput" required onchange="this.dataset.userModified='true'">${optsFromNames(funds, editRecFund)}${hasCustomFund ? `<option value="${esc(editRecFund)}" selected>${esc(editRecFund)}</option>` : ''}</select></div>
           <div class="form-group"><label>Income Category</label><select name="category" id="receiptCategoryInput">
             <option value="" ${editRecCategory === '' ? 'selected' : ''}>-- None / General --</option>
             ${incomeCats.map(c => `<option value="${esc(c.name)}" ${editRecCategory === c.name ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}
@@ -9635,7 +9690,7 @@
               <td>${fmtDate(r.date)}</td>
               <td>${esc(r.name)}${r.star ? ` <span style="font-size:11px;color:var(--text-muted);font-weight:normal;">(${esc(r.star)})</span>` : ''}</td>
               <td>${r.description && String(r.description).trim() ? esc(String(r.description).trim()) : ''}</td>
-              <td>${esc(r.fund)}</td>
+              <td>${esc((typeof resolveReceiptFund === 'function' ? resolveReceiptFund(r) : r.fund) || '—')}</td>
               <td>${esc((typeof resolveReceiptCategory === 'function' ? resolveReceiptCategory(r) : r.category) || '—')}</td>
               <td><span class="pill ${(r.paymentMode || '').toLowerCase()}">${esc(r.paymentMode || '')}</span></td>
               <td>${fmtMoney(r.amount)}</td>
@@ -9702,10 +9757,13 @@
       });
     }
 
-    /* STEP 33.175: Block Number / Unnumbered Receipt Mode Handlers & Form Lifecycle */
+    /* STEP 33.175 / STEP 33.179: Block Number / Unnumbered Receipt Mode Handlers & Form Lifecycle */
     function cancelReceiptForm() {
       window.isBlockReceiptMode = false;
       window.isBlockNumberMode = false;
+      window._cachedEditReceiptNo = null;
+      window._explicitBlockModeDisabled = false;
+      window._explicitBlockModeEnabled = false;
       if (window.GlobalEditState) window.GlobalEditState.clearEditing('receipts');
       navigate('receipts');
     }
@@ -9726,9 +9784,12 @@
         alert('Billing-linked receipts cannot be converted to unnumbered block receipts.');
         return;
       }
-      const isCustomRec = form.querySelector('.custom-badge') || (window.isBlockReceiptMode);
-      if (isEditing && !isCustomRec) {
-        alert('Existing numbered receipts cannot be converted to unnumbered block receipts.');
+      const isPhysInput = form.querySelector('input[name="isPhysical"]');
+      const origNoInput = form.querySelector('input[name="originalReceiptNo"]');
+      const isPhysicalRec = !!((isPhysInput && isPhysInput.value === '1') ||
+        (origNoInput && typeof parsePhysicalReceiptIdentifier === 'function' && parsePhysicalReceiptIdentifier(origNoInput.value)?.valid));
+      if (isEditing && isPhysicalRec) {
+        alert('Physical receipts (P / PU) have fixed counterfoil identifiers and cannot be converted to unnumbered block receipts.');
         return;
       }
       const rInput = document.getElementById('receiptNo') || form.querySelector('input[name="receiptNo"]');
@@ -9736,6 +9797,8 @@
       const hintEl = form.querySelector('.receipt-number-hint');
       const banner = document.getElementById('block-receipt-banner');
       const blockBtn = document.getElementById('btn-block-receipt');
+      const actionInput = form.querySelector('input[name="blockModeAction"]');
+      const blockModeInput = form.querySelector('input[name="isBlockReceiptMode"]');
 
       const newState = (typeof forceState === 'boolean') ? forceState : !window.isBlockReceiptMode;
       window.isBlockReceiptMode = newState;
@@ -9743,9 +9806,24 @@
 
       if (newState) {
         // ACTIVATE BLOCK NUMBER MODE
+        if (blockModeInput) blockModeInput.value = '1';
+        if (isEditing) {
+          const origType = form.querySelector('input[name="originalReceiptType"]')?.value;
+          const origNo = form.querySelector('input[name="originalReceiptNo"]')?.value;
+          if (origNo || origType !== 'custom') {
+            if (actionInput) actionInput.value = 'convertToUnnumbered';
+            window._explicitBlockModeEnabled = true;
+            window._explicitBlockModeDisabled = false;
+          } else {
+            if (actionInput) actionInput.value = '';
+            window._explicitBlockModeEnabled = false;
+            window._explicitBlockModeDisabled = false;
+          }
+        }
         if (rInput) {
-          if (!isEditing && rInput.value && rInput.value.trim() !== '') {
+          if (rInput.value && rInput.value.trim() !== '') {
             window._cachedNormalReceiptInput = rInput.value.trim();
+            window._cachedEditReceiptNo = rInput.value.trim();
           }
           rInput.value = '';
           rInput.disabled = true;
@@ -9761,7 +9839,9 @@
           rLabel.innerHTML = 'Receipt Number <span class="custom-badge" style="display:inline-block;padding:1px 6px;font-size:11px;font-weight:700;color:#fff;background:linear-gradient(135deg, #1f3f6d, #469396);border-radius:4px;margin-left:6px;vertical-align:middle;">UNNUMBERED RECEIPT — NO RECEIPT NUMBER</span>';
         }
         if (hintEl) {
-          hintEl.innerHTML = '🛑 <strong>Block Number Mode Active:</strong> This receipt will be recorded without a receipt number. Sequential numbering remains untouched.';
+          hintEl.innerHTML = isEditing
+            ? '🛑 <strong>Block Number Mode Active:</strong> This receipt will be saved without a receipt number. Sequential numbering remains untouched.'
+            : '🛑 <strong>Block Number Mode Active:</strong> This receipt will be recorded without a receipt number. Sequential numbering remains untouched.';
         }
         if (banner) {
           banner.style.display = 'flex';
@@ -9775,29 +9855,82 @@
           if (textSpan) textSpan.textContent = 'BLOCK NUMBER ACTIVE';
         }
       } else {
-        // DEACTIVATE BLOCK NUMBER MODE (RETURN TO NORMAL)
+        // DEACTIVATE BLOCK NUMBER MODE (RETURN TO NORMAL / NUMBERED)
+        if (blockModeInput) blockModeInput.value = '0';
+        if (isEditing) {
+          const origType = form.querySelector('input[name="originalReceiptType"]')?.value;
+          const origNo = form.querySelector('input[name="originalReceiptNo"]')?.value;
+          if (!origNo && origType === 'custom') {
+            if (actionInput) actionInput.value = 'convertToNumbered';
+            window._explicitBlockModeDisabled = true;
+            window._explicitBlockModeEnabled = false;
+          } else {
+            if (actionInput) actionInput.value = '';
+            window._explicitBlockModeDisabled = false;
+            window._explicitBlockModeEnabled = false;
+          }
+        }
+        const origNo = window._cachedEditReceiptNo || (form.querySelector('input[name="originalReceiptNo"]') ? form.querySelector('input[name="originalReceiptNo"]').value : '');
+        const previewVal = window._cachedReceiptPreview || '';
+
         if (rInput) {
           rInput.disabled = false;
-          rInput.readOnly = false;
-          rInput.style.background = '';
-          rInput.style.color = '';
-          rInput.style.cursor = '';
           rInput.removeAttribute('aria-disabled');
-          const previewVal = window._cachedReceiptPreview || '';
-          rInput.placeholder = 'Auto-generated on save' + (previewVal ? ` (e.g. ${previewVal})` : '') + ' or Physical (P600-P900, PU1...)';
-          if (window._cachedNormalReceiptInput) {
-            rInput.value = window._cachedNormalReceiptInput;
-            if (typeof onReceiptNoInput === 'function') onReceiptNoInput(rInput);
+
+          if (isEditing) {
+            if (origNo) {
+              // Returning to original numbered receipt
+              rInput.value = origNo;
+              rInput.readOnly = true;
+              rInput.placeholder = '';
+              rInput.style.background = 'var(--bg, #f3f4f6)';
+              rInput.style.color = '';
+              rInput.style.cursor = 'not-allowed';
+            } else {
+              // Converting an unnumbered receipt to numbered mode
+              rInput.value = '';
+              rInput.readOnly = true;
+              rInput.placeholder = 'Auto-allocated on update' + (previewVal ? ` (e.g. ${previewVal})` : '');
+              rInput.style.background = 'var(--bg, #f3f4f6)';
+              rInput.style.color = '';
+              rInput.style.cursor = 'default';
+            }
           } else {
-            rInput.value = '';
+            // New receipt
+            rInput.readOnly = false;
+            rInput.style.background = '';
+            rInput.style.color = '';
+            rInput.style.cursor = '';
+            rInput.placeholder = 'Auto-generated on save' + (previewVal ? ` (e.g. ${previewVal})` : '') + ' or Physical (P600-P900, PU1...)';
+            if (window._cachedNormalReceiptInput) {
+              rInput.value = window._cachedNormalReceiptInput;
+              if (typeof onReceiptNoInput === 'function') onReceiptNoInput(rInput);
+            } else {
+              rInput.value = '';
+            }
           }
         }
         if (rLabel) {
-          const previewVal = window._cachedReceiptPreview || '';
-          rLabel.innerHTML = 'Receipt Number <span style="font-weight:400;color:var(--text-muted);font-size:11px;">(Leave blank to auto-allocate; preview: ' + esc(previewVal) + ')</span>';
+          if (isEditing) {
+            if (origNo) {
+              rLabel.innerHTML = 'Receipt Number <span style="font-weight:400;color:var(--text-muted);font-size:11px;">(Identifier cannot be modified)</span>';
+            } else {
+              rLabel.innerHTML = 'Receipt Number <span style="font-weight:400;color:var(--text-muted);font-size:11px;">(Will be auto-allocated on update; preview: ' + esc(previewVal) + ')</span>';
+            }
+          } else {
+            rLabel.innerHTML = 'Receipt Number <span style="font-weight:400;color:var(--text-muted);font-size:11px;">(Leave blank to auto-allocate; preview: ' + esc(previewVal) + ')</span>';
+          }
         }
         if (hintEl) {
-          hintEl.innerHTML = 'ℹ️ Enter a physical receipt identifier (P600–P900 for Puja, PU1+ for Punarudharanam), or leave blank for auto-allocated software sequence.';
+          if (isEditing) {
+            if (origNo) {
+              hintEl.innerHTML = 'ℹ️ Ordinary receipt. Click BLOCK NUMBER to convert to unnumbered receipt.';
+            } else {
+              hintEl.innerHTML = '⚡ <strong>Numbered Mode:</strong> A valid receipt number will be allocated when you update this receipt.';
+            }
+          } else {
+            hintEl.innerHTML = 'ℹ️ Enter a physical receipt identifier (P600–P900 for Puja, PU1+ for Punarudharanam), or leave blank for auto-allocated software sequence.';
+          }
         }
         if (banner) {
           banner.style.display = 'none';
@@ -9823,6 +9956,22 @@
       if (window.isBlockReceiptMode || window.isBlockNumberMode) return;
       const rInput = document.getElementById('receiptNo') || (document.getElementById('receiptForm') && document.getElementById('receiptForm').querySelector('input[name="receiptNo"]'));
       const rLabel = document.getElementById('receiptNoLabel');
+      const form = document.getElementById('receiptForm');
+      const isEditing = !!(form && form.querySelector('input[name="editId"]') && form.querySelector('input[name="editId"]').value);
+      if (isEditing) {
+        const origNoInput = form ? form.querySelector('input[name="originalReceiptNo"]') : null;
+        const origNo = origNoInput ? origNoInput.value : '';
+        if (!origNo) {
+          // Unnumbered receipt converted to numbered preview
+          if (rLabel && !rLabel.querySelector('.custom-badge')) {
+            rLabel.innerHTML = `Receipt Number <span style="font-weight:400;color:var(--text-muted);font-size:11px;">(Will be auto-allocated on update; preview: ${esc(newVal)})</span>`;
+          }
+          if (rInput && !rInput.disabled && !rInput.value) {
+            rInput.placeholder = `Auto-allocated on update (e.g. ${esc(newVal)})`;
+          }
+        }
+        return;
+      }
       if (rLabel && !rLabel.querySelector('.custom-badge')) {
         rLabel.innerHTML = `Receipt Number <span style="font-weight:400;color:var(--text-muted);font-size:11px;">(Leave blank to auto-allocate; preview: ${esc(newVal)})</span>`;
       }
@@ -9831,6 +9980,281 @@
       }
     }
     window.updateReceiptNoPreview = updateReceiptNoPreview;
+
+    /* STEP 33.179: Authoritative Mode Conversion Operations for Existing Receipts */
+
+    async function fsConvertNumberedReceiptToUnnumbered({ prior, updatedFields, user }) {
+      const db = getFirestoreDb();
+      if (!db) throw new Error('Firestore is not initialized.');
+      if (!user || !user.uid) throw new Error('Authentication required: please log in to update receipts.');
+
+      const origDocId = prior.firestoreId || (String(prior.id).startsWith('rcpt_') ? String(prior.id) : `rcpt_${prior.id}`);
+      const origRcptRef = db.collection('receipts').doc(origDocId);
+
+      const resDocId = prior.reservationDocId || (prior.id && !isNaN(parseInt(prior.id, 10)) ? `res_${parseInt(prior.id, 10)}` : null);
+      const resRef = resDocId ? db.collection('system').doc(resDocId) : null;
+
+      let opDocRef = null;
+      if (prior.operationId) {
+        const opId = prior.operationId.startsWith('op_') ? prior.operationId : `op_${prior.operationId}`;
+        opDocRef = db.collection('system').doc(opId);
+      }
+
+      const randSuffix = Math.random().toString(36).substring(2, 8);
+      const customId = `c_${Date.now()}_${randSuffix}`;
+      const newDocId = `rcpt_${customId}`;
+      const newRcptRef = db.collection('receipts').doc(newDocId);
+
+      const nowTimestamp = Date.now();
+      const serverTs = (typeof firebase !== 'undefined' && firebase.firestore && firebase.firestore.FieldValue)
+        ? firebase.firestore.FieldValue.serverTimestamp()
+        : nowTimestamp;
+
+      const convertedRecord = {
+        ...updatedFields,
+        id: customId,
+        firestoreId: newDocId,
+        receiptNo: '',
+        receiptType: 'custom',
+        isPhysical: false,
+        physicalType: null,
+        billingId: null,
+        billingFirestoreId: null,
+        billingReceiptNo: null,
+        reservationDocId: null,
+        operationId: null,
+        voided: false,
+        createdAt: prior.createdAt || nowTimestamp,
+        createdBy: prior.createdBy || user.uid,
+        updatedBy: user.uid,
+        updatedAt: serverTs,
+        convertedFromReceiptNo: prior.receiptNo || (prior.id && !isNaN(parseInt(prior.id, 10)) ? `R-${String(prior.id).padStart(3, '0')}` : ''),
+        convertedFromId: prior.id,
+        convertedAt: nowTimestamp
+      };
+
+      await db.runTransaction(async (tx) => {
+        const [rSnap, resSnap, opSnap] = await Promise.all([
+          tx.get(origRcptRef),
+          resRef ? tx.get(resRef) : Promise.resolve(null),
+          opDocRef ? tx.get(opDocRef) : Promise.resolve(null)
+        ]);
+
+        if (!rSnap.exists) {
+          throw new Error(`Original receipt "${origDocId}" not found for conversion.`);
+        }
+        const rData = rSnap.data() || {};
+        if (rData.voided) {
+          throw new Error('Voided receipts cannot be converted.');
+        }
+        if (rData.source === 'billing' || rData.billingId || rData.billingFirestoreId) {
+          throw new Error('Billing-linked receipts cannot be converted to unnumbered block receipts.');
+        }
+        if (rData.isPhysical || rData.source === 'physical') {
+          throw new Error('Physical receipts cannot be converted to unnumbered block receipts.');
+        }
+
+        // 1. Write the new canonical unnumbered receipt
+        tx.set(newRcptRef, convertedRecord);
+
+        // 2. Delete old numbered receipt document (no duplicate active receipts)
+        tx.delete(origRcptRef);
+
+        // 3. Delete old reservation document (no occupying reservation)
+        if (resRef && resSnap && resSnap.exists) {
+          tx.delete(resRef);
+        }
+
+        // 4. Delete old operation document if present
+        if (opDocRef && opSnap && opSnap.exists) {
+          tx.delete(opDocRef);
+        }
+
+        // Counter: Strictly DO NOT reset or roll back counter (remains unchanged)
+      });
+
+      // IndexedDB cache eviction & insertion
+      if (typeof deleteRec === 'function') {
+        try {
+          await deleteRec('receipts', prior.id);
+          await deleteRec('receipts', origDocId);
+          if (prior.firestoreId) await deleteRec('receipts', prior.firestoreId);
+          if (!isNaN(parseInt(prior.id, 10))) {
+            await deleteRec('receipts', parseInt(prior.id, 10));
+            await deleteRec('receipts', `rcpt_${parseInt(prior.id, 10)}`);
+          }
+          await putRec('receipts', convertedRecord);
+        } catch (cacheErr) {
+          console.warn('[fsConvertNumberedReceiptToUnnumbered] Cache sync notice:', cacheErr);
+        }
+      }
+
+      return convertedRecord;
+    }
+    window.fsConvertNumberedReceiptToUnnumbered = fsConvertNumberedReceiptToUnnumbered;
+
+    async function fsConvertUnnumberedReceiptToNumbered({ prior, updatedFields, user }) {
+      const db = getFirestoreDb();
+      if (!db) throw new Error('Firestore is not initialized.');
+      if (!user || !user.uid) throw new Error('Authentication required: please log in to update receipts.');
+
+      const origDocId = prior.firestoreId || (String(prior.id).startsWith('rcpt_') ? String(prior.id) : `rcpt_${prior.id}`);
+      const origRcptRef = db.collection('receipts').doc(origDocId);
+      const counterRef = getFsCountersDocRef();
+
+      let allocatedRecord = null;
+
+      await db.runTransaction(async (tx) => {
+        const [cSnap, oldSnap] = await Promise.all([
+          tx.get(counterRef),
+          tx.get(origRcptRef)
+        ]);
+
+        if (!oldSnap.exists) {
+          throw new Error(`Original unnumbered receipt "${origDocId}" not found for conversion.`);
+        }
+        const oldData = oldSnap.data() || {};
+        if (oldData.voided) {
+          throw new Error('Voided receipts cannot be converted.');
+        }
+
+        const cData = cSnap.exists ? cSnap.data() : {};
+        const curSeq = (typeof cData.globalSequenceCounter === 'number')
+          ? cData.globalSequenceCounter
+          : 0;
+
+        if (curSeq === 0) {
+          throw new Error(
+            'The accounting sequence has not been commissioned yet. ' +
+            'The first transaction (sequence 001) must be a billing transaction.'
+          );
+        }
+
+        // Sequence number allocation using the existing allocation mechanism
+        let nextSeqNum = curSeq + 1;
+        let resRef = db.collection('system').doc(`res_${nextSeqNum}`);
+        let billRef = db.collection('billing').doc(`bill_${nextSeqNum}`);
+        let rcptRef = db.collection('receipts').doc(`rcpt_${nextSeqNum}`);
+        let [resSnap, bSnap, rSnap] = await Promise.all([tx.get(resRef), tx.get(billRef), tx.get(rcptRef)]);
+        while (resSnap.exists || bSnap.exists || rSnap.exists) {
+          nextSeqNum++;
+          resRef = db.collection('system').doc(`res_${nextSeqNum}`);
+          billRef = db.collection('billing').doc(`bill_${nextSeqNum}`);
+          rcptRef = db.collection('receipts').doc(`rcpt_${nextSeqNum}`);
+          [resSnap, bSnap, rSnap] = await Promise.all([tx.get(resRef), tx.get(billRef), tx.get(rcptRef)]);
+        }
+
+        const formattedNo = String(nextSeqNum).padStart(3, '0');
+        const rcptPrefix = cData.receiptPrefix || 'R-';
+        const formattedRcptNo = `${rcptPrefix}${formattedNo}`;
+        const newRcptDocId = `rcpt_${nextSeqNum}`;
+        const resDocId = `res_${nextSeqNum}`;
+
+        const opId = generateOperationId('op_rcpt');
+        const opDocId = opId.startsWith('op_') ? opId : `op_${opId}`;
+        const opDocRef = db.collection('system').doc(opDocId);
+
+        const nowTimestamp = Date.now();
+        const serverTs = (typeof firebase !== 'undefined' && firebase.firestore && firebase.firestore.FieldValue)
+          ? firebase.firestore.FieldValue.serverTimestamp()
+          : nowTimestamp;
+
+        const resPayload = {
+          seqNumber: nextSeqNum,
+          formattedNo: formattedNo,
+          type: 'independent_receipt',
+          status: 'active',
+          voided: false,
+          billDocId: null,
+          receiptDocId: newRcptDocId,
+          billReceiptNo: null,
+          receiptNo: formattedRcptNo,
+          operationId: opId,
+          createdBy: user.uid,
+          createdAt: nowTimestamp,
+          updatedAt: serverTs,
+          source: 'receipts'
+        };
+
+        allocatedRecord = {
+          ...updatedFields,
+          id: nextSeqNum,
+          legacyId: nextSeqNum,
+          firestoreId: newRcptDocId,
+          receiptNo: formattedRcptNo,
+          reservationDocId: resDocId,
+          operationId: opId,
+          receiptType: 'independent',
+          isPhysical: false,
+          physicalType: null,
+          billingId: null,
+          billingFirestoreId: null,
+          billingReceiptNo: null,
+          voided: false,
+          createdAt: prior.createdAt || nowTimestamp,
+          createdBy: prior.createdBy || user.uid,
+          updatedBy: user.uid,
+          updatedAt: serverTs,
+          convertedFromUnnumberedId: prior.id,
+          convertedAt: nowTimestamp
+        };
+
+        const opPayload = {
+          operationId: opId,
+          type: 'independent_receipt',
+          operationType: 'independent_receipt',
+          status: 'committed',
+          seqNumber: nextSeqNum,
+          formattedNo: formattedNo,
+          receiptDocId: newRcptDocId,
+          resDocId: resDocId,
+          receiptNo: formattedRcptNo,
+          amount: allocatedRecord.amount,
+          fingerprint: computeReceiptFingerprint(allocatedRecord),
+          createdBy: user.uid,
+          createdAt: nowTimestamp,
+          updatedAt: serverTs
+        };
+
+        // 1. Write reservation
+        tx.set(resRef, resPayload);
+
+        // 2. Write new numbered receipt
+        tx.set(rcptRef, allocatedRecord);
+
+        // 3. Write operation doc
+        tx.set(opDocRef, opPayload);
+
+        // 4. Delete old unnumbered receipt
+        tx.delete(origRcptRef);
+
+        // 5. Update sequence counter safely forward with Math.max
+        tx.set(counterRef, {
+          globalSequenceCounter: Math.max(curSeq, nextSeqNum),
+          updatedAt: serverTs
+        }, { merge: true });
+      });
+
+      // IndexedDB cache eviction & insertion
+      if (typeof deleteRec === 'function') {
+        try {
+          await deleteRec('receipts', prior.id);
+          await deleteRec('receipts', origDocId);
+          if (prior.firestoreId) await deleteRec('receipts', prior.firestoreId);
+          await putRec('receipts', allocatedRecord);
+          const s = (typeof getOne === 'function' ? await getOne('settings', 1) : null) || window.APP_SETTINGS || { id: 1 };
+          s.globalSequenceCounter = Math.max(s.globalSequenceCounter || 0, allocatedRecord.id);
+          window.APP_SETTINGS = s;
+          await putRec('settings', s);
+        } catch (cacheErr) {
+          console.warn('[fsConvertUnnumberedReceiptToNumbered] Cache sync notice:', cacheErr);
+        }
+      }
+
+      return allocatedRecord;
+    }
+    window.fsConvertUnnumberedReceiptToNumbered = fsConvertUnnumberedReceiptToNumbered;
+
 
     async function saveReceipt(print, isBlock = false) {
       if (window.isReceiptSaving) return;
@@ -9943,7 +10367,10 @@
       }
 
       const selectedFund = fd.get('fund') ? String(fd.get('fund')).trim() : '';
-      const targetFund = isPhysical ? physCheck.fund : selectedFund;
+      const fallbackFund = isPhysical
+        ? (physCheck ? (physCheck.fund || 'General Temple Fund') : 'General Temple Fund')
+        : 'General Temple Fund';
+      const targetFund = selectedFund || fallbackFund;
       const rawCategory = fd.get('category') != null ? String(fd.get('category')).trim() : '';
       const fallbackCategory = isPhysical
         ? (physCheck ? (physCheck.category || (physCheck.type === 'PU' ? 'Donation Income' : 'Pooja Income')) : '')
@@ -9971,6 +10398,14 @@
           const isBillingLinked = !!(fd.get('isBillingLinked') === '1' || (prior && (prior.source === 'billing' || prior.billingFirestoreId || prior.billingId || prior.billingReceiptNo)));
 
           if (isBillingLinked) {
+            if (effectiveIsBlock) {
+              alert('Billing-linked receipts cannot be converted to unnumbered block receipts.');
+              window.isReceiptSaving = false;
+              if (saveBtn) saveBtn.disabled = false;
+              if (savePrintBtn) savePrintBtn.disabled = false;
+              if (blockBtn) blockBtn.disabled = false;
+              return;
+            }
             const rawBillFirestoreId = fd.get('linkedBillFirestoreId') || (prior && prior.billingFirestoreId) || null;
             const rawBillId = fd.get('linkedBillId') || (prior && prior.billingId) || null;
             const resolvedBillDocId = rawBillFirestoreId || (rawBillId ? (String(rawBillId).startsWith('bill_') ? rawBillId : `bill_${rawBillId}`) : null);
@@ -10052,46 +10487,94 @@
               console.warn('[saveReceipt] Linked billing local cache update warning:', cacheErr);
             }
           } else {
-            rec.id = editId;
-            const isPriorCustom = prior && (prior.receiptType === 'custom' || (!prior.receiptNo && !prior.isPhysical));
-            if (isPriorCustom || effectiveIsBlock) {
-              rec.receiptType = 'custom';
-              rec.receiptNo = '';
+            const isPriorCustom = !!(prior && (prior.receiptType === 'custom' || (!prior.receiptNo && !prior.isPhysical)));
+            const isPriorPhysical = !!(prior && (prior.isPhysical || prior.source === 'physical' || prior.physicalType === 'P' || prior.physicalType === 'PU' || (typeof parsePhysicalReceiptIdentifier === 'function' && parsePhysicalReceiptIdentifier(prior.receiptNo)?.valid)));
+
+            if (isPriorPhysical && effectiveIsBlock) {
+              alert('Physical receipts (P / PU) have fixed counterfoil identifiers and cannot be converted to unnumbered block receipts.');
+              window.isReceiptSaving = false;
+              if (saveBtn) saveBtn.disabled = false;
+              if (savePrintBtn) savePrintBtn.disabled = false;
+              if (blockBtn) blockBtn.disabled = false;
+              return;
+            }
+
+            const wantConvertToUnnumbered = !isPriorCustom && !isPriorPhysical && (
+              effectiveIsBlock ||
+              fd.get('blockModeAction') === 'convertToUnnumbered' ||
+              window._explicitBlockModeEnabled === true
+            );
+
+            const wantConvertToNumbered = isPriorCustom && (
+              fd.get('blockModeAction') === 'convertToNumbered' ||
+              window._explicitBlockModeDisabled === true ||
+              (receiptNoInput && receiptNoInput.trim() !== '')
+            );
+
+            if (wantConvertToUnnumbered) {
+              // Convert existing numbered receipt to unnumbered
+              const convertToUnnumberedFn = typeof fsConvertNumberedReceiptToUnnumbered === 'function'
+                ? fsConvertNumberedReceiptToUnnumbered
+                : (typeof window !== 'undefined' ? window.fsConvertNumberedReceiptToUnnumbered : null);
+              if (!convertToUnnumberedFn) throw new Error('fsConvertNumberedReceiptToUnnumbered is not available.');
+              savedRec = await convertToUnnumberedFn({
+                prior,
+                updatedFields: rec,
+                user
+              });
+            } else if (wantConvertToNumbered) {
+              // Convert existing unnumbered receipt to numbered
+              const convertToNumberedFn = typeof fsConvertUnnumberedReceiptToNumbered === 'function'
+                ? fsConvertUnnumberedReceiptToNumbered
+                : (typeof window !== 'undefined' ? window.fsConvertUnnumberedReceiptToNumbered : null);
+              if (!convertToNumberedFn) throw new Error('fsConvertUnnumberedReceiptToNumbered is not available.');
+              savedRec = await convertToNumberedFn({
+                prior,
+                updatedFields: rec,
+                user
+              });
             } else {
-              rec.receiptNo = receiptNoInput || (prior ? prior.receiptNo : '');
-              if (prior && prior.receiptType) rec.receiptType = prior.receiptType;
-            }
-            rec.voided = prior ? prior.voided : false;
-            if (prior && prior.voidReason !== undefined) rec.voidReason = prior.voidReason;
-            if (prior && prior.voidDate !== undefined) rec.voidDate = prior.voidDate;
-            if (prior && prior.source !== undefined) rec.source = prior.source;
-            if (prior && prior.isPhysical !== undefined) rec.isPhysical = prior.isPhysical;
-            if (prior && prior.physicalType !== undefined) rec.physicalType = prior.physicalType;
-            if (prior && prior.billingId !== undefined) rec.billingId = prior.billingId;
-            if (prior && prior.billingFirestoreId !== undefined) rec.billingFirestoreId = prior.billingFirestoreId;
-            if (prior && prior.billingReceiptNo !== undefined) rec.billingReceiptNo = prior.billingReceiptNo;
-            if (prior && prior.createdBy !== undefined) rec.createdBy = prior.createdBy;
-            rec.createdAt = prior ? prior.createdAt : Date.now();
-            rec.firestoreId = prior ? prior.firestoreId : (String(editId).startsWith('rcpt_') ? editId : ('rcpt_' + editId));
-            await fsUpdateRecordSafe('receipts', rec.firestoreId || editId, rec);
-            if (isPhysical || (prior && (prior.isPhysical || prior.source === 'physical'))) {
-              try {
-                const db = getFirestoreDb();
-                const physIdent = rec.receiptNo || (prior ? prior.receiptNo : '');
-                const pParsed = typeof parsePhysicalReceiptIdentifier === 'function' ? parsePhysicalReceiptIdentifier(physIdent) : null;
-                const canId = (pParsed && pParsed.valid) ? pParsed.formattedId : physIdent;
-                const resDocId = (prior && prior.reservationDocId) ? prior.reservationDocId : `res_phys_${canId}`;
-                if (db && resDocId) {
-                  await db.collection('system').doc(resDocId).set({
-                    category: rec.category,
-                    fund: rec.fund
-                  }, { merge: true });
-                }
-              } catch (resSyncErr) {
-                console.warn('[saveReceipt] Physical reservation sync warning:', resSyncErr);
+              // In-place edit (either numbered stays numbered, or unnumbered stays unnumbered, or physical)
+              rec.id = editId;
+              if (isPriorCustom) {
+                rec.receiptType = 'custom';
+                rec.receiptNo = '';
+              } else {
+                rec.receiptNo = receiptNoInput || (prior ? prior.receiptNo : '');
+                if (prior && prior.receiptType) rec.receiptType = prior.receiptType;
               }
+              rec.voided = prior ? prior.voided : false;
+              if (prior && prior.voidReason !== undefined) rec.voidReason = prior.voidReason;
+              if (prior && prior.voidDate !== undefined) rec.voidDate = prior.voidDate;
+              if (prior && prior.source !== undefined) rec.source = prior.source;
+              if (prior && prior.isPhysical !== undefined) rec.isPhysical = prior.isPhysical;
+              if (prior && prior.physicalType !== undefined) rec.physicalType = prior.physicalType;
+              if (prior && prior.billingId !== undefined) rec.billingId = prior.billingId;
+              if (prior && prior.billingFirestoreId !== undefined) rec.billingFirestoreId = prior.billingFirestoreId;
+              if (prior && prior.billingReceiptNo !== undefined) rec.billingReceiptNo = prior.billingReceiptNo;
+              if (prior && prior.createdBy !== undefined) rec.createdBy = prior.createdBy;
+              rec.createdAt = prior ? prior.createdAt : Date.now();
+              rec.firestoreId = prior ? prior.firestoreId : (String(editId).startsWith('rcpt_') ? editId : ('rcpt_' + editId));
+              await fsUpdateRecordSafe('receipts', rec.firestoreId || editId, rec);
+              if (isPhysical || (prior && (prior.isPhysical || prior.source === 'physical'))) {
+                try {
+                  const db = getFirestoreDb();
+                  const physIdent = rec.receiptNo || (prior ? prior.receiptNo : '');
+                  const pParsed = typeof parsePhysicalReceiptIdentifier === 'function' ? parsePhysicalReceiptIdentifier(physIdent) : null;
+                  const canId = (pParsed && pParsed.valid) ? pParsed.formattedId : physIdent;
+                  const resDocId = (prior && prior.reservationDocId) ? prior.reservationDocId : `res_phys_${canId}`;
+                  if (db && resDocId) {
+                    await db.collection('system').doc(resDocId).set({
+                      category: rec.category,
+                      fund: rec.fund
+                    }, { merge: true });
+                  }
+                } catch (resSyncErr) {
+                  console.warn('[saveReceipt] Physical reservation sync warning:', resSyncErr);
+                }
+              }
+              savedRec = rec;
             }
-            savedRec = rec;
           }
         } else if (effectiveIsBlock) {
           // STEP 33.175: Block Number unnumbered receipt creation
@@ -10252,6 +10735,7 @@
       // Successful save: reset block receipt mode and stop animation
       window.isBlockReceiptMode = false;
       window.isBlockNumberMode = false;
+      window._cachedEditReceiptNo = null;
       if (window.GlobalEditState) window.GlobalEditState.clearEditing('receipts');
       await refreshSettings();
       await navigate('receipts');
@@ -10589,7 +11073,8 @@
       const formattedAmt = typeof fmtMoney === 'function' ? fmtMoney(r.amount) : ('₹' + (parseFloat(r.amount) || 0).toFixed(2));
       const devoteeName = r.name || r.devoteeName || 'N/A';
       const rCat = (typeof resolveReceiptCategory === 'function') ? resolveReceiptCategory(r) : (r.category || '');
-      const fundCategory = (r.fund || 'General Temple Fund') + (rCat ? ' / ' + rCat : '');
+      const rFund = (typeof resolveReceiptFund === 'function') ? resolveReceiptFund(r) : (r.fund || 'General Temple Fund');
+      const fundCategory = (rFund || 'General Temple Fund') + (rCat ? ' / ' + rCat : '');
       const isLinked = (r.source === 'billing' || !!r.billingFirestoreId || !!r.billingId || !!r.billingReceiptNo);
       const billNoStr = r.billingReceiptNo || (r.billingId ? `BILL-${String(r.billingId).padStart(3, '0')}` : 'linked bill');
 
@@ -10686,7 +11171,8 @@
       const formattedAmt = typeof fmtMoney === 'function' ? fmtMoney(r.amount) : ('₹' + (parseFloat(r.amount) || 0).toFixed(2));
       const devoteeName = r.name || r.devoteeName || 'N/A';
       const rCat = (typeof resolveReceiptCategory === 'function') ? resolveReceiptCategory(r) : (r.category || '');
-      const fundCategory = (r.fund || 'General Temple Fund') + (rCat ? ' / ' + rCat : '');
+      const rFund = (typeof resolveReceiptFund === 'function') ? resolveReceiptFund(r) : (r.fund || 'General Temple Fund');
+      const fundCategory = (rFund || 'General Temple Fund') + (rCat ? ' / ' + rCat : '');
       const isLinked = (r.source === 'billing' || !!r.billingFirestoreId || !!r.billingId || !!r.billingReceiptNo);
       const billNoStr = r.billingReceiptNo || (r.billingId ? `BILL-${String(r.billingId).padStart(3, '0')}` : 'linked bill');
 
@@ -10769,9 +11255,128 @@
     let currentBillingReceipt = null;
     window.billingAllRecords = [];
 
+    /**
+     * STEP 33.177: Inspects Firestore or local stores to collect all currently occupied billing
+     * sequence numbers across bills, receipts, and system reservations.
+     * Prevents collision with active or voided bills, independent receipts, and active reservations.
+     */
+    async function getOccupiedBillingSequenceNumbers(dbInstance) {
+      const occupied = new Set();
+      const db = dbInstance || (typeof getFirestoreDb === 'function' ? getFirestoreDb() : null);
+
+      if (db) {
+        try {
+          const [bSnap, rSnap, sSnap] = await Promise.all([
+            db.collection('billing').get(),
+            db.collection('receipts').get(),
+            db.collection('system').get()
+          ]);
+
+          if (bSnap && typeof bSnap.forEach === 'function') {
+            bSnap.forEach(snap => {
+              const d = (typeof snap.data === 'function') ? (snap.data() || {}) : (snap || {});
+              if (typeof d.id === 'number' && d.id > 0) occupied.add(d.id);
+              const p = parseGlobalNumber(d.receiptNo);
+              if (p) occupied.add(p);
+              if (snap.id) {
+                const m = String(snap.id).match(/^bill_(\d+)$/);
+                if (m) occupied.add(parseInt(m[1], 10));
+              }
+            });
+          }
+
+          if (rSnap && typeof rSnap.forEach === 'function') {
+            rSnap.forEach(snap => {
+              if (snap.id && String(snap.id).startsWith('rcpt_phys_')) return;
+              const d = (typeof snap.data === 'function') ? (snap.data() || {}) : (snap || {});
+              if (d.source === 'physical' || d.isPhysical) return;
+              if (typeof d.id === 'number' && d.id > 0) occupied.add(d.id);
+              if (typeof d.billingId === 'number' && d.billingId > 0) occupied.add(d.billingId);
+              const p1 = parseGlobalNumber(d.receiptNo);
+              if (p1) occupied.add(p1);
+              const p2 = parseGlobalNumber(d.billingReceiptNo);
+              if (p2) occupied.add(p2);
+              if (snap.id) {
+                const m = String(snap.id).match(/^rcpt_(\d+)$/);
+                if (m) occupied.add(parseInt(m[1], 10));
+              }
+            });
+          }
+
+          if (sSnap && typeof sSnap.forEach === 'function') {
+            sSnap.forEach(snap => {
+              if (snap.id && String(snap.id).startsWith('res_') && !String(snap.id).startsWith('res_phys_')) {
+                const d = (typeof snap.data === 'function') ? (snap.data() || {}) : (snap || {});
+                if (typeof d.seqNumber === 'number' && d.seqNumber > 0) occupied.add(d.seqNumber);
+                const p1 = parseGlobalNumber(d.billReceiptNo);
+                if (p1) occupied.add(p1);
+                const p2 = parseGlobalNumber(d.receiptNo);
+                if (p2) occupied.add(p2);
+                const m = String(snap.id).match(/^res_(\d+)$/);
+                if (m) occupied.add(parseInt(m[1], 10));
+              }
+            });
+          }
+
+          return occupied;
+        } catch (dbErr) {
+          console.warn('[getOccupiedBillingSequenceNumbers] Firestore read failed, falling back to cache:', dbErr);
+        }
+      }
+
+      // Offline / fallback to IndexedDB or local memory
+      try {
+        const bills = (typeof allBillingRecords === 'function') ? await allBillingRecords() : (window.billingAllRecords || []);
+        (bills || []).forEach(b => {
+          if (!b) return;
+          if (typeof b.id === 'number' && b.id > 0) occupied.add(b.id);
+          const p = parseGlobalNumber(b.receiptNo);
+          if (p) occupied.add(p);
+          if (b.firestoreId) {
+            const m = String(b.firestoreId).match(/^bill_(\d+)$/);
+            if (m) occupied.add(parseInt(m[1], 10));
+          }
+        });
+
+        const rcpts = (typeof allReceipts === 'function') ? await allReceipts() : [];
+        (rcpts || []).forEach(r => {
+          if (!r) return;
+          if (r.source === 'physical' || r.isPhysical) return;
+          if (typeof r.id === 'number' && r.id > 0) occupied.add(r.id);
+          if (typeof r.billingId === 'number' && r.billingId > 0) occupied.add(r.billingId);
+          const p1 = parseGlobalNumber(r.receiptNo);
+          if (p1) occupied.add(p1);
+          const p2 = parseGlobalNumber(r.billingReceiptNo);
+          if (p2) occupied.add(p2);
+          if (r.firestoreId) {
+            const m = String(r.firestoreId).match(/^rcpt_(\d+)$/);
+            if (m) occupied.add(parseInt(m[1], 10));
+          }
+        });
+      } catch (cacheErr) {
+        console.warn('[getOccupiedBillingSequenceNumbers] Cache read fallback warning:', cacheErr);
+      }
+
+      return occupied;
+    }
+
+    /**
+     * STEP 33.177: Determines the lowest available eligible billing sequence number starting from 1 (BILL-001).
+     * Reuses gaps left by permanently deleted bills while respecting voided bills,
+     * existing reservations, and active bills.
+     */
+    async function getNextAvailableBillingSeq(dbInstance) {
+      const occupied = await getOccupiedBillingSequenceNumbers(dbInstance);
+      let cand = 1;
+      while (occupied.has(cand)) {
+        cand++;
+      }
+      return cand;
+    }
+
     async function getNextBillingReceiptNo() {
       try {
-        const nextVal = await getNextGlobalSequenceNo();
+        const nextVal = await getNextAvailableBillingSeq();
         const c = await fsGetCounters();
         const prefix = (c && (c.billingPrefix || c.billingReceiptPrefix)) || 'BILL-';
         return `${prefix}${String(nextVal).padStart(3, '0')}`;
@@ -11995,7 +12600,9 @@
       const isoDate = getBillingRecordISODate(billingRecord) || todayISO();
 
       // Resolve fund and income category
-      const fund = billingCategoryToFund(billingRecord.category);
+      const fund = (billingRecord && billingRecord.fund && String(billingRecord.fund).trim())
+        ? String(billingRecord.fund).trim()
+        : billingCategoryToFund(billingRecord.category);
       const incomeCat = await billingCategoryToIncomeCategory(billingRecord.category);
 
       // Build description from item + qty + star
@@ -12050,7 +12657,7 @@
       };
     }
 
-    /* Validate manual bill number input in real-time (STEP 33.8A) */
+    /* Validate manual bill number input in real-time (STEP 33.8A / STEP 33.177) */
     async function validateManualBillNoInput(input) {
       const feedback = el('manualBillNoFeedback');
       if (!feedback) return;
@@ -12069,13 +12676,14 @@
         return;
       }
       try {
-        const nextSeq = await getNextGlobalSequenceNo();
-        if (parsed < nextSeq) {
+        const occupied = await getOccupiedBillingSequenceNumbers();
+        const nextSeq = await getNextAvailableBillingSeq();
+        if (occupied.has(parsed)) {
           feedback.style.display = 'block';
           feedback.style.background = '#f8d7da';
           feedback.style.color = '#721c24';
           feedback.textContent = `❌ Number ${formatGlobalNumber(parsed, 'BILL-')} is already reserved/issued. Numbers cannot be reused.`;
-        } else if (parsed > nextSeq) {
+        } else if (parsed !== nextSeq) {
           feedback.style.display = 'block';
           feedback.style.background = '#f8d7da';
           feedback.style.color = '#721c24';
@@ -12374,7 +12982,7 @@
         return;
       }
 
-      // 1b. Validate manual bill number for duplicates and sequence if provided (STEP 33.12 Unified Numbering)
+      // 1b. Validate manual bill number for duplicates and sequence if provided (STEP 33.12 / STEP 33.177)
       if (manualBillNo) {
         const parsedManual = parseGlobalNumber(manualBillNo);
         if (!parsedManual) {
@@ -12383,13 +12991,14 @@
           return;
         }
         try {
-          const nextSeq = await getNextGlobalSequenceNo();
-          if (parsedManual < nextSeq) {
+          const occupied = await getOccupiedBillingSequenceNumbers();
+          const nextSeq = await getNextAvailableBillingSeq();
+          if (occupied.has(parsedManual)) {
             showFeedback('bad', `⚠️ Bill number "<b>${esc(manualBillNo)}</b>" (${formatGlobalNumber(parsedManual, 'BILL-')}) has already been reserved or issued. Numbers cannot be reused.`);
             if (manualBillNoInput) manualBillNoInput.focus();
             return;
           }
-          if (parsedManual > nextSeq) {
+          if (parsedManual !== nextSeq) {
             showFeedback('bad', `⚠️ Bill number "<b>${esc(manualBillNo)}</b>" (${formatGlobalNumber(parsedManual, 'BILL-')}) is out of sequence. The next required sequence number is <b>${formatGlobalNumber(nextSeq, 'BILL-')}</b>.`);
             if (manualBillNoInput) manualBillNoInput.focus();
             return;
@@ -12583,8 +13192,8 @@
           await putRec('receipts', accountingReceipt);
         }
         const s = (await getOne('settings', 1)) || window.APP_SETTINGS || { id: 1 };
-        s.billingReceiptCounter = billingRecord.id;
-        s.globalSequenceCounter = billingRecord.id;
+        s.billingReceiptCounter = Math.max(parseInt(s.billingReceiptCounter, 10) || 0, billingRecord.id);
+        s.globalSequenceCounter = Math.max(parseInt(s.globalSequenceCounter, 10) || 0, billingRecord.id);
         window.APP_SETTINGS = s;
         if (typeof putRec === 'function') {
           await putRec('settings', s);
@@ -12742,7 +13351,16 @@
         incCatSel.value = '';
         incCatSel.classList.remove('input-error');
       }
-      if (manualBillNoInput) manualBillNoInput.value = '';
+      if (manualBillNoInput) {
+        manualBillNoInput.value = '';
+        if (typeof getNextBillingReceiptNo === 'function') {
+          getNextBillingReceiptNo().then(p => {
+            if (manualBillNoInput) manualBillNoInput.placeholder = `Auto-generated on save (e.g. ${p})`;
+            const prevSpan = el('manualBillNoPreview');
+            if (prevSpan) prevSpan.textContent = p;
+          }).catch(() => {});
+        }
+      }
       if (manualBillNoFeedback) { manualBillNoFeedback.style.display = 'none'; manualBillNoFeedback.textContent = ''; }
 
       syncCategorySegmentedUI();
@@ -14634,7 +15252,7 @@
                 <div class="form-group" id="manualBillNoGroup" style="margin-top: 10px; margin-bottom: 4px;">
                   <label for="manualBillNo" style="font-weight: 700; font-size: 13px; color: var(--text); display: flex; align-items: center; gap: 6px;">
                     🔢 Bill Number
-                    <span style="font-weight: 400; color: var(--text-muted); font-size: 11px;">(Leave blank to auto-allocate; preview: ${esc(nextBillNo)})</span>
+                    <span style="font-weight: 400; color: var(--text-muted); font-size: 11px;">(Leave blank to auto-allocate; preview: <span id="manualBillNoPreview">${esc(nextBillNo)}</span>)</span>
                   </label>
                   <input type="text" id="manualBillNo" name="manualBillNo" placeholder="Auto-generated on save (e.g. ${esc(nextBillNo)})" autocomplete="off"
                     style="font-family: monospace; font-size: 14px; letter-spacing: 0.5px; width: 100%; box-sizing: border-box;"
@@ -22539,11 +23157,11 @@ void main(){
 
     /**
      * Allocates next billing receipt number preview or sequence string in Firestore.
-     * STEP 33.12: Shares unified global sequence with Receipts (e.g. BILL-001, BILL-002...).
+     * STEP 33.177: Lowest available eligible billing sequence with safe number reuse.
      */
     async function fsNextBillingReceiptNo() {
       try {
-        const nextVal = await getNextGlobalSequenceNo();
+        const nextVal = await getNextAvailableBillingSeq();
         const c = await fsGetCounters();
         const prefix = (c && (c.billingPrefix || c.billingReceiptPrefix)) || 'BILL-';
         return `${prefix}${String(nextVal).padStart(3, '0')}`;
@@ -22703,9 +23321,13 @@ void main(){
               const normCat = (storeName === 'receipts' && typeof resolveReceiptCategory === 'function')
                 ? resolveReceiptCategory(data)
                 : '';
+              const normFund = (storeName === 'receipts' && typeof resolveReceiptFund === 'function')
+                ? resolveReceiptFund(data)
+                : '';
               return {
                 ...data,
                 ...(normCat ? { category: normCat } : {}),
+                ...(normFund ? { fund: normFund } : {}),
                 firestoreId: docSnap.id,
                 id: (data.legacyId !== undefined && data.legacyId !== null) ? data.legacyId : (data.id !== undefined ? data.id : docSnap.id)
               };
@@ -22733,10 +23355,21 @@ void main(){
             const prefix = getDeterministicDocPrefix(storeName);
             rec = await getOne(storeName, `${prefix}${id}`);
           }
-          if (rec && storeName === 'receipts' && typeof resolveReceiptCategory === 'function') {
-            const normCat = resolveReceiptCategory(rec);
-            if (normCat && (!rec.category || String(rec.category).trim() !== normCat)) {
-              rec = { ...rec, category: normCat };
+          if (rec && storeName === 'receipts') {
+            let mutated = false;
+            if (typeof resolveReceiptCategory === 'function') {
+              const normCat = resolveReceiptCategory(rec);
+              if (normCat && (!rec.category || String(rec.category).trim() !== normCat)) {
+                rec = { ...rec, category: normCat };
+                mutated = true;
+              }
+            }
+            if (typeof resolveReceiptFund === 'function') {
+              const normFund = resolveReceiptFund(rec);
+              if (normFund && (!rec.fund || String(rec.fund).trim() !== normFund)) {
+                rec = { ...rec, fund: normFund };
+                mutated = true;
+              }
             }
           }
           return rec || null;
@@ -24526,6 +25159,16 @@ void main(){
         const curSeq = (typeof cData.globalSequenceCounter === 'number')
           ? cData.globalSequenceCounter
           : 0;
+        const curBillCounter = (typeof cData.billingReceiptCounter === 'number')
+          ? cData.billingReceiptCounter
+          : 0;
+
+        // STEP 33.177: Safe Number Reuse: Find lowest available eligible billing number starting from 1 (BILL-001).
+        const occupied = await getOccupiedBillingSequenceNumbers(db);
+        let candidate = 1;
+        while (occupied.has(candidate)) {
+          candidate++;
+        }
 
         let nextBillNum;
         if (customBillNo) {
@@ -24533,11 +25176,11 @@ void main(){
           if (!parsed) {
             throw new Error(`Invalid manual bill number format "${customBillNo}". Must be a sequential positive integer (e.g. 001, 002) or standard prefix BILL-001.`);
           }
-          if (parsed <= curSeq) {
+          if (occupied.has(parsed)) {
             throw new Error(`Manual bill number "${customBillNo}" (numeric: ${parsed}) has already been reserved or issued. Numbers cannot be reused.`);
           }
-          if (parsed > curSeq + 1) {
-            throw new Error(`Manual bill number "${customBillNo}" (numeric: ${parsed}) is out of sequence. The next required sequence number is ${formatGlobalNumber(curSeq + 1, 'BILL-')}.`);
+          if (parsed !== candidate) {
+            throw new Error(`Manual bill number "${customBillNo}" (numeric: ${parsed}) is out of sequence. The next required sequence number is ${formatGlobalNumber(candidate, 'BILL-')}.`);
           }
           nextBillNum = parsed;
           const resRef = db.collection('system').doc(`res_${nextBillNum}`);
@@ -24548,18 +25191,21 @@ void main(){
             throw new Error(`Sequence number ${nextBillNum} is already reserved by another transaction.`);
           }
         } else {
-          nextBillNum = curSeq + 1;
-          let resRef = db.collection('system').doc(`res_${nextBillNum}`);
-          let billRef = db.collection('billing').doc(`bill_${nextBillNum}`);
-          let rcptRef = db.collection('receipts').doc(`rcpt_${nextBillNum}`);
+          let resRef = db.collection('system').doc(`res_${candidate}`);
+          let billRef = db.collection('billing').doc(`bill_${candidate}`);
+          let rcptRef = db.collection('receipts').doc(`rcpt_${candidate}`);
           let [resSnap, bSnap, rSnap] = await Promise.all([tx.get(resRef), tx.get(billRef), tx.get(rcptRef)]);
           while (resSnap.exists || bSnap.exists || rSnap.exists) {
-            nextBillNum++;
-            resRef = db.collection('system').doc(`res_${nextBillNum}`);
-            billRef = db.collection('billing').doc(`bill_${nextBillNum}`);
-            rcptRef = db.collection('receipts').doc(`rcpt_${nextBillNum}`);
+            occupied.add(candidate);
+            while (occupied.has(candidate)) {
+              candidate++;
+            }
+            resRef = db.collection('system').doc(`res_${candidate}`);
+            billRef = db.collection('billing').doc(`bill_${candidate}`);
+            rcptRef = db.collection('receipts').doc(`rcpt_${candidate}`);
             [resSnap, bSnap, rSnap] = await Promise.all([tx.get(resRef), tx.get(billRef), tx.get(rcptRef)]);
           }
+          nextBillNum = candidate;
         }
 
         const billPrefix = cData.billingPrefix || cData.billingReceiptPrefix || 'BILL-';
@@ -24709,9 +25355,10 @@ void main(){
         };
 
         // 7. Write atomically within transaction
+        // STEP 33.177: Safe Number Reuse: Preserve sequence counters without resetting backwards when filling gaps!
         tx.set(counterRef, {
-          globalSequenceCounter: nextBillNum,
-          billingReceiptCounter: nextBillNum,
+          globalSequenceCounter: Math.max(curSeq, nextBillNum),
+          billingReceiptCounter: Math.max(curBillCounter, nextBillNum),
           updatedAt: serverTs
         }, { merge: true });
 
@@ -24821,9 +25468,10 @@ void main(){
         const incomingFp = computeReceiptFingerprint({ ...receiptInput, manualReceiptNo: physId });
 
         // 4. Resolve fund and category accounting mappings
-        const resolvedFund = (receiptInput.fund && String(receiptInput.fund).trim())
-          ? String(receiptInput.fund).trim()
-          : (parsed.type === 'PU' ? 'Punarudharanam Fund' : (parsed.type === 'P' ? 'General Temple Fund' : (parsed.fund || 'General Temple Fund')));
+        const rawFundInput = (typeof resolveReceiptFund === 'function')
+          ? resolveReceiptFund(receiptInput)
+          : ((receiptInput.fund && String(receiptInput.fund).trim()) || '');
+        const resolvedFund = rawFundInput || (parsed.type === 'PU' ? 'Punarudharanam Fund' : (parsed.type === 'P' ? 'General Temple Fund' : (parsed.fund || 'General Temple Fund')));
         const resolvedCategory = (receiptInput.category && String(receiptInput.category).trim())
           ? String(receiptInput.category).trim()
           : (parsed.category || (parsed.type === 'PU' ? 'Donation Income' : 'Pooja Income'));
@@ -25339,6 +25987,11 @@ void main(){
     window.fsNextReceiptNo = fsNextReceiptNo;
     window.fsNextVoucherNo = fsNextVoucherNo;
     window.fsNextBillingReceiptNo = fsNextBillingReceiptNo;
+    window.getNextBillingReceiptNo = getNextBillingReceiptNo;
+    window.getNextAvailableBillingSeq = getNextAvailableBillingSeq;
+    window.getOccupiedBillingSequenceNumbers = getOccupiedBillingSequenceNumbers;
+    window.fsConvertNumberedReceiptToUnnumbered = fsConvertNumberedReceiptToUnnumbered;
+    window.fsConvertUnnumberedReceiptToNumbered = fsConvertUnnumberedReceiptToNumbered;
     window.fsGetCounters = fsGetCounters;
     window.fsInitCounters = fsInitCounters;
     window.fsRunDiagnostics = fsRunDiagnostics;

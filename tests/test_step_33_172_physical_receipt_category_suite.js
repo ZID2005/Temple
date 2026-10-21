@@ -372,6 +372,11 @@ const context = {
   initMotionObserver: () => {},
   simpleList: (arr) => arr.join('; '),
   VIEW_RENDERERS: {},
+  document: {
+    getElementById: (id) => ({ id, disabled: false, value: '', style: {} }),
+    querySelector: () => null,
+    querySelectorAll: () => []
+  },
   window: {}
 };
 

@@ -1,0 +1,325 @@
+{
+  "totalTests": 53,
+  "passedTests": 53,
+  "failedTests": 0,
+  "testResults": [
+    {
+      "id": "T1.1",
+      "description": "Genuinely missing fund on P600 resolves to General Temple Fund",
+      "status": "PASS",
+      "details": "General Temple Fund"
+    },
+    {
+      "id": "T1.2",
+      "description": "Genuinely missing fund on PU1 resolves to Punarudharanam Fund",
+      "status": "PASS",
+      "details": "Punarudharanam Fund"
+    },
+    {
+      "id": "T1.3",
+      "description": "Genuinely missing fund on ordinary receipt resolves to General Temple Fund",
+      "status": "PASS",
+      "details": "General Temple Fund"
+    },
+    {
+      "id": "T1.4",
+      "description": "Explicit \"TEMPLE FUND\" is preserved intact (NOT coerced to General Temple Fund)",
+      "status": "PASS",
+      "details": "TEMPLE FUND"
+    },
+    {
+      "id": "T1.5",
+      "description": "Explicit \"Temple Fund\" is preserved intact",
+      "status": "PASS",
+      "details": "Temple Fund"
+    },
+    {
+      "id": "T1.6",
+      "description": "Physical P receipt with Festival Fund preserves selection",
+      "status": "PASS",
+      "details": "Festival Fund"
+    },
+    {
+      "id": "T1.7",
+      "description": "Physical PU receipt with General Temple Fund preserves selection",
+      "status": "PASS",
+      "details": "General Temple Fund"
+    },
+    {
+      "id": "T1.8",
+      "description": "Legacy field fundName resolved correctly",
+      "status": "PASS",
+      "details": "Chitty Fund"
+    },
+    {
+      "id": "T1.9",
+      "description": "Legacy field fund_name resolved correctly",
+      "status": "PASS",
+      "details": "Festival Fund"
+    },
+    {
+      "id": "T1.10",
+      "description": "Legacy field fundType resolved correctly",
+      "status": "PASS",
+      "details": "Donation / Restricted Fund"
+    },
+    {
+      "id": "T1.11",
+      "description": "Legacy field billingFund resolved correctly",
+      "status": "PASS",
+      "details": "Special Fund"
+    },
+    {
+      "id": "T1.12",
+      "description": "Whitespace around fund name safely trimmed",
+      "status": "PASS",
+      "details": "Punarudharanam Fund"
+    },
+    {
+      "id": "T2.1",
+      "description": "P600 persisted with authoritative fund \"TEMPLE FUND\"",
+      "status": "PASS",
+      "details": "TEMPLE FUND"
+    },
+    {
+      "id": "T2.2",
+      "description": "P600 category remains independent \"Pooja Income\"",
+      "status": "PASS",
+      "details": "Pooja Income"
+    },
+    {
+      "id": "T2.3",
+      "description": "System reservation res_phys_P600 stores \"TEMPLE FUND\"",
+      "status": "PASS",
+      "details": "TEMPLE FUND"
+    },
+    {
+      "id": "T2.4",
+      "description": "P601 persisted with \"Punarudharanam Fund\" (NOT General Temple Fund)",
+      "status": "PASS",
+      "details": "Punarudharanam Fund"
+    },
+    {
+      "id": "T2.5",
+      "description": "P601 category preserved as \"Annadanam\"",
+      "status": "PASS",
+      "details": "Annadanam"
+    },
+    {
+      "id": "T3.1",
+      "description": "PU1 persisted with authoritative fund \"TEMPLE FUND\"",
+      "status": "PASS",
+      "details": "TEMPLE FUND"
+    },
+    {
+      "id": "T3.2",
+      "description": "PU1 category preserved as \"Donation Income\"",
+      "status": "PASS",
+      "details": "Donation Income"
+    },
+    {
+      "id": "T3.3",
+      "description": "res_phys_PU1 stores \"TEMPLE FUND\"",
+      "status": "PASS",
+      "details": "TEMPLE FUND"
+    },
+    {
+      "id": "T3.4",
+      "description": "PU2 persisted with \"General Temple Fund\" (NOT coerced to Punarudharanam Fund)",
+      "status": "PASS",
+      "details": "General Temple Fund"
+    },
+    {
+      "id": "T3.5",
+      "description": "PU2 category preserved as \"Special Contribution\"",
+      "status": "PASS",
+      "details": "Special Contribution"
+    },
+    {
+      "id": "T4.1",
+      "description": "Normal receipt rcpt_51 persisted with \"TEMPLE FUND\"",
+      "status": "PASS",
+      "details": "TEMPLE FUND"
+    },
+    {
+      "id": "T4.2",
+      "description": "Normal receipt allocated R-051",
+      "status": "PASS",
+      "details": "R-051"
+    },
+    {
+      "id": "T4.3",
+      "description": "Normal receipt rcpt_52 persisted with \"Festival Fund\"",
+      "status": "PASS",
+      "details": "Festival Fund"
+    },
+    {
+      "id": "T5.1",
+      "description": "Unnumbered custom receipt created",
+      "status": "PASS",
+      "details": ""
+    },
+    {
+      "id": "T5.2",
+      "description": "Unnumbered custom receipt preserved \"TEMPLE FUND\"",
+      "status": "PASS",
+      "details": "TEMPLE FUND"
+    },
+    {
+      "id": "T5.3",
+      "description": "Unnumbered receipt has receiptNo empty string",
+      "status": "PASS",
+      "details": ""
+    },
+    {
+      "id": "T5.4",
+      "description": "Counters strictly unaffected by unnumbered receipt (remains 52)",
+      "status": "PASS",
+      "details": 52
+    },
+    {
+      "id": "T6.1",
+      "description": "P600 edit updated fund to \"Chitty Fund\" in Firestore doc",
+      "status": "PASS",
+      "details": "Chitty Fund"
+    },
+    {
+      "id": "T6.2",
+      "description": "res_phys_P600 synchronized with \"Chitty Fund\" on edit",
+      "status": "PASS",
+      "details": "Chitty Fund"
+    },
+    {
+      "id": "T6.3",
+      "description": "PU1 edit updated fund to \"Festival Fund\" in Firestore doc",
+      "status": "PASS",
+      "details": "Festival Fund"
+    },
+    {
+      "id": "T6.4",
+      "description": "res_phys_PU1 synchronized with \"Festival Fund\" on edit",
+      "status": "PASS",
+      "details": "Festival Fund"
+    },
+    {
+      "id": "T6.5",
+      "description": "Unnumbered receipt edit preserved fund update to \"Punarudharanam Fund\"",
+      "status": "PASS",
+      "details": "Punarudharanam Fund"
+    },
+    {
+      "id": "T6.6",
+      "description": "Edit form renders dynamic selected option for custom \"TEMPLE FUND\"",
+      "status": "PASS",
+      "details": ""
+    },
+    {
+      "id": "T6.7",
+      "description": "Edit form does NOT default custom fund to \"General Temple Fund\"",
+      "status": "PASS",
+      "details": ""
+    },
+    {
+      "id": "T7.1",
+      "description": "Receipts table displays \"Chitty Fund\" for edited P600",
+      "status": "PASS",
+      "details": ""
+    },
+    {
+      "id": "T7.2",
+      "description": "Receipts table displays \"Festival Fund\" for edited PU1",
+      "status": "PASS",
+      "details": ""
+    },
+    {
+      "id": "T7.3",
+      "description": "Receipts table displays \"General Temple Fund\" for PU2",
+      "status": "PASS",
+      "details": ""
+    },
+    {
+      "id": "T7.4",
+      "description": "Receipts table displays \"Punarudharanam Fund\" for edited unnumbered receipt",
+      "status": "PASS",
+      "details": ""
+    },
+    {
+      "id": "T8.1",
+      "description": "Cold allReceipts returns P600 with \"Chitty Fund\"",
+      "status": "PASS",
+      "details": "Chitty Fund"
+    },
+    {
+      "id": "T8.2",
+      "description": "Cold allReceipts returns PU1 with \"Festival Fund\"",
+      "status": "PASS",
+      "details": "Festival Fund"
+    },
+    {
+      "id": "T8.3",
+      "description": "Cold allReceipts returns PU2 with \"General Temple Fund\"",
+      "status": "PASS",
+      "details": "General Temple Fund"
+    },
+    {
+      "id": "T8.4",
+      "description": "Ledger row for P600 contains fund \"Chitty Fund\"",
+      "status": "PASS",
+      "details": "Chitty Fund"
+    },
+    {
+      "id": "T8.5",
+      "description": "Ledger row for PU1 contains fund \"Festival Fund\"",
+      "status": "PASS",
+      "details": "Festival Fund"
+    },
+    {
+      "id": "T8.6",
+      "description": "getFundBalance(\"General Temple Fund\") includes PU2 (assigned to General Temple Fund)",
+      "status": "PASS",
+      "details": 1200
+    },
+    {
+      "id": "T8.7",
+      "description": "getFundBalance(\"Festival Fund\") includes PU1 (assigned to Festival Fund)",
+      "status": "PASS",
+      "details": 2500
+    },
+    {
+      "id": "T9.1",
+      "description": "onReceiptNoInput preselects Punarudharanam Fund when fund not user-modified",
+      "status": "PASS",
+      "details": ""
+    },
+    {
+      "id": "T9.2",
+      "description": "onReceiptNoInput strictly preserves userModified fund \"TEMPLE FUND\"",
+      "status": "PASS",
+      "details": ""
+    },
+    {
+      "id": "T9.3",
+      "description": "Income category selection remains fully independent of fund selection",
+      "status": "PASS",
+      "details": ""
+    },
+    {
+      "id": "T10.1",
+      "description": "globalSequenceCounter strictly 52 (zero leakage from physical/block receipts)",
+      "status": "PASS",
+      "details": 52
+    },
+    {
+      "id": "T10.2",
+      "description": "billingReceiptCounter strictly untouched at 30",
+      "status": "PASS",
+      "details": 30
+    },
+    {
+      "id": "T10.3",
+      "description": "receiptCounter strictly untouched at 1050",
+      "status": "PASS",
+      "details": 1050
+    }
+  ]
+}
