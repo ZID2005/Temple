@@ -7655,6 +7655,53 @@
       return msg.includes('quotaexceedederror') || (msg.includes('quota') && (msg.includes('storage') || msg.includes('localstorage') || msg.includes('indexeddb') || msg.includes('setitem')));
     }
 
+    /* ===================== FIRESTORE READ TELEMETRY & MASTER CACHE (STEP 33.182) ===================== */
+    window._firestoreReadMetrics = {
+      totalDocumentReads: 0,
+      queryCount: 0,
+      byCollection: {},
+      byCaller: {}
+    };
+
+    function trackFirestoreReads(collectionName, count, caller = 'unknown') {
+      if (!collectionName || typeof count !== 'number' || count < 0) return;
+      window._firestoreReadMetrics.totalDocumentReads += count;
+      window._firestoreReadMetrics.queryCount += 1;
+      window._firestoreReadMetrics.byCollection[collectionName] =
+        (window._firestoreReadMetrics.byCollection[collectionName] || 0) + count;
+      window._firestoreReadMetrics.byCaller[caller] =
+        (window._firestoreReadMetrics.byCaller[caller] || 0) + count;
+    }
+
+    function getFirestoreReadMetrics() {
+      return JSON.parse(JSON.stringify(window._firestoreReadMetrics));
+    }
+
+    function resetFirestoreReadMetrics() {
+      window._firestoreReadMetrics = {
+        totalDocumentReads: 0,
+        queryCount: 0,
+        byCollection: {},
+        byCaller: {}
+      };
+    }
+
+    const MASTER_DATA_STORES = new Set(['funds', 'incomeCategories', 'expenseCategories', 'bankAccounts']);
+    window.MASTER_DATA_STORES = MASTER_DATA_STORES;
+    const _masterDataMemoryCache = new Map();
+    window._masterDataMemoryCache = _masterDataMemoryCache;
+    const MASTER_DATA_CACHE_TTL_MS = 60000; // 60 seconds short-lived in-memory cache
+
+    function invalidateMasterDataCache(storeName) {
+      const memCache = (typeof _masterDataMemoryCache !== 'undefined') ? _masterDataMemoryCache : (typeof window !== 'undefined' && window._masterDataMemoryCache ? window._masterDataMemoryCache : null);
+      if (!memCache) return;
+      if (storeName) {
+        memCache.delete(storeName);
+      } else {
+        memCache.clear();
+      }
+    }
+
     const DB_NAME = isEmulatorModeActive() ? 'temple_accounts_test_db' : 'temple_accounts_db';
     const DB_VERSION = 3;
     const STORES = ['settings', 'funds', 'incomeCategories', 'expenseCategories', 'bankAccounts',
@@ -8053,13 +8100,16 @@
     async function allBillingRecords() { return await fsGetAllSafe('billing'); }
     async function getBillingRecord(id) { return await fsGetOneSafe('billing', id); }
 
-    /* ---------- BALANCE ENGINE ---------- */
-    async function getCashBalance(uptoDate) {
+    /* ---------- BALANCE ENGINE (STEP 33.182: Preloaded Dataset Optimization) ---------- */
+    async function getCashBalance(uptoDate, preloadedData) {
       const s = window.APP_SETTINGS || {};
-      const [receipts, payments, transfers, loans, collections, payouts] = await Promise.all([
+      const [receipts, payments, transfers, loans, collections, payouts] = preloadedData ? [
+        preloadedData.receipts, preloadedData.payments, preloadedData.transfers,
+        preloadedData.loans, preloadedData.collections, preloadedData.payouts
+      ] : await Promise.all([
         activeReceipts(), activePayments(), activeTransfers(), allLoans(), activeChittyCollections(), activeChittyPayouts()
       ]);
-      const inRange = (arr) => uptoDate ? arr.filter(x => x.date <= uptoDate) : arr;
+      const inRange = (arr) => uptoDate ? (arr || []).filter(x => x.date <= uptoDate) : (arr || []);
       let bal = parseFloat(s.openingCash) || 0;
       bal += sumField(inRange(receipts).filter(r => r.paymentMode === 'Cash'), 'amount');
       bal -= sumField(inRange(payments).filter(p => p.paymentMode === 'Cash'), 'amount');
@@ -8073,12 +8123,15 @@
       });
       return bal;
     }
-    async function getBankBalance(uptoDate) {
+    async function getBankBalance(uptoDate, preloadedData) {
       const s = window.APP_SETTINGS || {};
-      const [receipts, payments, transfers, loans, collections, payouts] = await Promise.all([
+      const [receipts, payments, transfers, loans, collections, payouts] = preloadedData ? [
+        preloadedData.receipts, preloadedData.payments, preloadedData.transfers,
+        preloadedData.loans, preloadedData.collections, preloadedData.payouts
+      ] : await Promise.all([
         activeReceipts(), activePayments(), activeTransfers(), allLoans(), activeChittyCollections(), activeChittyPayouts()
       ]);
-      const inRange = (arr) => uptoDate ? arr.filter(x => x.date <= uptoDate) : arr;
+      const inRange = (arr) => uptoDate ? (arr || []).filter(x => x.date <= uptoDate) : (arr || []);
       const isBankMode = (mode) => mode === 'Bank' || mode === 'UPI';
       let bal = parseFloat(s.openingBank) || 0;
       bal += sumField(inRange(receipts).filter(r => isBankMode(r.paymentMode)), 'amount');
@@ -8093,12 +8146,14 @@
       });
       return bal;
     }
-    async function getFundBalance(fundName, uptoDate) {
-      const s = window.APP_SETTINGS;
-      const [receipts, payments, collections, payouts] = await Promise.all([
+    async function getFundBalance(fundName, uptoDate, preloadedData) {
+      const s = window.APP_SETTINGS || {};
+      const [receipts, payments, collections, payouts] = preloadedData ? [
+        preloadedData.receipts, preloadedData.payments, preloadedData.collections, preloadedData.payouts
+      ] : await Promise.all([
         activeReceipts(), activePayments(), activeChittyCollections(), activeChittyPayouts()
       ]);
-      const inRange = (arr) => uptoDate ? arr.filter(x => x.date <= uptoDate) : arr;
+      const inRange = (arr) => uptoDate ? (arr || []).filter(x => x.date <= uptoDate) : (arr || []);
       let opening = 0;
       if (fundName === 'General Temple Fund') opening = parseFloat(s.openingGeneralFund) || 0;
       if (fundName === 'Punarudharanam Fund') opening = parseFloat(s.openingPunarudharanamFund) || 0;
@@ -8108,33 +8163,33 @@
       bal -= sumField(inRange(payments).filter(p => p.fund === fundName), 'amount');
       if (fundName === 'Chitty Fund') {
         bal += sumField(inRange(collections), 'amountReceived');
-        bal -= sumField(inRange(payouts), 'amount');
+        bal += sumField(inRange(payouts), 'amount');
       }
       return bal;
     }
-    async function getAllFundBalances(uptoDate) {
-      const funds = await allFunds();
+    async function getAllFundBalances(uptoDate, preloadedData) {
+      const funds = (preloadedData && preloadedData.funds) ? preloadedData.funds : await allFunds();
       const out = [];
-      for (const f of funds) out.push({ name: f.name, balance: await getFundBalance(f.name, uptoDate) });
+      for (const f of funds) out.push({ name: f.name, balance: await getFundBalance(f.name, uptoDate, preloadedData) });
       return out;
     }
-    async function getLoanOutstanding() {
-      const s = window.APP_SETTINGS;
-      const loans = await allLoans();
+    async function getLoanOutstanding(preloadedData) {
+      const s = window.APP_SETTINGS || {};
+      const loans = (preloadedData && preloadedData.loans) ? preloadedData.loans : await allLoans();
       let bal = parseFloat(s.openingLoans) || 0;
       bal += sumField(loans, 'loanReceived');
       bal -= sumField(loans, 'repayment');
       return bal;
     }
-    async function getChittyOutstanding() {
-      const members = await activeChittyMembers();
-      const collections = await activeChittyCollections();
+    async function getChittyOutstanding(preloadedData) {
+      const members = (preloadedData && preloadedData.chittyMembers) ? preloadedData.chittyMembers : await activeChittyMembers();
+      const collections = (preloadedData && preloadedData.collections) ? preloadedData.collections : await activeChittyCollections();
       let totalPaid = sumField(collections, 'amountReceived');
       return { totalPaid, memberCount: members.length };
     }
-    async function monthIncomeExpense(monthStart, monthEnd) {
-      const receipts = (await activeReceipts()).filter(r => r.date >= monthStart && r.date <= monthEnd);
-      const payments = (await activePayments()).filter(p => p.date >= monthStart && p.date <= monthEnd);
+    async function monthIncomeExpense(monthStart, monthEnd, preloadedData) {
+      const receipts = ((preloadedData && preloadedData.receipts) ? preloadedData.receipts : await activeReceipts()).filter(r => r.date >= monthStart && r.date <= monthEnd);
+      const payments = ((preloadedData && preloadedData.payments) ? preloadedData.payments : await activePayments()).filter(p => p.date >= monthStart && p.date <= monthEnd);
       return { income: sumField(receipts, 'amount'), expense: sumField(payments, 'amount') };
     }
 
@@ -8779,11 +8834,36 @@
     const VIEW_RENDERERS = {};
     const WIRE_FUNCS = {};
 
-    /* ===================== DASHBOARD ===================== */
+    /* ===================== DASHBOARD (STEP 33.182: Single-Flight Optimized) ===================== */
     VIEW_RENDERERS.dashboard = async function () {
       const s = window.APP_SETTINGS;
+      const [receipts, payments, transfers, loans, collections, payouts, fundsList, chittyMembers] = await Promise.all([
+        activeReceipts(),
+        activePayments(),
+        activeTransfers(),
+        allLoans(),
+        activeChittyCollections(),
+        activeChittyPayouts(),
+        allFunds(),
+        activeChittyMembers()
+      ]);
+      const preloadedData = {
+        receipts,
+        payments,
+        transfers,
+        loans,
+        collections,
+        payouts,
+        funds: fundsList,
+        chittyMembers
+      };
+
       const [cash, bank, funds, loanOut, chitty] = await Promise.all([
-        getCashBalance(), getBankBalance(), getAllFundBalances(), getLoanOutstanding(), getChittyOutstanding()
+        getCashBalance(null, preloadedData),
+        getBankBalance(null, preloadedData),
+        getAllFundBalances(null, preloadedData),
+        getLoanOutstanding(preloadedData),
+        getChittyOutstanding(preloadedData)
       ]);
       const generalFund = funds.find(f => f.name === 'General Temple Fund');
       const punaFund = funds.find(f => f.name === 'Punarudharanam Fund');
@@ -8791,11 +8871,8 @@
       const now = new Date();
       const monthStart = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
       const monthEnd = todayISO();
-      const { income, expense } = await monthIncomeExpense(monthStart, monthEnd);
+      const { income, expense } = await monthIncomeExpense(monthStart, monthEnd, preloadedData);
       const surplus = income - expense;
-
-      const receipts = await activeReceipts();
-      const payments = await activePayments();
       const today = todayISO();
       const todayReceipts = receipts.filter(r => r.date === today);
       const todayPayments = payments.filter(p => p.date === today);
@@ -11243,9 +11320,7 @@
         }
 
         await refreshSettings();
-        await fsGetAllSafe('receipts');
-        await fsGetAllSafe('billing');
-        if (typeof refreshBillingHistory === 'function') {
+        if (typeof refreshBillingHistory === 'function' && CURRENT_VIEW === 'billing') {
           await refreshBillingHistory().catch(() => {});
         }
         await navigate(CURRENT_VIEW === 'receipts' ? 'receipts' : CURRENT_VIEW);
@@ -11307,6 +11382,12 @@
             db.collection('receipts').get(),
             db.collection('system').get()
           ]);
+
+          if (typeof trackFirestoreReads === 'function') {
+            trackFirestoreReads('billing', bSnap ? (bSnap.docs ? bSnap.docs.length : (bSnap.size || 0)) : 0, 'getOccupiedBillingSequenceNumbers');
+            trackFirestoreReads('receipts', rSnap ? (rSnap.docs ? rSnap.docs.length : (rSnap.size || 0)) : 0, 'getOccupiedBillingSequenceNumbers');
+            trackFirestoreReads('system', sSnap ? (sSnap.docs ? sSnap.docs.length : (sSnap.size || 0)) : 0, 'getOccupiedBillingSequenceNumbers');
+          }
 
           if (bSnap && typeof bSnap.forEach === 'function') {
             bSnap.forEach(snap => {
@@ -11401,8 +11482,8 @@
      * Reuses gaps left by permanently deleted bills while respecting voided bills,
      * existing reservations, and active bills.
      */
-    async function getNextAvailableBillingSeq(dbInstance) {
-      const occupied = await getOccupiedBillingSequenceNumbers(dbInstance);
+    async function getNextAvailableBillingSeq(dbInstance, precomputedOccupied = null) {
+      const occupied = precomputedOccupied || await getOccupiedBillingSequenceNumbers(dbInstance);
       let cand = 1;
       while (occupied.has(cand)) {
         cand++;
@@ -12693,11 +12774,57 @@
       };
     }
 
-    /* Validate manual bill number input in real-time (STEP 33.8A / STEP 33.177) */
-    async function validateManualBillNoInput(input) {
+    /* Validate manual bill number input in real-time (STEP 33.8A / STEP 33.177 / STEP 33.182) */
+    let _manualBillNoDebounceTimer = null;
+    let _manualBillNoValidationSeq = 0;
+
+    function onManualBillNoInput(input) {
+      if (_manualBillNoDebounceTimer) {
+        clearTimeout(_manualBillNoDebounceTimer);
+        _manualBillNoDebounceTimer = null;
+      }
+      const val = input ? input.value.trim() : '';
       const feedback = el('manualBillNoFeedback');
+      const prevSpan = el('manualBillNoPreview');
+
+      if (!val) {
+        if (feedback) {
+          feedback.style.display = 'none';
+          feedback.textContent = '';
+        }
+        return;
+      }
+
+      // Quick non-authoritative format check for immediate responsive feedback
+      const parsed = parseGlobalNumber(val);
+      if (!parsed) {
+        if (feedback) {
+          feedback.style.display = 'block';
+          feedback.style.background = '#fff3cd';
+          feedback.style.color = '#856404';
+          feedback.textContent = '⚠ Invalid format. Please enter a positive sequential number (e.g. 001, 002) or standard prefix BILL-001.';
+        }
+        return;
+      } else if (prevSpan) {
+        prevSpan.textContent = formatGlobalNumber(parsed, 'BILL-');
+      }
+
+      // Debounce server gap validation by 350ms
+      _manualBillNoDebounceTimer = setTimeout(() => {
+        _manualBillNoDebounceTimer = null;
+        validateManualBillNoInput(input);
+      }, 350);
+    }
+
+    async function validateManualBillNoInput(input) {
+      if (_manualBillNoDebounceTimer) {
+        clearTimeout(_manualBillNoDebounceTimer);
+        _manualBillNoDebounceTimer = null;
+      }
+      const feedback = el('manualBillNoFeedback');
+      const prevSpan = el('manualBillNoPreview');
       if (!feedback) return;
-      const val = input.value.trim();
+      const val = input ? input.value.trim() : '';
       if (!val) {
         feedback.style.display = 'none';
         feedback.textContent = '';
@@ -12711,9 +12838,19 @@
         feedback.textContent = '⚠ Invalid format. Please enter a positive sequential number (e.g. 001, 002) or standard prefix BILL-001.';
         return;
       }
+
+      // Stale asynchronous validation protection: track request sequence
+      const reqSeq = ++_manualBillNoValidationSeq;
+
       try {
+        // Single call to get occupied numbers (eliminates duplicate scan!)
         const occupied = await getOccupiedBillingSequenceNumbers();
-        const nextSeq = await getNextAvailableBillingSeq();
+        // Discard result if newer input was typed while awaiting
+        if (reqSeq !== _manualBillNoValidationSeq) return;
+
+        // Compute next sequence directly from occupied set without second query
+        const nextSeq = await getNextAvailableBillingSeq(null, occupied);
+
         if (occupied.has(parsed)) {
           feedback.style.display = 'block';
           feedback.style.background = '#f8d7da';
@@ -12730,7 +12867,11 @@
           feedback.style.color = 'var(--green)';
           feedback.textContent = `✓ Valid next sequential number: ${formatGlobalNumber(parsed, 'BILL-')}`;
         }
+        if (prevSpan) {
+          prevSpan.textContent = formatGlobalNumber(parsed, 'BILL-');
+        }
       } catch (err) {
+        if (reqSeq !== _manualBillNoValidationSeq) return;
         feedback.style.display = 'block';
         feedback.style.background = '#e6f4ea';
         feedback.style.color = 'var(--green)';
@@ -13028,7 +13169,7 @@
         }
         try {
           const occupied = await getOccupiedBillingSequenceNumbers();
-          const nextSeq = await getNextAvailableBillingSeq();
+          const nextSeq = await getNextAvailableBillingSeq(null, occupied);
           if (occupied.has(parsedManual)) {
             showFeedback('bad', `⚠️ Bill number "<b>${esc(manualBillNo)}</b>" (${formatGlobalNumber(parsedManual, 'BILL-')}) has already been reserved or issued. Numbers cannot be reused.`);
             if (manualBillNoInput) manualBillNoInput.focus();
@@ -15093,9 +15234,7 @@
         }
 
         await refreshSettings();
-        await fsGetAllSafe('billing');
-        await fsGetAllSafe('receipts');
-        if (typeof refreshBillingHistory === 'function') {
+        if (typeof refreshBillingHistory === 'function' && CURRENT_VIEW === 'billing') {
           await refreshBillingHistory().catch(() => {});
         }
         await navigate(CURRENT_VIEW === 'billing' ? 'billing' : CURRENT_VIEW);
@@ -15292,7 +15431,7 @@
                   </label>
                   <input type="text" id="manualBillNo" name="manualBillNo" placeholder="Auto-generated on save (e.g. ${esc(nextBillNo)})" autocomplete="off"
                     style="font-family: monospace; font-size: 14px; letter-spacing: 0.5px; width: 100%; box-sizing: border-box;"
-                    oninput="validateManualBillNoInput(this)">
+                    oninput="onManualBillNoInput(this)">
                   <div id="manualBillNoFeedback" style="display: none; font-size: 11px; margin-top: 4px; padding: 4px 8px; border-radius: 4px;"></div>
                   <div style="font-size: 11px; color: var(--text-muted); margin-top: 3px;">ℹ️ Bill number is shared with Receipts. The next available number is finalized when the transaction is saved.</div>
                 </div>
@@ -19099,10 +19238,23 @@
       initMotionObserver(el('app-main'));
     }
 
-    /* ===================== TRIAL BALANCE ===================== */
+    /* ===================== TRIAL BALANCE (STEP 33.182: Single-Flight Optimized) ===================== */
     VIEW_RENDERERS.trialbalance = async function () {
-      const [receipts, payments, cash, bank, funds, loanOut] = await Promise.all([
-        activeReceipts(), activePayments(), getCashBalance(), getBankBalance(), getAllFundBalances(), getLoanOutstanding()
+      const [receipts, payments, transfers, loans, collections, payouts, fundsList] = await Promise.all([
+        activeReceipts(),
+        activePayments(),
+        activeTransfers(),
+        allLoans(),
+        activeChittyCollections(),
+        activeChittyPayouts(),
+        allFunds()
+      ]);
+      const preloadedData = { receipts, payments, transfers, loans, collections, payouts, funds: fundsList };
+      const [cash, bank, funds, loanOut] = await Promise.all([
+        getCashBalance(null, preloadedData),
+        getBankBalance(null, preloadedData),
+        getAllFundBalances(null, preloadedData),
+        getLoanOutstanding(preloadedData)
       ]);
       const incomeByCategory = {};
       receipts.forEach(r => { const cat = (r.category && String(r.category).trim()) ? r.category.trim() : 'None / General'; incomeByCategory[cat] = (incomeByCategory[cat] || 0) + r.amount; });
@@ -23215,6 +23367,7 @@ void main(){
         const db = getFirestoreDb();
         if (!db) return null;
         const snap = await getFsCountersDocRef().get();
+        if (typeof trackFirestoreReads === 'function') trackFirestoreReads('system/counters', 1, 'fsGetCounters');
         return snap.exists ? snap.data() : null;
       } catch (err) {
         console.warn('[Firestore fsGetCounters] Failed to read counters:', err);
@@ -23265,7 +23418,18 @@ void main(){
      * Primary read method for any store/collection.
      * Authoritatively queries Cloud Firestore first; syncs IndexedDB cache; falls back to IndexedDB if offline.
      */
-    async function fsGetAllSafe(storeName) {
+    async function fsGetAllSafe(storeName, bypassCache = false) {
+      const masterStores = (typeof MASTER_DATA_STORES !== 'undefined') ? MASTER_DATA_STORES : (typeof window !== 'undefined' && window.MASTER_DATA_STORES ? window.MASTER_DATA_STORES : null);
+      const memCache = (typeof _masterDataMemoryCache !== 'undefined') ? _masterDataMemoryCache : (typeof window !== 'undefined' && window._masterDataMemoryCache ? window._masterDataMemoryCache : null);
+      const ttl = (typeof MASTER_DATA_CACHE_TTL_MS !== 'undefined') ? MASTER_DATA_CACHE_TTL_MS : 60000;
+
+      if (!bypassCache && masterStores && masterStores.has(storeName) && memCache) {
+        const cached = memCache.get(storeName);
+        if (cached && (Date.now() - cached.timestamp < ttl)) {
+          return JSON.parse(JSON.stringify(cached.data));
+        }
+      }
+
       try {
         const user = getCurrentFirebaseUser();
         if (user) {
@@ -23284,6 +23448,17 @@ void main(){
                 id: legacyId
               });
             });
+
+            if (typeof trackFirestoreReads === 'function') {
+              trackFirestoreReads(storeName, snap.docs ? snap.docs.length : (snap.size || 0), 'fsGetAllSafe');
+            }
+
+            if (masterStores && masterStores.has(storeName) && memCache) {
+              memCache.set(storeName, {
+                data: JSON.parse(JSON.stringify(records)),
+                timestamp: Date.now()
+              });
+            }
 
             // Background cache synchronization to IndexedDB: ensure cache mirrors authoritative Firestore
             if (typeof clearStore === 'function' && typeof putRec === 'function') {
@@ -23353,6 +23528,7 @@ void main(){
               if (!qSnap.empty) docSnap = qSnap.docs[0];
             }
             if (docSnap && docSnap.exists) {
+              if (typeof trackFirestoreReads === 'function') trackFirestoreReads(storeName, 1, 'fsGetOneSafe');
               const data = docSnap.data();
               const normCat = (storeName === 'receipts' && typeof resolveReceiptCategory === 'function')
                 ? resolveReceiptCategory(data)
@@ -23544,6 +23720,10 @@ void main(){
         }
       }
 
+      if (isMasterStore && typeof invalidateMasterDataCache === 'function') {
+        invalidateMasterDataCache(storeName);
+      }
+
       return docId;
     }
 
@@ -23648,6 +23828,10 @@ void main(){
         }
       }
 
+      if (isMasterStore && typeof invalidateMasterDataCache === 'function') {
+        invalidateMasterDataCache(storeName);
+      }
+
       return docId;
     }
 
@@ -23707,6 +23891,10 @@ void main(){
         } catch (cacheErr) {
           console.warn(`[Repository] Cache delete warning for ${storeName}/${id}:`, cacheErr);
         }
+      }
+
+      if (['funds', 'bankAccounts', 'incomeCategories', 'expenseCategories'].includes(storeName) && typeof invalidateMasterDataCache === 'function') {
+        invalidateMasterDataCache(storeName);
       }
 
       return true;
@@ -26096,6 +26284,23 @@ void main(){
     window.isFirestoreQuotaExceeded = isFirestoreQuotaExceeded;
     window.isBrowserStorageQuotaExceeded = isBrowserStorageQuotaExceeded;
     window.saveReceipt = saveReceipt;
+    window.validateManualBillNoInput = validateManualBillNoInput;
+    window.onManualBillNoInput = onManualBillNoInput;
+    window.getOccupiedBillingSequenceNumbers = getOccupiedBillingSequenceNumbers;
+    window.getNextAvailableBillingSeq = getNextAvailableBillingSeq;
+    window.getNextBillingReceiptNo = getNextBillingReceiptNo;
+    window.fsNextBillingReceiptNo = fsNextBillingReceiptNo;
+    window.getCashBalance = getCashBalance;
+    window.getBankBalance = getBankBalance;
+    window.getFundBalance = getFundBalance;
+    window.getAllFundBalances = getAllFundBalances;
+    window.getLoanOutstanding = getLoanOutstanding;
+    window.getChittyOutstanding = getChittyOutstanding;
+    window.monthIncomeExpense = monthIncomeExpense;
+    window.invalidateMasterDataCache = invalidateMasterDataCache;
+    window.getFirestoreReadMetrics = getFirestoreReadMetrics;
+    window.resetFirestoreReadMetrics = resetFirestoreReadMetrics;
+    window.trackFirestoreReads = trackFirestoreReads;
 
     /* ===================== CONTROLLED INDEXEDDB -> FIRESTORE MIGRATION LAYER =====================
        Step 11: Controlled, non-destructive migration and staging layer.
