@@ -2639,6 +2639,9 @@
     #ledgerTable td:nth-child(6),
     #ledgerTable th:nth-child(7),
     #ledgerTable td:nth-child(7),
+    #ledgerTable th:nth-child(8),
+    #ledgerTable td:nth-child(8),
+    .ledger-total-row td,
     #receiptTable th:nth-child(8),
     #receiptTable td:nth-child(8),
     #paymentTable th:nth-child(8),
@@ -17036,33 +17039,53 @@
 
     /* ===================== LEDGER ===================== */
     VIEW_RENDERERS.ledger = async function () {
+      const s = window.APP_SETTINGS || {};
       const [funds, receipts, payments] = await Promise.all([allFunds(), activeReceipts(), activePayments()]);
       const combined = [
         ...receipts.map(r => {
           const desc = r.description && String(r.description).trim();
           const rCat = (typeof resolveReceiptCategory === 'function' ? resolveReceiptCategory(r) : r.category) || 'General';
-          return { date: r.date, voucher: r.receiptNo || '', particulars: `${r.name} - ${rCat}`, description: desc || '', fund: r.fund, debit: 0, credit: r.amount };
+          return { date: r.date, voucher: r.receiptNo || '', particulars: `${r.name} - ${rCat}`, description: desc || '', fund: r.fund, debit: 0, credit: r.amount, paymentMode: r.paymentMode || 'Cash' };
         }),
-        ...payments.map(p => ({ date: p.date, voucher: p.voucherNo || '', particulars: p.paidTo + ' - ' + p.category, description: (p.description && String(p.description).trim()) || '', fund: p.fund, debit: p.amount, credit: 0 }))
+        ...payments.map(p => ({ date: p.date, voucher: p.voucherNo || '', particulars: p.paidTo + ' - ' + p.category, description: (p.description && String(p.description).trim()) || '', fund: p.fund, debit: p.amount, credit: 0, paymentMode: p.paymentMode || 'Cash' }))
       ].sort((a, b) => a.date.localeCompare(b.date));
       window._ledgerRows = combined; /* Cache for dynamic recalculation and testing */
 
+      /* Ledger opening balance: sum of Cash + Bank opening balances */
+      const openingBalance = (parseFloat(s.openingCash) || 0) + (parseFloat(s.openingBank) || 0);
+      window._ledgerOpeningBalance = openingBalance;
+
+      /* Compute running balance: opening + credits - debits */
+      let bal = openingBalance;
+      combined.forEach(x => { bal += (parseFloat(x.credit) || 0) - (parseFloat(x.debit) || 0); x.balance = bal; });
+
       const totalDebit = combined.reduce((s, x) => s + (parseFloat(x.debit) || 0), 0);
       const totalCredit = combined.reduce((s, x) => s + (parseFloat(x.credit) || 0), 0);
+      const closingBalance = combined.length ? combined[combined.length - 1].balance : openingBalance;
+      window._ledgerClosingBalance = closingBalance;
+
+      /* Unique payment modes for filter dropdown */
+      const modes = [...new Set(combined.map(r => r.paymentMode).filter(Boolean))].sort();
 
       return `
+    <div class="balance-banner ok" id="ledgerClosingBanner" data-motion="fadeInUp">Closing Ledger Balance: ${fmtMoney(closingBalance)}</div>
     <div class="toolbar" data-motion="calmInUp">
       <label class="muted">From <input type="date" id="ledgerFrom" onchange="applyLedgerFilter()"></label>
       <label class="muted">To <input type="date" id="ledgerTo" onchange="applyLedgerFilter()"></label>
       <select id="ledgerFundFilter" onchange="applyLedgerFilter()"><option value="">All Funds</option>${funds.map(f => `<option value="${esc(f.name)}">${esc(f.name)}</option>`).join('')}</select>
+      <select id="ledgerModeFilter" onchange="applyLedgerFilter()" style="padding:5px 8px; border-radius:6px; border:1px solid var(--border); font-size:13px; background:var(--surface); color:var(--text);">
+        <option value="">All Payment Modes</option>
+        ${modes.map(m => `<option value="${esc(m)}">${esc(m)}</option>`).join('')}
+      </select>
       <button class="btn-sec btn-sm" onclick="applyLedgerFilter()">Filter</button>
       <button class="btn-sec btn-sm" onclick="clearLedgerFilter()">Clear</button>
       <button class="btn-sec btn-sm" id="ledgerExportPdfBtn" onclick="exportLedgerPDF()">Export PDF</button>
     </div>
     <div class="table-wrap" data-motion="fadeIn"><table id="ledgerTable">
-      <thead><tr><th>Date</th><th>Voucher/Receipt No.</th><th>Particulars</th><th>Description</th><th>Fund</th><th>Debit</th><th>Credit</th></tr></thead>
+      <thead><tr><th>Date</th><th>Voucher/Receipt No.</th><th>Particulars</th><th>Description</th><th>Fund</th><th>Debit</th><th>Credit</th><th>Balance</th></tr></thead>
       <tbody>
-        ${combined.map(x => `<tr data-date="${x.date}" data-fund="${esc(x.fund)}" data-debit="${x.debit || 0}" data-credit="${x.credit || 0}"><td>${fmtDate(x.date)}</td><td>${(x.voucher && String(x.voucher).trim()) ? esc(x.voucher) : '—'}</td><td>${esc(x.particulars)}</td><td>${x.description && String(x.description).trim() ? esc(String(x.description).trim()) : ''}</td><td>${esc(x.fund)}</td><td>${x.debit ? fmtMoney(x.debit) : '-'}</td><td>${x.credit ? fmtMoney(x.credit) : '-'}</td></tr>`).join('')}
+        <tr data-category="Opening Balance"><td>${fmtDate(s.startDate)}</td><td>—</td><td><i>Opening Balance</i></td><td>—</td><td>—</td><td>-</td><td>-</td><td style="text-align: right;">${fmtMoney(openingBalance)}</td></tr>
+        ${combined.map(x => `<tr data-date="${x.date}" data-fund="${esc(x.fund)}" data-debit="${x.debit || 0}" data-credit="${x.credit || 0}" data-payment-mode="${esc(x.paymentMode)}"><td>${fmtDate(x.date)}</td><td>${(x.voucher && String(x.voucher).trim()) ? esc(x.voucher) : '—'}</td><td>${esc(x.particulars)}</td><td>${x.description && String(x.description).trim() ? esc(String(x.description).trim()) : ''}</td><td>${esc(x.fund)}</td><td>${x.debit ? fmtMoney(x.debit) : '-'}</td><td>${x.credit ? fmtMoney(x.credit) : '-'}</td><td>${fmtMoney(x.balance)}</td></tr>`).join('')}
       </tbody>
       <tfoot id="ledgerTFoot">
         <tr id="ledgerTotalRow" class="ledger-total-row" style="font-weight: bold; background: var(--surface, #fafafa); border-top: 2px solid var(--border, #333);">
@@ -17073,42 +17096,91 @@
           <td></td>
           <td id="ledgerTotalDebit" style="text-align: right;"><b>${fmtMoney(totalDebit)}</b></td>
           <td id="ledgerTotalCredit" style="text-align: right;"><b>${fmtMoney(totalCredit)}</b></td>
+          <td id="ledgerTotalBalance" style="text-align: right;"><b>${fmtMoney(closingBalance)}</b></td>
         </tr>
       </tfoot>
     </table></div>
   `;
-    };
+};
+
+    /* STEP 33.183: Ledger filter with payment mode, date range, fund filtering.
+       The Ledger shows its normal balance row regardless of whether Cash, Bank, UPI,
+       or All Payment Modes is selected. Balance column retains original chronological
+       running balance (never recalculated on filter) so users see true ledger position
+       context — matching Cash Book and Bank Book behavior exactly. */
     function applyLedgerFilter() {
       const from = el('ledgerFrom') ? el('ledgerFrom').value : '';
       const to = el('ledgerTo') ? el('ledgerTo').value : '';
       const fund = el('ledgerFundFilter') ? el('ledgerFundFilter').value : '';
+      const mode = el('ledgerModeFilter') ? el('ledgerModeFilter').value : '';
+      const s = window.APP_SETTINGS || {};
+      let visibleCount = 0;
       qsa('#ledgerTable tbody tr').forEach(tr => {
+        if (tr.id === 'ledgerEmptyRow') return;
+        const isOpening = (tr.dataset.category === 'Opening Balance');
+        if (isOpening) {
+          // Normal balance row is shown regardless of payment mode selection (Cash, Bank, UPI, All)
+          // Hide only if filtered by a date range starting strictly after the start date
+          const showOpening = (!from || (s.startDate && from <= s.startDate));
+          tr.style.display = showOpening ? '' : 'none';
+          if (showOpening) visibleCount++;
+          return;
+        }
         let show = true;
         if (from && tr.dataset.date < from) show = false;
         if (to && tr.dataset.date > to) show = false;
         if (fund && tr.dataset.fund !== fund) show = false;
+        if (mode && tr.dataset.paymentMode !== mode) show = false;
         tr.style.display = show ? '' : 'none';
+        if (show) visibleCount++;
       });
+      /* Empty-row message when no transactions match */
+      let emptyRow = el('ledgerEmptyRow');
+      if (visibleCount === 0) {
+        if (!emptyRow && typeof document !== 'undefined' && typeof document.createElement === 'function') {
+          emptyRow = document.createElement('tr');
+          emptyRow.id = 'ledgerEmptyRow';
+          emptyRow.innerHTML = '<td colspan="8" style="text-align:center; padding:24px; color:var(--text-muted, #888); font-style:italic;">No transactions match the selected filters.</td>';
+          const tbody = qs('#ledgerTable tbody');
+          if (tbody) tbody.appendChild(emptyRow);
+        } else if (emptyRow) {
+          emptyRow.style.display = '';
+        }
+      } else if (emptyRow) {
+        if (typeof emptyRow.remove === 'function') {
+          emptyRow.remove();
+        } else {
+          emptyRow.style.display = 'none';
+        }
+      }
       updateLedgerTotals();
     }
+
     function clearLedgerFilter() {
       if (el('ledgerFrom')) el('ledgerFrom').value = '';
       if (el('ledgerTo')) el('ledgerTo').value = '';
       if (el('ledgerFundFilter')) el('ledgerFundFilter').value = '';
+      if (el('ledgerModeFilter')) el('ledgerModeFilter').value = '';
       applyLedgerFilter();
     }
-    /* STEP 33.32A: Recalculate Ledger totals on dynamic filter change or view updates */
+
+    /* STEP 33.183: Recalculate Ledger totals on filter change.
+       Uses visible DOM rows without any Firestore reads.
+       Totals row shows filtered Debit/Credit sums; Balance column shows '—' (matching Cash/Bank Book).
+       The closing balance banner displays normal ledger balance, with filtered totals clearly distinguished. */
     function updateLedgerTotals() {
       const trs = qsa('#ledgerTable tbody tr');
       let totDebit = 0;
       let totCredit = 0;
       trs.forEach(tr => {
         if (tr.style.display === 'none') return;
+        if (tr.id === 'ledgerEmptyRow') return;
+        if (tr.dataset.category === 'Opening Balance') return;
         if (tr.dataset.debit !== undefined) {
           totDebit += (parseFloat(tr.dataset.debit) || 0);
         } else {
           const tds = qsa('td', tr);
-          const debitIdx = tds.length >= 7 ? 5 : 4;
+          const debitIdx = (tds.length >= 7) ? 5 : 4;
           if (tds.length > debitIdx) {
             const dText = tds[debitIdx].textContent.trim();
             const dVal = (dText === '-' || dText === '—') ? 0 : parseFloat(dText.replace(/[^0-9.-]/g, '')) || 0;
@@ -17119,7 +17191,7 @@
           totCredit += (parseFloat(tr.dataset.credit) || 0);
         } else {
           const tds = qsa('td', tr);
-          const creditIdx = tds.length >= 7 ? 6 : 5;
+          const creditIdx = (tds.length >= 7) ? 6 : 5;
           if (tds.length > creditIdx) {
             const cText = tds[creditIdx].textContent.trim();
             const cVal = (cText === '-' || cText === '—') ? 0 : parseFloat(cText.replace(/[^0-9.-]/g, '')) || 0;
@@ -17129,13 +17201,47 @@
       });
       const debEl = el('ledgerTotalDebit');
       const crdEl = el('ledgerTotalCredit');
+      const balEl = el('ledgerTotalBalance');
       if (debEl) debEl.innerHTML = `<b>${fmtMoney(totDebit)}</b>`;
       if (crdEl) crdEl.innerHTML = `<b>${fmtMoney(totCredit)}</b>`;
-      return { debit: totDebit, credit: totCredit };
+
+      const from = el('ledgerFrom') ? el('ledgerFrom').value : '';
+      const to = el('ledgerTo') ? el('ledgerTo').value : '';
+      const fund = el('ledgerFundFilter') ? el('ledgerFundFilter').value : '';
+      const mode = el('ledgerModeFilter') ? el('ledgerModeFilter').value : '';
+      const isFiltered = !!(from || to || fund || mode);
+
+      const s = window.APP_SETTINGS || {};
+      const openBal = window._ledgerOpeningBalance != null ? window._ledgerOpeningBalance : ((parseFloat(s.openingCash) || 0) + (parseFloat(s.openingBank) || 0));
+      const rows = window._ledgerRows || [];
+      const normalClosing = rows.length ? rows[rows.length - 1].balance : openBal;
+      if (balEl) balEl.innerHTML = `<b>${fmtMoney(normalClosing)}</b>`;
+
+      const banner = el('ledgerClosingBanner');
+      if (banner) {
+        if (isFiltered) {
+          const filteredNet = totCredit - totDebit;
+          const netLabel = filteredNet >= 0 ? `+${fmtMoney(filteredNet)}` : `-${fmtMoney(Math.abs(filteredNet))}`;
+          banner.innerHTML = `Closing Ledger Balance: <b>${fmtMoney(normalClosing)}</b> <span style="font-weight:normal;opacity:0.9;margin-left:10px;font-size:12.5px;">(Filtered Totals: Debit ${fmtMoney(totDebit)} | Credit ${fmtMoney(totCredit)} | Net ${netLabel})</span>`;
+          banner.className = 'balance-banner';
+        } else {
+          banner.innerHTML = `Closing Ledger Balance: ${fmtMoney(normalClosing)}`;
+          banner.className = 'balance-banner ok';
+        }
+      }
+      return { debit: totDebit, credit: totCredit, balance: normalClosing };
     }
+
     function exportLedgerCSV() {
-      const rows = [['Date', 'Voucher/Receipt No.', 'Particulars', 'Description', 'Fund', 'Debit', 'Credit']];
-      qsa('#ledgerTable tbody tr').forEach(tr => { if (tr.style.display !== 'none') rows.push(qsa('td', tr).map(td => td.textContent)); });
+      const ths = qsa('#ledgerTable thead th');
+      const header = ths.length > 0 
+        ? ths.map(th => th.textContent.trim()) 
+        : ['Date', 'Voucher/Receipt No.', 'Particulars', 'Fund', 'Debit', 'Credit'];
+      const rows = [header];
+      qsa('#ledgerTable tbody tr').forEach(tr => {
+        if (tr.id === 'ledgerEmptyRow') return;
+        if (tr.style.display !== 'none') rows.push(qsa('td', tr).map(td => td.textContent.trim()));
+      });
       downloadCSV(rows, 'Ledger');
     }
 
@@ -17144,6 +17250,7 @@
       const from = el('ledgerFrom') ? el('ledgerFrom').value : '';
       const to = el('ledgerTo') ? el('ledgerTo').value : '';
       const fund = el('ledgerFundFilter') ? el('ledgerFundFilter').value : '';
+      const mode = el('ledgerModeFilter') ? el('ledgerModeFilter').value : '';
 
       // 1. If window._ledgerRows exists and has items, filter from source data
       if (window._ledgerRows && Array.isArray(window._ledgerRows) && window._ledgerRows.length > 0) {
@@ -17151,6 +17258,7 @@
           if (from && r.date < from) return false;
           if (to && r.date > to) return false;
           if (fund && r.fund !== fund) return false;
+          if (mode && r.paymentMode !== mode) return false;
           return true;
         });
       }
@@ -17160,6 +17268,8 @@
       const trs = qsa('#ledgerTable tbody tr');
       trs.forEach(tr => {
         if (tr.style.display === 'none') return;
+        if (tr.id === 'ledgerEmptyRow') return;
+        if (tr.dataset.category === 'Opening Balance') return;
         const tds = qsa('td', tr);
         if (tds.length >= 7) {
           const dText = tds[5].textContent.trim();
