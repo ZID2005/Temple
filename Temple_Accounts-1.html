@@ -7658,34 +7658,84 @@
       return msg.includes('quotaexceedederror') || (msg.includes('quota') && (msg.includes('storage') || msg.includes('localstorage') || msg.includes('indexeddb') || msg.includes('setitem')));
     }
 
-    /* ===================== FIRESTORE READ TELEMETRY & MASTER CACHE (STEP 33.182) ===================== */
+    /* ===================== FIRESTORE READ TELEMETRY & MASTER CACHE (STEP 33.182 / STEP 33.185) =====================
+     *
+     * IMPORTANT — CLIENT TELEMETRY LIMITATIONS (STEP 33.185):
+     *   - This counter tracks reads in the current browser tab/session only.
+     *   - It is NOT a globally authoritative Firestore quota counter.
+     *   - Multiple users, tabs, or devices each have independent counters.
+     *   - Do NOT use this value to block financial writes or number allocation.
+     *   - The Firebase console Spark quota (50,000 reads/day) is enforced at
+     *     the project level by Google, not by this client-side estimate.
+     *   - Advisory target: 30,000 estimated reads/day leaves a safety buffer.
+     *   - To inspect metrics in the browser console: fsReadMetrics()
+     * ===================================================================================== */
+    const _FS_READ_ADVISORY_TARGET = 30000; // conservative daily target (< 50,000 Spark limit)
     window._firestoreReadMetrics = {
       totalDocumentReads: 0,
       queryCount: 0,
+      sessionStartedAt: Date.now(),
       byCollection: {},
-      byCaller: {}
+      byCaller: {},
+      log: [] // last-N entries for debugging (capped at 200)
     };
 
     function trackFirestoreReads(collectionName, count, caller = 'unknown') {
       if (!collectionName || typeof count !== 'number' || count < 0) return;
-      window._firestoreReadMetrics.totalDocumentReads += count;
-      window._firestoreReadMetrics.queryCount += 1;
-      window._firestoreReadMetrics.byCollection[collectionName] =
-        (window._firestoreReadMetrics.byCollection[collectionName] || 0) + count;
-      window._firestoreReadMetrics.byCaller[caller] =
-        (window._firestoreReadMetrics.byCaller[caller] || 0) + count;
+      const m = window._firestoreReadMetrics;
+      m.totalDocumentReads += count;
+      m.queryCount += 1;
+      m.byCollection[collectionName] = (m.byCollection[collectionName] || 0) + count;
+      m.byCaller[caller] = (m.byCaller[caller] || 0) + count;
+      // Append to log (cap at 200 entries to limit memory)
+      if (m.log.length < 200) {
+        m.log.push({ t: Date.now(), col: collectionName, n: count, by: caller });
+      }
+      // Advisory warning at threshold (console only — never blocks writes)
+      if (m.totalDocumentReads === _FS_READ_ADVISORY_TARGET || m.totalDocumentReads === _FS_READ_ADVISORY_TARGET * 2) {
+        console.warn(
+          `[Firestore Read Advisory] This session has estimated ${m.totalDocumentReads.toLocaleString()} reads.` +
+          ' This counter is a LOCAL ESTIMATE for this tab only; it does not enforce any quota.' +
+          ' Check the Firebase Console for authoritative usage.'
+        );
+      }
     }
 
+    /** Returns a snapshot of read metrics for console inspection. Call fsReadMetrics() in browser DevTools. */
     function getFirestoreReadMetrics() {
-      return JSON.parse(JSON.stringify(window._firestoreReadMetrics));
+      const m = window._firestoreReadMetrics;
+      const ageMin = Math.round((Date.now() - (m.sessionStartedAt || Date.now())) / 60000);
+      const snap = JSON.parse(JSON.stringify(m));
+      snap._note = 'CLIENT-SIDE LOCAL ESTIMATE ONLY. Does not reflect reads from other users, tabs, or devices.';
+      snap._sessionAgeMinutes = ageMin;
+      return snap;
     }
+    // Browser console shortcut: fsReadMetrics() or fsReadMetrics(true) for sorted view
+    window.fsReadMetrics = function(verbose) {
+      const m = getFirestoreReadMetrics();
+      if (verbose) {
+        console.group('[Firestore Read Metrics — LOCAL ESTIMATE ONLY]');
+        console.info('Total reads this session:', m.totalDocumentReads, '| Queries:', m.queryCount, '| Session age:', m._sessionAgeMinutes, 'min');
+        console.info('By collection:', m.byCollection);
+        console.info('By caller:', m.byCaller);
+        console.info('Advisory target:', _FS_READ_ADVISORY_TARGET, '— Spark free-tier daily cap: 50,000');
+        console.info('NOTE:', m._note);
+        console.groupEnd();
+      } else {
+        console.table(Object.entries(m.byCollection).sort((a,b) => b[1]-a[1]).map(([col, n]) => ({ collection: col, reads: n })));
+        console.info(`Total: ${m.totalDocumentReads} reads | ${m.queryCount} queries | ${m._sessionAgeMinutes} min session | ${m._note}`);
+      }
+      return m;
+    };
 
     function resetFirestoreReadMetrics() {
       window._firestoreReadMetrics = {
         totalDocumentReads: 0,
         queryCount: 0,
+        sessionStartedAt: Date.now(),
         byCollection: {},
-        byCaller: {}
+        byCaller: {},
+        log: []
       };
     }
 
@@ -13391,13 +13441,17 @@
         window.ReceiptPrinter.startPrinting(billingRecord);
       }
 
-      // STEP 33.30C: Defer heavy billing history table queries and DOM reflow
-      // until after printer paper feed settles or browser enters idle (>= 3000ms),
-      // completely eliminating main-thread blockage during the 2200ms feed duration.
-      if (typeof requestIdleCallback === 'function') {
-        requestIdleCallback(() => refreshBillingHistory().catch(() => { }), { timeout: 3200 });
-      } else {
-        setTimeout(() => refreshBillingHistory().catch(() => { }), 3000);
+      // STEP 33.30C / STEP 33.185: Defer heavy billing history table queries and DOM reflow.
+      // When the printer IS present, ReceiptPrinter.setReady() already fires refreshBillingHistory
+      // via requestIdleCallback after the animation ends (~2200ms), so scheduling another one here
+      // would cause a duplicate allBillingRecords() Firestore read with no UI benefit.
+      // Only schedule here when no printer is present (fallback for printer-less environments).
+      if (!window.ReceiptPrinter) {
+        if (typeof requestIdleCallback === 'function') {
+          requestIdleCallback(() => refreshBillingHistory().catch(() => { }), { timeout: 3200 });
+        } else {
+          setTimeout(() => refreshBillingHistory().catch(() => { }), 3000);
+        }
       }
 
       // 7. Show enhanced success feedback card
@@ -16884,17 +16938,14 @@
       window._bankBookRows = rows; /* cache for recalculation/testing */
       const s = window.APP_SETTINGS || {};
       const closing = rows.length ? rows[rows.length - 1].balance : (parseFloat(s.openingBank) || 0);
-      /* Build unique category list from loaded rows and master data where appropriate */
-      const txCats = rows.map(r => r.category).filter(Boolean);
-      let masterCats = [];
-      try {
-        const [inc, exp] = await Promise.all([
-          typeof allIncomeCategories === 'function' ? allIncomeCategories() : [],
-          typeof allExpenseCategories === 'function' ? allExpenseCategories() : []
-        ]);
-        masterCats = [...(inc || []).map(c => c && (c.name || c.category || c)), ...(exp || []).map(c => c && (c.name || c.category || c))].filter(Boolean);
-      } catch (_) {}
-      const cats = [...new Set([...txCats, ...masterCats])].sort();
+      /* STEP 33.185: Build category filter list from transaction rows only.
+         Master category collections (incomeCategories, expenseCategories) are NOT fetched here
+         because: (a) every bank-mode transaction already carries its category in the row,
+         and (b) loading two extra full collections solely for dropdown choices was a ~50-doc
+         unnecessary read on every Bank Book visit. The in-memory cache may serve them at zero
+         read cost within 60s of the last fsGetAllSafe call, but this is not guaranteed, so
+         we avoid the dependency entirely for this read-only display feature. */
+      const cats = [...new Set(rows.map(r => r.category).filter(Boolean))].sort();
       const totalDeposit = rows.reduce((s, r) => s + (parseFloat(r.deposit) || 0), 0);
       const totalWithdrawal = rows.reduce((s, r) => s + (parseFloat(r.withdrawal) || 0), 0);
       return `
@@ -21632,6 +21683,14 @@
     async function boot() {
       await openDB();
       await loadAuthoritativeMasterData();
+      /* STEP 33.185: Warm the in-memory master data cache after loadAuthoritativeMasterData.
+         loadAuthoritativeMasterData reads funds/incomeCategories/expenseCategories/bankAccounts
+         directly via db.collection().get() (bypassing fsGetAllSafe's cache layer). The dashboard
+         then calls allFunds() → fsGetAllSafe('funds') which would normally re-read Firestore
+         within the same second. By warming the memory cache here we ensure these 4 collections
+         are served from the already-fetched data, saving ~(fund_docs + income_cat_docs +
+         expense_cat_docs + bank_docs) reads on every login/page-load. */
+      await _warmMasterDataCacheFromFirestore();
       applyBrand();
       initSidebarState();
       initNavTooltips();
@@ -23155,6 +23214,7 @@ void main(){
           throw new Error('Both collectionName and docId are required for fsGet.');
         }
         const snap = await db.collection(collectionName).doc(String(docId)).get();
+        if (typeof trackFirestoreReads === 'function') trackFirestoreReads(collectionName, snap.exists ? 1 : 0, 'fsGet');
         if (!snap.exists) return null;
         return { id: snap.id, ...snap.data() };
       } catch (err) {
@@ -25001,11 +25061,18 @@ void main(){
           await seedIfNeeded();
         }
 
-        // 2. Load authoritative master configuration collections
+        // 2. Load authoritative master configuration collections.
+        //    STEP 33.185: Collect snap data so _warmMasterDataCacheFromFirestore can populate
+        //    the in-memory TTL cache without a second Firestore round-trip.
         const masterCollections = ['funds', 'incomeCategories', 'expenseCategories', 'bankAccounts'];
+        window._bootMasterDataSnaps = {}; // temporary, cleared after cache warm
         for (const colName of masterCollections) {
           try {
             const snap = await db.collection(colName).get();
+            if (typeof trackFirestoreReads === 'function') {
+              trackFirestoreReads(colName, snap ? (snap.size || 0) : 0, 'loadAuthoritativeMasterData');
+            }
+            const records = [];
             if (!snap.empty && typeof putRec === 'function') {
               for (const doc of snap.docs) {
                 const data = doc.data();
@@ -25014,9 +25081,11 @@ void main(){
                   firestoreId: doc.id,
                   id: (data.legacyId !== undefined && data.legacyId !== null) ? data.legacyId : doc.id
                 };
+                records.push(rec);
                 try { await putRec(colName, rec); } catch (e) { }
               }
             }
+            window._bootMasterDataSnaps[colName] = records;
           } catch (colErr) {
             console.warn(`[MasterData] Warning syncing ${colName} from Firestore:`, colErr);
           }
@@ -25024,6 +25093,43 @@ void main(){
       } catch (err) {
         console.warn('[MasterData] Master data fetch warning, falling back to local cache:', err);
         await seedIfNeeded();
+      }
+    }
+
+    /**
+     * STEP 33.185: Warm the in-memory master data TTL cache from data already fetched at boot.
+     * Call immediately after loadAuthoritativeMasterData() to prevent the dashboard and first-view
+     * from re-reading master collections from Firestore when the TTL cache is still cold.
+     *
+     * This is a zero-cost operation (no Firestore reads); it writes the records already
+     * retrieved by loadAuthoritativeMasterData into the _masterDataMemoryCache used by
+     * fsGetAllSafe, so the first allFunds() / allIncomeCategories() / allExpenseCategories() /
+     * allBankAccounts() calls return from memory rather than issuing new reads.
+     *
+     * SAFETY: Does NOT write to Firestore, does not alter production data.
+     */
+    async function _warmMasterDataCacheFromFirestore() {
+      try {
+        const snaps = window._bootMasterDataSnaps;
+        if (!snaps) return; // nothing to warm
+        const memCache = (typeof _masterDataMemoryCache !== 'undefined') ? _masterDataMemoryCache
+          : (typeof window !== 'undefined' && window._masterDataMemoryCache ? window._masterDataMemoryCache : null);
+        const masterStores = (typeof MASTER_DATA_STORES !== 'undefined') ? MASTER_DATA_STORES
+          : (typeof window !== 'undefined' && window.MASTER_DATA_STORES ? window.MASTER_DATA_STORES : null);
+        if (!memCache || !masterStores) return;
+        for (const [colName, records] of Object.entries(snaps)) {
+          if (masterStores.has(colName) && Array.isArray(records) && records.length > 0) {
+            memCache.set(colName, {
+              data: JSON.parse(JSON.stringify(records)),
+              timestamp: Date.now()
+            });
+            console.log(`[MasterData Cache Warm] ${colName}: ${records.length} records cached in memory (0 additional Firestore reads).`);
+          }
+        }
+        // Clean up temp boot snaps to free memory
+        window._bootMasterDataSnaps = null;
+      } catch (err) {
+        console.warn('[MasterData Cache Warm] Cache warm failed (non-critical):', err);
       }
     }
 
